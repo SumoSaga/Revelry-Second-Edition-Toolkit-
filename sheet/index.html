@@ -9084,13 +9084,68 @@ window.REVELRY_DATA = (function () {
     return total;
   }
 
+  /* Ranks a trait hands you but lets *you* say where they land.
+
+     Flexible Specialist and Silver Tongue are not like Pack Leader. Pack
+     Leader always gives a rank in Nature, so the doc says so and the
+     generated table above carries it. These two give you a rank and let you
+     choose the skill, so the answer is not in any table — it is on the
+     character, under `traitChoices`, put there by the builder.
+
+     This is the seam the Spellforge fell through: a Flexible Specialist rank
+     in Arcana showed on the skill list, because the sheet counted these by
+     hand, and did *not* reach the spell rate, because `rankTotal` only knew
+     about tables. One skill row said Rank +3 while the forge beside it built
+     spells at 2 a turn. */
+  function assignedRankSources(state, key) {
+    const st = state || {};
+    const traits = st.traits || [];
+    const choices = st.traitChoices || {};
+    const out = [];
+
+    if (traits.indexOf("Flexible Specialist") !== -1) {
+      const picked = (choices.flexibleSpecialist && choices.flexibleSpecialist.skills) || [];
+      picked.forEach((skill) => { if (skill === key) out.push("Flexible Specialist"); });
+    }
+    if (traits.indexOf("Silver Tongue") !== -1) {
+      const picked = choices.silverTongue && choices.silverTongue.skill;
+      if (picked === key) out.push("Silver Tongue");
+    }
+    return out;
+  }
+
+  /* Every rank in a skill that you did not buy, and who gave you each one.
+
+     One function, because the sheet needs the *labels* (a dot you can hover
+     to see where the rank came from) and the forge needs the *count*, and
+     when those were worked out separately they disagreed. */
+  function rankSources(state, key) {
+    const st = state || {};
+    const out = [];
+
+    liveHeritageFeatures(st).forEach(({ heritage, index }) => {
+      const effect = (HERITAGE_EFFECTS[heritage] || [])[index];
+      const n = Number(((effect || {}).ranks || {})[key] || 0);
+      for (let i = 0; i < n; i += 1) out.push(heritage + " heritage");
+    });
+
+    (st.traits || []).forEach((name) => {
+      const effect = TRAIT_EFFECTS[name];
+      const n = Number(((effect || {}).ranks || {})[key] || 0);
+      for (let i = 0; i < n; i += 1) out.push(name);
+    });
+
+    return out.concat(assignedRankSources(st, key));
+  }
+
   /* A rank as it is actually rolled: what you bought, what levelling added,
-     and what your ancestry handed you. */
+     and everything granted — by ancestry, by a trait, or by a trait that let
+     you choose where it went. */
   function rankTotal(state, key) {
     const st = state || {};
     const bought = Number((st.ranks || {})[key] || 0);
     const levelled = Number((st.levelRanks || {})[key] || 0);
-    return bought + levelled + grantedBonus(st, "ranks", key);
+    return bought + levelled + rankSources(st, key).length;
   }
 
   function abilityTotal(state, key) {
@@ -9134,7 +9189,8 @@ window.REVELRY_DATA = (function () {
     RULES, abilities, rankGroups, archetypes,
     heritages, communities, traits, equipment, capstones, GEAR,
     ARCANE_GRANTS, HERITAGE_EFFECTS, TRAIT_EFFECTS,
-    arcaneAccess, grantedBy, liveHeritageFeatures, grantedBonus, rankTotal, abilityTotal,
+    arcaneAccess, grantedBy, liveHeritageFeatures, grantedBonus,
+    rankSources, assignedRankSources, rankTotal, abilityTotal,
     /* raw rows, for the two pages that build their own maps */
     communityRows, traitRows, equipmentRows
   };
@@ -10551,17 +10607,26 @@ function lookupWithCustom(state, kind, baseLookup) {
   return { ...baseLookup, ...mapped };
 }
 
+/* An ability as it is actually rolled.
+
+   `abilityTotal` is the shared answer — what you bought, what levelling gave
+   you, and what a heritage feature or a trait granted. This used to add the
+   heritage and level parts by hand and so quietly ignored **trait** grants;
+   no trait happens to grant an ability point today, which means it was
+   correct by luck and would have gone wrong the first time one did.
+
+   The one thing that stays here is `bonusAbilities`: the free point a Human's
+   first feature hands you is *placed* by the player rather than granted to a
+   named ability, so no generated table can know where it went. */
 function adjustedAbilities(state) {
-  const result = { strength: 0, dexterity: 0, intellect: 0, willpower: 0, awareness: 0, charisma: 0, ...(state.abilities || {}) };
-  heritageEffects(state).forEach(({ effect }) => {
-    Object.keys(effect.abilities || {}).forEach((k) => { if (result[k] != null) result[k] += Number(effect.abilities[k] || 0); });
-  });
+  const result = {};
+  ["strength", "dexterity", "intellect", "willpower", "awareness", "charisma"]
+    .forEach((key) => { result[key] = DATA.abilityTotal(state, key); });
+
   if (heritageEffectSum(state, "abilityPoints") > 0) {
     const bonus = state.bonusAbilities || {};
     Object.keys(bonus).forEach((k) => { if (result[k] != null) result[k] += Number(bonus[k] || 0); });
   }
-  const lvlAb = state.levelAbilities || {};
-  Object.keys(lvlAb).forEach((k) => { if (result[k] != null) result[k] += Number(lvlAb[k] || 0); });
   return result;
 }
 
@@ -10613,15 +10678,25 @@ function derived(payload) {
     + heritageEffectSum(state, "gritSlots")
     + (state.community === "Ridgeborne" ? 1 : 0);
   /* The two numbers that bound a spell: Willpower is how many parts one
-     holds, your Rank in Arcana how many can be added in a turn. */
-  const ranks = Object.assign({}, state.ranks || {}, state.levelRanks || {});
+     holds, your Rank in Arcana how many can be added in a turn.
+
+     Both go through the shared totals. This used to read
+     `Object.assign({}, state.ranks, state.levelRanks).arcana`, which was
+     wrong twice over: it ignored every granted rank — a Faerie's From the
+     Faywilds hands you one, and it is the whole reason that heritage is a
+     caster's pick — and `assign` *overwrites*, so a rank gained at level-up
+     replaced the one you bought instead of adding to it.
+
+     The Spellforge flyout was already reading `rankTotal` and so was already
+     right, which is the worse version of this bug: two numbers on one screen,
+     derived two ways, free to disagree. */
   return {
     movement: Math.max(5, movement),
     armorerBonus,
     level,
     grit,
     willpower: a.willpower,
-    arcana: Number(ranks.arcana || 0),
+    arcana: DATA.rankTotal(state, "arcana"),
     momentumCap: MOMENTUM_CAP,
     armorSlots
   };
@@ -11095,18 +11170,18 @@ function abilityCard(key, value) {
   `;
 }
 
+/* Where each rank you did not buy came from — one per dot, hoverable.
+
+   This used to be its own list, counted here by hand, and that is exactly how
+   the Spellforge came to disagree with the sheet: a Flexible Specialist rank
+   in Arcana appeared in this list and so showed as `Rank +3` on the skill
+   row, but `rankTotal` only knew about the generated tables, so the forge
+   beside it went on building spells at 2 a turn.
+
+   The labels and the number come out of the same function now. They cannot
+   disagree, because there is only one of them. */
 function rankBonusList(state, key) {
-  const out = [];
-  heritageEffects(state).forEach(({ heritage, effect }) => {
-    const n = (effect.ranks || {})[key] || 0;
-    for (let i = 0; i < n; i++) out.push(`${heritage} heritage`);
-  });
-  const tc = (state && state.traitChoices) || {};
-  const traits = (state && state.traits) || [];
-  if (traits.includes("Flexible Specialist") && (tc.flexibleSpecialist?.skills || []).includes(key)) out.push("Flexible Specialist");
-  if (traits.includes("Silver Tongue") && tc.silverTongue?.skill === key) out.push("Silver Tongue");
-  if (traits.includes("Pack Leader") && key === "nature") out.push("Pack Leader");
-  return out;
+  return DATA.rankSources(state, key);
 }
 function rankBonusFor(state, key) { return rankBonusList(state, key).length; }
 function bonusDots(sources) {
