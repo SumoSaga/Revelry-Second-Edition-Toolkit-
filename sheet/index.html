@@ -7349,7 +7349,7 @@ window.REVELRY_DATA = (function () {
     "Off-hand: while dual-wielding, once per turn, arm a Setup on a target within melee range.",
     {
       "name": "Versatile",
-      "text": "As an action, shift between Aggressive (Atk +3 / Def +1) and Defense (Atk +1 / Def +3) stances.",
+      "text": "As an action, shift between Aggressive (Atk +3 / Def +0) and Defense (Atk +0 / Def +3) stances.",
       "effect": null
     }
   ],
@@ -7370,7 +7370,7 @@ window.REVELRY_DATA = (function () {
     "Spear",
     "weapon",
     "medium",
-    "Atk +2 · Def +2 · One-Handed · STR/DEX",
+    "Atk +2 · Def +2 · One-Handed · Reach 10 ft. · STR/DEX",
     "Medium melee.",
     "Medium melee.",
     {
@@ -7401,7 +7401,7 @@ window.REVELRY_DATA = (function () {
     "Always Ready: this weapon can never be Disarmed. Pairing: while dual-wielding, add this weapon's stats to the primary equipment held in your other hand.",
     {
       "name": "Clinch",
-      "text": "Adds the Grapple maneuver to your list. Grapple: the target cannot move away from you until it breaks free with a DC 16 Strength Test.",
+      "text": "Adds the Clinch maneuver to your list. Clinch: the target cannot move away from you until it breaks free with a DC 16 Strength Test.",
       "effect": null
     }
   ],
@@ -7461,7 +7461,7 @@ window.REVELRY_DATA = (function () {
     "Pike",
     "weapon",
     "heavy",
-    "Atk +3 · Def +1 · Two-Handed · STR",
+    "Atk +3 · Def +1 · Two-Handed · Reach 15 ft. · STR",
     "Heavy melee.",
     "Extended Reach: 15 ft. Attacks made within 5 ft. have disadvantage.",
     {
@@ -7474,7 +7474,7 @@ window.REVELRY_DATA = (function () {
     "Scythe",
     "weapon",
     "heavy",
-    "Atk +3 · Def 0 · Two-Handed · STR",
+    "Atk +3 · Def 0 · Two-Handed · Reach 10 ft. · STR",
     "Heavy melee.",
     "Reach: 10 ft.",
     {
@@ -7487,7 +7487,7 @@ window.REVELRY_DATA = (function () {
     "Poleaxe",
     "weapon",
     "heavy",
-    "Atk +3 · Def +1 · Two-Handed · STR",
+    "Atk +3 · Def +1 · Two-Handed · Reach 10 ft. · STR",
     "Heavy melee.",
     "Reach: 10 ft.",
     {
@@ -8136,25 +8136,26 @@ window.REVELRY_DATA = (function () {
     ],
     "exp": {
       "name": "Versatile",
-      "text": "As an action, shift between Aggressive (Atk +3 / Def +1) and Defense (Atk +1 / Def +3) stances."
+      "text": "As an action, shift between Aggressive (Atk +3 / Def +0) and Defense (Atk +0 / Def +3) stances."
     },
-    "stances": [
-      {
-        "name": "Standard",
-        "atk": 2,
-        "def": 2
-      },
-      {
-        "name": "Aggressive",
-        "atk": 3,
-        "def": 1
-      },
-      {
-        "name": "Defensive",
-        "atk": 1,
-        "def": 3
-      }
-    ]
+    "variants": [
+      [
+        "Standard",
+        0,
+        0
+      ],
+      [
+        "Aggressive",
+        1,
+        -2
+      ],
+      [
+        "Defensive",
+        -2,
+        1
+      ]
+    ],
+    "variantsNeedExp": true
   },
   "Mace/Hammer": {
     "cls": "medium",
@@ -8174,6 +8175,7 @@ window.REVELRY_DATA = (function () {
     "atk": 2,
     "def": 2,
     "ability": "strength|dexterity",
+    "reach": 10,
     "hands": 1,
     "exp": {
       "name": "Throwable",
@@ -8209,7 +8211,14 @@ window.REVELRY_DATA = (function () {
     ],
     "exp": {
       "name": "Clinch",
-      "text": "Adds the Grapple maneuver to your list. Grapple: the target cannot move away from you until it breaks free with a DC 16 Strength Test."
+      "text": "Adds the Clinch maneuver to your list. Clinch: the target cannot move away from you until it breaks free with a DC 16 Strength Test."
+    },
+    "maneuver": {
+      "id": "clinch",
+      "cost": 1,
+      "name": "Clinch",
+      "needsExp": true,
+      "text": "The target cannot move away from you until it breaks free with a DC 16 Strength Test."
     }
   },
   "Longsword": {
@@ -8280,6 +8289,7 @@ window.REVELRY_DATA = (function () {
     "atk": 3,
     "def": 1,
     "ability": "strength",
+    "reach": 15,
     "hands": 2,
     "traits": [
       "Extended Reach: 15 ft. Attacks made within 5 ft. have disadvantage."
@@ -8295,6 +8305,7 @@ window.REVELRY_DATA = (function () {
     "atk": 3,
     "def": 0,
     "ability": "strength",
+    "reach": 10,
     "hands": 2,
     "traits": [
       "Reach: 10 ft."
@@ -8310,6 +8321,7 @@ window.REVELRY_DATA = (function () {
     "atk": 3,
     "def": 1,
     "ability": "strength",
+    "reach": 10,
     "hands": 2,
     "traits": [
       "Reach: 10 ft."
@@ -12610,30 +12622,73 @@ function handleAddFilter(event) {
     }));
   }
 
+  /* Maneuvers the weapons in your hands put on the list, over and above the
+     ones everybody has — the Gauntlets' Clinch is the first of them.
+
+     Both hands are read, because a maneuver is a thing the weapon lets you do
+     and it does not stop being true in the off hand. `needsExp` is honoured
+     because the doc grants these on the (Expertise) line: gauntlets you were
+     never trained in do not teach you to hold anyone. */
+  function weaponManeuvers(entry, ctx, p) {
+    const held = [];
+    if (p) {
+      held.push(p.name);
+      if (p.off && p.offKind === "weapon") held.push(p.off.name);
+    }
+
+    const seen = [];
+    const out = [];
+    held.forEach((name) => {
+      const move = (GEAR[name] || {}).maneuver;
+      if (!move) return;
+      if (move.needsExp && !ctx.gearExp.includes(name)) return;
+      /* A matched pair of gauntlets is still one Clinch. */
+      if (seen.indexOf(move.id) !== -1) return;
+      seen.push(move.id);
+      /* Gold, not an Element's colour: this came out of your kit, not a
+         spell. The row treatment is shared; the tint says which. */
+      out.push({
+        cost: move.cost, name: move.name, text: move.text, from: name,
+        colour: "var(--gold, #f1c976)"
+      });
+    });
+    return out;
+  }
+
   function flyoutInner(entry) {
     const { ctx, p } = currentProfile(entry);
     const ranged = Boolean(p && p.item.kind === "ranged");
     const a = ctx.abilities;
+
+    /* One list, built from three sources: what your spell can buy, what your
+       weapons add, and what everybody has. They used to be rendered as two
+       separate passes with the extras simply pasted on the front, which is
+       right only for as long as every extra costs one point — the moment a
+       weapon grants a two-point maneuver it would sit above the one-point
+       band. Merging by cost keeps the bands honest whatever gets added. */
+    const extras = spellStrikes(entry).map((x) => ({ ...x, html: true }))
+      .concat(weaponManeuvers(entry, ctx, p))
+      .map((x) => ({ ...x, extra: true }));
+
+    const base = MANEUVERS
+      .filter((m) => m.scope === "both" || m.scope === (ranged ? "ranged" : "melee"));
+
+    /* Stable sort by cost, extras first within a band — the same reasoning as
+       the Element Strikes: a maneuver your kit just handed you is the one you
+       have not memorised, so it goes where you are already looking. */
+    const ordered = extras.concat(base)
+      .map((row, index) => ({ row, index }))
+      .sort((x, y) => (x.row.cost - y.row.cost)
+        || ((y.row.extra ? 1 : 0) - (x.row.extra ? 1 : 0))
+        || (x.index - y.index))
+      .map((x) => x.row);
 
     /* The live number and the arithmetic behind it are two different
        things to read, so they're rendered as two different things: the
        result loud, the derivation quiet underneath it. */
     let lastCost = null;
 
-    const spellRows = spellStrikes(entry).map((k) => {
-      lastCost = k.cost;
-      return `
-        <div class="pm-row pm-spell-row" style="--element: ${k.colour}">
-          <div class="pm-cost cost-${k.cost}"><b>${k.cost}</b><span>pt</span></div>
-          <div class="pm-body">
-            <div class="pm-name">${k.name}${k.from ? `<em class="pm-from-spell">${esc(k.from)}</em>` : ""}</div>
-            <div class="pm-text">${k.text}</div>
-            ${k.repeat ? `<div class="pm-scale"><span class="pm-from">${esc(k.repeat)}</span></div>` : ""}
-          </div>
-        </div>`;
-    }).join("");
-
-    const rows = spellRows + MANEUVERS.filter((m) => m.scope === "both" || m.scope === (ranged ? "ranged" : "melee")).map((m) => {
+    const rows = ordered.map((m) => {
       let scale = "";
       if (typeof m.scale === "function") {
         const out = m.scale(a);
@@ -12641,17 +12696,33 @@ function handleAddFilter(event) {
             <span class="pm-value">${esc(out.value)}</span>
             <span class="pm-from">${esc(out.from)}</span>
           </div>`;
+      } else if (m.repeat) {
+        scale = `<div class="pm-scale"><span class="pm-from">${esc(m.repeat)}</span></div>`;
       }
+
       const rule = lastCost !== null && m.cost !== lastCost ? " pm-tier" : "";
       lastCost = m.cost;
+
+      /* A spell Strike carries its Element's colour, a weapon's maneuver the
+         gold — same row treatment, so the list reads as one thing with the
+         source named rather than three lists stacked.
+
+         `html` is what decides escaping, not the tint: the spells layer hands
+         over text with markup already in it, everything else is plain and has
+         to be escaped. */
+      const tint = m.colour ? ` style="--element: ${m.colour}"` : "";
+      const cls = m.extra ? " pm-spell-row" : "";
+      const show = (value) => (m.html ? value : esc(value));
+
       return `
-        <div class="pm-row${rule}">
+        <div class="pm-row${cls}${rule}"${tint}>
           <div class="pm-cost cost-${m.cost}">
             <b>${m.cost}</b><span>${m.cost === 1 ? "pt" : "pts"}</span>
           </div>
           <div class="pm-body">
-            <div class="pm-name">${esc(m.name)}</div>
-            <div class="pm-text">${esc(m.text)}</div>
+            <div class="pm-name">${show(m.name)}${
+              m.from ? `<em class="pm-from-spell">${esc(m.from)}</em>` : ""}</div>
+            <div class="pm-text">${show(m.text)}</div>
             ${scale}
           </div>
         </div>`;

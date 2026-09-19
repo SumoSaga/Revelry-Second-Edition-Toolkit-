@@ -4881,7 +4881,7 @@ window.REVELRY_DATA = (function () {
     "Off-hand: while dual-wielding, once per turn, arm a Setup on a target within melee range.",
     {
       "name": "Versatile",
-      "text": "As an action, shift between Aggressive (Atk +3 / Def +1) and Defense (Atk +1 / Def +3) stances.",
+      "text": "As an action, shift between Aggressive (Atk +3 / Def +0) and Defense (Atk +0 / Def +3) stances.",
       "effect": null
     }
   ],
@@ -4902,7 +4902,7 @@ window.REVELRY_DATA = (function () {
     "Spear",
     "weapon",
     "medium",
-    "Atk +2 · Def +2 · One-Handed · STR/DEX",
+    "Atk +2 · Def +2 · One-Handed · Reach 10 ft. · STR/DEX",
     "Medium melee.",
     "Medium melee.",
     {
@@ -4933,7 +4933,7 @@ window.REVELRY_DATA = (function () {
     "Always Ready: this weapon can never be Disarmed. Pairing: while dual-wielding, add this weapon's stats to the primary equipment held in your other hand.",
     {
       "name": "Clinch",
-      "text": "Adds the Grapple maneuver to your list. Grapple: the target cannot move away from you until it breaks free with a DC 16 Strength Test.",
+      "text": "Adds the Clinch maneuver to your list. Clinch: the target cannot move away from you until it breaks free with a DC 16 Strength Test.",
       "effect": null
     }
   ],
@@ -4993,7 +4993,7 @@ window.REVELRY_DATA = (function () {
     "Pike",
     "weapon",
     "heavy",
-    "Atk +3 · Def +1 · Two-Handed · STR",
+    "Atk +3 · Def +1 · Two-Handed · Reach 15 ft. · STR",
     "Heavy melee.",
     "Extended Reach: 15 ft. Attacks made within 5 ft. have disadvantage.",
     {
@@ -5006,7 +5006,7 @@ window.REVELRY_DATA = (function () {
     "Scythe",
     "weapon",
     "heavy",
-    "Atk +3 · Def 0 · Two-Handed · STR",
+    "Atk +3 · Def 0 · Two-Handed · Reach 10 ft. · STR",
     "Heavy melee.",
     "Reach: 10 ft.",
     {
@@ -5019,7 +5019,7 @@ window.REVELRY_DATA = (function () {
     "Poleaxe",
     "weapon",
     "heavy",
-    "Atk +3 · Def +1 · Two-Handed · STR",
+    "Atk +3 · Def +1 · Two-Handed · Reach 10 ft. · STR",
     "Heavy melee.",
     "Reach: 10 ft.",
     {
@@ -5668,25 +5668,26 @@ window.REVELRY_DATA = (function () {
     ],
     "exp": {
       "name": "Versatile",
-      "text": "As an action, shift between Aggressive (Atk +3 / Def +1) and Defense (Atk +1 / Def +3) stances."
+      "text": "As an action, shift between Aggressive (Atk +3 / Def +0) and Defense (Atk +0 / Def +3) stances."
     },
-    "stances": [
-      {
-        "name": "Standard",
-        "atk": 2,
-        "def": 2
-      },
-      {
-        "name": "Aggressive",
-        "atk": 3,
-        "def": 1
-      },
-      {
-        "name": "Defensive",
-        "atk": 1,
-        "def": 3
-      }
-    ]
+    "variants": [
+      [
+        "Standard",
+        0,
+        0
+      ],
+      [
+        "Aggressive",
+        1,
+        -2
+      ],
+      [
+        "Defensive",
+        -2,
+        1
+      ]
+    ],
+    "variantsNeedExp": true
   },
   "Mace/Hammer": {
     "cls": "medium",
@@ -5706,6 +5707,7 @@ window.REVELRY_DATA = (function () {
     "atk": 2,
     "def": 2,
     "ability": "strength|dexterity",
+    "reach": 10,
     "hands": 1,
     "exp": {
       "name": "Throwable",
@@ -5741,7 +5743,14 @@ window.REVELRY_DATA = (function () {
     ],
     "exp": {
       "name": "Clinch",
-      "text": "Adds the Grapple maneuver to your list. Grapple: the target cannot move away from you until it breaks free with a DC 16 Strength Test."
+      "text": "Adds the Clinch maneuver to your list. Clinch: the target cannot move away from you until it breaks free with a DC 16 Strength Test."
+    },
+    "maneuver": {
+      "id": "clinch",
+      "cost": 1,
+      "name": "Clinch",
+      "needsExp": true,
+      "text": "The target cannot move away from you until it breaks free with a DC 16 Strength Test."
     }
   },
   "Longsword": {
@@ -5812,6 +5821,7 @@ window.REVELRY_DATA = (function () {
     "atk": 3,
     "def": 1,
     "ability": "strength",
+    "reach": 15,
     "hands": 2,
     "traits": [
       "Extended Reach: 15 ft. Attacks made within 5 ft. have disadvantage."
@@ -5827,6 +5837,7 @@ window.REVELRY_DATA = (function () {
     "atk": 3,
     "def": 0,
     "ability": "strength",
+    "reach": 10,
     "hands": 2,
     "traits": [
       "Reach: 10 ft."
@@ -5842,6 +5853,7 @@ window.REVELRY_DATA = (function () {
     "atk": 3,
     "def": 1,
     "ability": "strength",
+    "reach": 10,
     "hands": 2,
     "traits": [
       "Reach: 10 ft."
