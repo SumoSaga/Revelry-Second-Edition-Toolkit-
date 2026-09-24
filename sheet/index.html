@@ -5150,7 +5150,7 @@ window.REVELRY_DATA = (function () {
   [
     "strength",
     "Strength",
-    "Lifting, heavy weapons, force. +5 ft. to Shove and Drive Back per point."
+    "Lifting, heavy weapons, force. +5 ft. to Shove and +10 ft. to Drive Back per point."
   ],
   [
     "dexterity",
@@ -12130,9 +12130,14 @@ function handleAddFilter(event) {
         ? { value: `flung ${5 * a.dexterity} ft.`, from: `5 ft. per Dexterity ${a.dexterity}` }
         : { value: "drops at their feet", from: "5 ft. per Dexterity — you have none" }) },
     { id: "trip", cost: 2, name: "Trip", scope: "both", text: "Knock the target prone." },
+    /* Ten feet per point of Strength, not five. Drive Back costs a point more
+       than Shove and used to scale at the same rate, so the two only ever
+       differed by a flat 5 ft. — at Strength 3, 20 ft. against 25 ft. for
+       twice the price. Doubling the rate is what makes the second point buy
+       something: 20 ft. against 40 ft. */
     { id: "driveback", cost: 2, name: "Drive Back", scope: "melee",
       text: "Drive the target backward. Slammed into something solid, they take 1 Stress per 10 ft. they couldn't travel.",
-      scale: (a) => ({ value: `${10 + 5 * a.strength} ft.`, from: `10 + 5 × Strength ${a.strength}` }) },
+      scale: (a) => ({ value: `${10 + 10 * a.strength} ft.`, from: `10 + 10 × Strength ${a.strength}` }) },
     { id: "knockback", cost: 2, name: "Knockback", scope: "ranged",
       text: "Throw the target backward. Slammed into something solid, they take 1 Stress per 10 ft. they couldn't travel.",
       scale: (a) => ({ value: `${10 + 5 * a.strength} ft.`, from: `10 + 5 × Strength ${a.strength}` }) },
