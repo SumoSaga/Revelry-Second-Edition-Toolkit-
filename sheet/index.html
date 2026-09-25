@@ -2744,27 +2744,56 @@ button:hover, .primary-button:hover, .secondary-button:hover, .ghost-button:hove
 }
 .ench-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; }
 
-.ench-part {
-  padding: 0.25rem 0.6rem;
-  border: 1px solid var(--line);
+/* The chips are the Spellforge's own .sr-part, coloured the same way. Only
+   their size changes here: in a grid of fourteen they have to wrap as pills
+   rather than fill a two-column table. */
+.ench-grid .sr-part {
+  padding: 0.25rem 0.55rem;
+  font-size: 0.74rem;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.28);
-  color: var(--paper);
-  cursor: pointer;
-  font-size: 0.76rem;
 }
-.ench-part:hover:not(.out) { border-color: rgba(var(--accent-rgb), 0.6); }
-.ench-part.on {
-  border-color: rgba(var(--accent-rgb), 0.75);
-  background: rgba(var(--accent-rgb), 0.18);
-  color: var(--accent-pale);
-  font-weight: 700;
-}
-.ench-part i { font-style: normal; margin-left: 0.25rem; opacity: 0.8; }
+.ench-grid .sr-part b { font-weight: 600; }
 
 /* Out of reach rather than hidden: knowing Time arrives at level 5 is worth
    more than a shorter list. */
-.ench-part.out { opacity: 0.35; cursor: not-allowed; }
+.ench-grid .sr-part.out { opacity: 0.32; cursor: not-allowed; }
+.ench-grid .sr-part.out:hover { border-color: rgba(255, 255, 255, 0.12); background: rgba(0, 0, 0, 0.28); }
+
+/* Picker on the left, reading on the right, the way the flyout sits. */
+.ench-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: start;
+}
+@media (max-width: 860px) { .ench-body { grid-template-columns: 1fr; } }
+
+.ench-reading { display: grid; gap: 0.35rem; min-width: 0; }
+
+/* A smaller picture than the flyout's: this is one of several cards on a
+   long step, not the whole panel. */
+.ench-reading .spell-diagram-figure { margin: 0; max-width: 300px; }
+
+.ench-read-head {
+  margin: 0.35rem 0 0.1rem;
+  color: var(--accent-lit);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.ench-read-head i { color: var(--muted); font-style: normal; letter-spacing: 0.04em; text-transform: none; }
+.ench-reading .sr-block { margin-bottom: 0; }
+.ench-reading .sr-block p { font-size: 0.76rem; }
+
+.ench-read-empty {
+  margin: 0;
+  padding: 0.8rem;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: italic;
+}
 
 .ench-summary { margin: 0; color: var(--muted); font-size: 0.78rem; font-style: italic; }
 
@@ -4189,24 +4218,85 @@ html, body { max-width: 100%; overflow-x: hidden; }
 .custom-read-bit i { color: var(--muted, #b4a079); font-style: normal; font-size: 0.68rem; }
 .custom-read-bit b { color: var(--accent-lit); }
 
-/* ----- enchanted gear on the play sheet ---------------------------------- */
-.ench-piece-parts { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
-.ench-pill {
-  border-color: rgba(var(--accent-rgb), 0.45);
-  background: rgba(var(--accent-rgb), 0.12);
+/* ----- enchanted gear, in the rack ---------------------------------------
+   Enchanted gear is equipment, so it is drawn as equipment: the same card,
+   dragged into the same slots, with the enchantment laid over it. The spell's
+   colour runs down the card's edge so it is picked out of a pack at a glance. */
+.gear-tile.is-enchanted {
+  border-left: 3px solid var(--ench, var(--accent));
+  box-shadow: inset 3px 0 12px -8px var(--ench, var(--accent));
+}
+
+.gear-ench { display: grid; gap: 0.3rem; margin-top: 0.35rem; }
+
+.gear-ench-head { display: flex; align-items: center; gap: 0.35rem; font-size: 0.76rem; }
+.gear-ench-head b { color: #fdf4dc; }
+.gear-ench-mark { color: var(--ench, var(--accent)); }
+.gear-ench-tag {
+  margin-left: auto;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid rgba(var(--accent-rgb), 0.5);
+  border-radius: 999px;
+  color: var(--accent-pale);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.gear-ench-pills { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+
+/* The same colours the Spellforge uses: an Element in its own colour, a
+   Component in gold. */
+.gear-ench-pill {
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--c, rgba(241, 201, 118, 0.6));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c, #f1c976) 14%, rgba(0, 0, 0, 0.3));
+  color: #fdf4dc;
+  font-size: 0.68rem;
+}
+.gear-ench-pill.is-component { --c: #f1c976; }
+
+.gear-ench-note { margin: 0; color: #d7bd8d; font-size: 0.72rem; line-height: 1.4; }
+
+.gear-ench-read summary {
+  cursor: pointer;
+  color: var(--accent-lit);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.gear-ench-read[open] summary { margin-bottom: 0.35rem; }
+.gear-ench-read .spell-diagram-figure { margin: 0 0 0.3rem; max-width: 260px; }
+.gear-ench-read .sr-block { margin-bottom: 0.3rem; }
+.gear-ench-read .sr-block p { font-size: 0.72rem; }
+.gear-ench-read-head {
+  margin: 0.3rem 0 0.15rem;
+  color: var(--muted);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.gear-ench-read-head i { font-style: normal; text-transform: none; letter-spacing: 0.02em; }
+
+.ench-active {
+  margin-left: auto;
+  margin-right: 0.5rem;
   color: var(--accent-pale);
   font-size: 0.72rem;
+  font-style: normal;
+  cursor: help;
 }
-.ench-note { margin: 0.35rem 0 0; color: #d7bd8d; font-size: 0.76rem; line-height: 1.4; }
-.ench-rules {
+.ench-active.over { color: #ff8c78; font-weight: 700; }
+
+.gear-ench-rules {
   margin: 0.5rem 0 0;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   font-style: italic;
   line-height: 1.45;
 }
-.ench-rules.over { color: #ff8c78; font-style: normal; }
-.mini-badge.over { border-color: rgba(255, 140, 120, 0.6); color: #ff8c78; }
+.gear-ench-rules.over { color: #ff8c78; font-style: normal; }
 /* ============ parry-combat.css ============ */
 /* REVELRY · PARRY EDITION — Atk/Def strip, Arms & Equipment block,
    maneuvers flyout, builder gear badges, and scroll comfort.
@@ -9787,6 +9877,35 @@ window.REVELRY_LOADOUT = (function () {
     return "gear-" + Date.now().toString(36) + "-" + counter.toString(36);
   }
 
+  /* ----- enchanted gear with no statistics --------------------------------
+     A sword someone enchanted is still a sword: it is an ordinary instance in
+     the inventory, and the enchantment is laid over it when the card is drawn.
+
+     A piece with *no* statistics — gloves carrying a spell, a plain cloak — is
+     a different case. It is not a catalogue item at all, so nothing ever put
+     it in the inventory, and it still has to be something you can drag into a
+     slot and take off again.
+
+     So it is added at read time, with an id derived from the enchantment
+     (`ench:` + its id) so it is the same object every time and a slot can
+     hold it. It is never written back: the builder's `enchanted` list is
+     where it lives, and if the reconciler below ever saw it by name it would
+     count it as surplus — it is in no one's `equipment` list — and delete
+     it on every read. */
+  const VIRTUAL = "ench:";
+  const isVirtual = (id) => String(id || "").indexOf(VIRTUAL) === 0;
+
+  function trinkets(state) {
+    const E = window.REVELRY_ENCHANTING;
+    return (((state || {}).enchanted) || [])
+      .filter((p) => p && typeof p === "object" && !p.base && p.id)
+      .map((p) => ({
+        id: VIRTUAL + p.id,
+        name: E ? E.label(p) : (p.name || "Enchanted trinket"),
+        ench: p.id
+      }));
+  }
+
   /* ----- reading a character ------------------------------------------- */
 
   /* Old saves hold names. Read them once into instances, putting whatever was
@@ -9807,7 +9926,7 @@ window.REVELRY_LOADOUT = (function () {
       else slots.worn.push(item.id);
     });
 
-    return { inventory, slots };
+    return { inventory: inventory.concat(trinkets(state)), slots };
   }
 
   function inSlots(slots, id) {
@@ -9828,8 +9947,9 @@ window.REVELRY_LOADOUT = (function () {
     if (!Array.isArray(st.inventory)) { dirty = true; return migrate(st); }
 
     const inventory = st.inventory
-      .filter((x) => x && x.name)
-      .map((x) => ({ id: x.id || newId(), name: x.name }));
+      .filter((x) => x && x.name && !isVirtual(x.id))
+      .map((x) => ({ id: x.id || newId(), name: x.name }))
+      .concat(trinkets(st));
     const raw = st.slots || {};
     const held = (id) => (id && inventory.some((x) => x.id === id) ? id : "");
 
@@ -9857,7 +9977,10 @@ window.REVELRY_LOADOUT = (function () {
     const want = {};
     state.equipment.forEach((name) => { want[name] = (want[name] || 0) + 1; });
     const have = {};
-    book.inventory.forEach((x) => { have[x.name] = (have[x.name] || 0) + 1; });
+    book.inventory.forEach((x) => {
+      if (isVirtual(x.id)) return;
+      have[x.name] = (have[x.name] || 0) + 1;
+    });
 
     Object.keys(want).forEach((name) => {
       for (let i = have[name] || 0; i < want[name]; i += 1) { add(book, name); dirty = true; }
@@ -9867,7 +9990,7 @@ window.REVELRY_LOADOUT = (function () {
       let surplus = have[name] - (want[name] || 0);
       if (surplus <= 0) return;
       const packedFirst = book.inventory
-        .filter((x) => x.name === name)
+        .filter((x) => x.name === name && !isVirtual(x.id))
         .sort((a, b) => (slotOf(book, a.id) ? 1 : 0) - (slotOf(book, b.id) ? 1 : 0));
       while (surplus > 0 && packedFirst.length) {
         remove(book, packedFirst.shift().id);
@@ -9886,14 +10009,15 @@ window.REVELRY_LOADOUT = (function () {
      in two hands appear there twice, which is exactly what the combat layer
      needs to price the pair. */
   function sync(state, book) {
-    state.inventory = book.inventory.map((x) => ({ id: x.id, name: x.name }));
+    const real = book.inventory.filter((x) => !isVirtual(x.id));
+    state.inventory = real.map((x) => ({ id: x.id, name: x.name }));
     state.slots = {
       primary: book.slots.primary,
       secondary: book.slots.secondary,
       armor: book.slots.armor,
       worn: book.slots.worn.slice()
     };
-    state.equipment = book.inventory.map((x) => x.name);
+    state.equipment = real.map((x) => x.name);
     state.equipped = equippedNames(state, book);
     return state;
   }
@@ -10083,7 +10207,8 @@ window.REVELRY_LOADOUT = (function () {
 
   return {
     SLOTS, MULTI, read, sync, byId, equippedNames, handsUsed, hands, kindOf,
-    canPlace, place, pull, add, remove, slotOf, suggestSlot, useRules, newId, settled
+    canPlace, place, pull, add, remove, slotOf, suggestSlot, useRules, newId, settled,
+    isVirtual, VIRTUAL
   };
 })();
     </script>
@@ -10576,9 +10701,63 @@ window.REVELRY_ENCHANTING = (function () {
   const ACTIVE_LIMIT = "You may have as many arcane items active as your Ranks "
     + "in Arcana. Carry as many as you like; choose which are active at each long rest.";
 
+  /* ----- in the equipment rack ------------------------------------------- */
+
+  /* Which inventory instance each enchantment sits on, by instance id.
+
+     An enchantment names its base by *name* — the builder works in names —
+     while the sheet holds instances, so two Daggers are two things. Each
+     enchanted piece takes the first instance of its base that nothing else
+     has claimed, in inventory order. Instance ids persist, so the same dagger
+     stays the enchanted one from session to session.
+
+     Statless pieces are their own instances (`ench:<id>`, added by the
+     loadout) and map to themselves. */
+  function attach(state, book) {
+    const out = {};
+    const claimed = {};
+    const V = ((window.REVELRY_LOADOUT || {}).VIRTUAL) || "ench:";
+    read(state).forEach((piece) => {
+      if (!piece.base) {
+        out[V + piece.id] = piece;
+        return;
+      }
+      const hit = book.inventory.find((x) => x.name === piece.base && !claimed[x.id]
+        && String(x.id).indexOf(V) !== 0);
+      if (hit) { claimed[hit.id] = true; out[hit.id] = piece; }
+    });
+    return out;
+  }
+
+  /* Statless pieces have no catalogue entry, so everything that sizes up an
+     item by name — how many hands it takes, which slot a click sends it to,
+     whether a weapon slot will take it — would be guessing from its label. A
+     pair of gloves called "Swordbreaker" would read as a sword.
+
+     So each one is registered as what it is: something worn, taking no hand.
+     The same sweep-then-plant as custom gear, for the same reason — the
+     catalogue is one object shared by the page, and switching characters
+     must not leave the last one's trinkets behind. */
+  let planted = [];
+  function register(state) {
+    const gear = ((window.REVELRY_DATA || {}).GEAR);
+    if (!gear) return;
+    planted.forEach((name) => { if (gear[name] && gear[name].enchantedTrinket) delete gear[name]; });
+    planted = [];
+    read(state).filter((p) => !p.base).forEach((piece) => {
+      const name = label(piece);
+      if (gear[name]) return;    /* never shadow a real or custom item */
+      gear[name] = {
+        custom: true, enchantedTrinket: true, kind: "gear", cls: null, hands: 0,
+        stats: "No statistics · enchanted", traits: []
+      };
+      planted.push(name);
+    });
+  }
+
   return {
     TIERS, tierFor, available, enchantable, tierOf, levelForTier,
-    cost, problems, handed, read, spent, label, describe,
+    cost, problems, handed, read, spent, label, describe, attach, register,
     USE, ACTIVE_LIMIT
   };
 })();
@@ -11163,14 +11342,63 @@ function gearFeatures(name, detail) {
     lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>`;
 }
 
+/* Which instance carries which enchantment, worked out once per draw by
+   `equipmentSection` and read by every card it draws. */
+let enchantOn = {};
+
+/* An enchantment laid over the card of the thing it is bound into.
+
+   In the pack it is a line of coloured pills, so a bag of five items stays
+   scannable. In a slot it opens up the way the item's own features do: the
+   pills, whether it is a Spell Focus, whether it can answer as a reaction,
+   and — folded away — the same reading of the spell the Spellforge gives. */
+function enchantOverlay(piece, equipped) {
+  const E = window.REVELRY_ENCHANTING;
+  const ART = window.REVELRY_SPELL_ART;
+  const SP = window.REVELRY_SPELLS;
+  const parts = piece.parts || [];
+  const unique = parts.filter((n, i) => parts.indexOf(n) === i);
+  const pills = unique.map((name) => {
+    const n = parts.filter((p) => p === name).length;
+    const isEl = SP ? SP.isElement(name) : true;
+    const colour = isEl && ART ? ART.partColour(name) : "";
+    return `<span class="gear-ench-pill ${isEl ? "is-element" : "is-component"}"${
+      colour ? ` style="--c: ${colour}"` : ""}>${escapeHtml(name)}${n > 1 ? ` ×${n}` : ""}</span>`;
+  }).join("");
+
+  const titled = piece.name && piece.name.trim();
+  return `
+    <div class="gear-ench">
+      <div class="gear-ench-head"><span class="gear-ench-mark" aria-hidden="true">✦</span>${
+        titled ? `<b>${escapeHtml(piece.name.trim())}</b>` : "<b>Enchanted</b>"}${
+        piece.focus ? `<span class="gear-ench-tag">Spell Focus</span>` : ""}</div>
+      ${pills ? `<div class="gear-ench-pills">${pills}</div>` : ""}
+      ${equipped && piece.focus ? `<p class="gear-ench-note">Cast through this without a free hand.</p>` : ""}
+      ${equipped && parts.indexOf("Absorb") !== -1 ? `<p class="gear-ench-note">Holds Absorb, so it may be activated as a reaction.</p>` : ""}
+      ${equipped && parts.length && ART ? `<details class="gear-ench-read">
+        <summary>How it works</summary>
+        ${ART.spellReading(parts, { head: "gear-ench-read-head" })}
+      </details>` : ""}
+    </div>`;
+}
+
 function gearCard(item, state, lookup, where) {
   const detail = lookup[item.name] || {};
   const kind = equipmentKind(item.name, state);
-  const stats = statsLine(item.name, state, detail);
+  const piece = enchantOn[item.id] || null;
+  const E = window.REVELRY_ENCHANTING;
+  /* A statless piece has no catalogue line to print, so its line is what it
+     is: no statistics, and the spell. */
+  const stats = piece && !piece.base
+    ? E.describe(piece, lookup)
+    : statsLine(item.name, state, detail);
   const equipped = where === "in-slot";
+  const ART = window.REVELRY_SPELL_ART;
+  const tint = piece && ART && piece.parts && piece.parts.length ? ART.colourFor(piece.parts) : "";
   return `
-    <article class="gear-tile ${where}" draggable="true"
-      data-gear-id="${escapeHtml(item.id)}" data-gear-kind="${escapeHtml(kind)}"
+    <article class="gear-tile ${where}${piece ? " is-enchanted" : ""}" draggable="true"
+      data-gear-id="${escapeHtml(item.id)}" data-gear-kind="${escapeHtml(kind)}"${
+      tint ? ` style="--ench: ${tint}"` : ""}
       title="${equipped ? "Drag back to the pack, or click to take it off" : "Drag into a slot, or click to equip"}">
       <div class="gear-tile-head">
         <strong>${escapeHtml(item.name)}</strong>
@@ -11178,55 +11406,10 @@ function gearCard(item, state, lookup, where) {
           aria-label="Remove ${escapeHtml(item.name)} from your inventory">&times;</button>
       </div>
       <small>${escapeHtml(stats)}</small>
-      ${equipped ? gearFeatures(item.name, detail) : ""}
+      ${piece ? enchantOverlay(piece, equipped) : ""}
+      ${equipped && !(piece && !piece.base) ? gearFeatures(item.name, detail) : ""}
       ${equipped && detail.expertise ? gearExpBlock(item.name, detail, state) : ""}
     </article>`;
-}
-
-/* ----- enchanted gear, at the table --------------------------------------
-   Built at creation out of starting slots; read here. The two rules that bind
-   in play rather than at creation are printed with it, because the second one
-   is a number the sheet already knows: how many of these you may have active
-   is your Ranks in Arcana, and a character who built three of them with one
-   rank needs telling. */
-function enchantedSection(state, d, lookup) {
-  const E = window.REVELRY_ENCHANTING;
-  if (!E) return "";
-  const pieces = E.read(state);
-  if (!pieces.length) return "";
-
-  const active = Number(d.arcana || 0);
-  const over = pieces.length > active;
-
-  const cards = pieces.map((piece) => {
-    const parts = piece.parts || [];
-    const reaction = parts.indexOf("Absorb") !== -1;
-    return `
-      <article class="detail-card ench-piece">
-        <strong>${escapeHtml(E.label(piece))}</strong>
-        <small>${escapeHtml(E.describe(piece, lookup))}</small>
-        ${parts.length ? `<div class="ench-piece-parts">${
-          parts.filter((n, i) => parts.indexOf(n) === i).map((name) => {
-            const n = parts.filter((p) => p === name).length;
-            return `<span class="pill ench-pill">${escapeHtml(name)}${n > 1 ? ` ×${n}` : ""}</span>`;
-          }).join("")}</div>` : ""}
-        ${piece.focus ? `<p class="ench-note"><b>Spell Focus.</b> Cast through this without a free hand.</p>` : ""}
-        ${reaction ? `<p class="ench-note"><b>Holds Absorb</b>, so this one may be activated as a reaction.</p>` : ""}
-      </article>`;
-  }).join("");
-
-  return `
-    <section class="sheet-block enchanted-sheet-block">
-      <div class="sheet-block-head">
-        <h4>Enchanted Gear</h4>
-        <span class="mini-badge${over ? " over" : ""}">${pieces.length} carried · ${active} active</span>
-      </div>
-      <div class="${sheetDetailMode === "compact" ? "pill-row" : "detail-grid"}">${cards}</div>
-      <p class="ench-rules">${escapeHtml(E.USE)}</p>
-      <p class="ench-rules">${escapeHtml(E.ACTIVE_LIMIT)}</p>
-      ${over ? `<p class="ench-rules over">You are carrying ${pieces.length} but only ${active}
-        can be active — your Ranks in Arcana. Choose which at your next long rest.</p>` : ""}
-    </section>`;
 }
 
 function slotBox(slot, label, hint, book, state, lookup) {
@@ -11252,6 +11435,21 @@ function equipmentSection(state, lookup, uniqueItem = "", entryId = "") {
   const packed = book.inventory.filter((item) => !LOADOUT.slotOf(book, item.id));
   const handUse = LOADOUT.handsUsed(state, book);
 
+  /* Enchanted gear is equipment. It goes in the same rack, is dragged into
+     the same slots, and is taken off the same way; the enchantment is drawn
+     over the card of the thing it is bound into.
+
+     Equipping is also what makes one *active*. The rule is that you may have
+     as many active as your Ranks in Arcana, chosen at a long rest — and the
+     rack is already the place you choose what you are carrying into the
+     day, so the count lives on its head. */
+  const E = window.REVELRY_ENCHANTING;
+  enchantOn = E ? E.attach(state, book) : {};
+  const enchantedIds = Object.keys(enchantOn);
+  const activeEnchanted = enchantedIds.filter((id) => LOADOUT.slotOf(book, id)).length;
+  const arcana = DATA.rankTotal(state, "arcana");
+  const overActive = activeEnchanted > arcana;
+
   const rack = LOADOUT.SLOTS
     .map(([slot, label, hint]) => slotBox(slot, label, hint, book, state, lookup))
     .join("");
@@ -11271,9 +11469,14 @@ function equipmentSection(state, lookup, uniqueItem = "", entryId = "") {
         <div class="gear-rack">
           <div class="gear-rack-head">
             <span>Equipped</span>
+            ${enchantedIds.length ? `<em class="ench-active${overActive ? " over" : ""}"
+              title="${escapeHtml(E.ACTIVE_LIMIT)}">✦ ${activeEnchanted}/${arcana} active</em>` : ""}
             <strong class="${handUse > 2 ? "over" : ""}">${handUse}/2 hands</strong>
           </div>
           ${rack}
+          ${enchantedIds.length ? `<p class="gear-ench-rules">${escapeHtml(E.USE)}</p>` : ""}
+          ${overActive ? `<p class="gear-ench-rules over">${activeEnchanted} enchanted items equipped, but
+            only ${arcana} can be active — your Ranks in Arcana. Take one off, or choose at your next long rest.</p>` : ""}
         </div>
         <div class="gear-pack" data-slot="pack">
           <div class="gear-slot-head">
@@ -11752,7 +11955,6 @@ function sheetMarkup(entry) {
     </section>
     ${editableSection("traits", "Traits", state.traits || [], "trait-detail", traitLookup, traitOptions.filter((trait) => traitTierAllowed(trait, Number(fields.level || 1))), "Custom trait")}
     ${equipmentSection(state, equipmentLookup, fields.uniqueItem, entry.id)}
-    ${enchantedSection(state, d, equipmentLookup)}
     ${customEditableSection("expertises", "Expertises", expertisesLabel, "expertise-pill", "New expertise", "Detail (optional)", customDetails(state, "expertises"))}
     ${customEditableSection("experiences", "Experiences", experiences, "experience-pill", "New experience", "Detail — e.g. +2 when...", customDetails(state, "experiences"))}
   `;
@@ -11803,6 +12005,9 @@ function renderSheet() {
      by the lookup they already use. It sweeps the last character's out on the
      way in, which is why it runs on every draw rather than once. */
   CUSTOM_GEAR.register(entry.payload.state || {});
+  /* Statless enchanted pieces, registered as what they are — worn, no hand —
+     so a pair of gloves called "Swordbreaker" is not read as a sword. */
+  if (window.REVELRY_ENCHANTING) window.REVELRY_ENCHANTING.register(entry.payload.state || {});
   $("#sheet-character-select").value = entry.id;
   localStorage.setItem("revelry-active-character-id", entry.id);
   empty.hidden = true;
@@ -12008,6 +12213,23 @@ function handleSheetClick(event) {
     const id = dropGear.dataset.gearDrop;
     updateCurrentEntry((entry) => {
       const st = entry.payload.state;
+      /* A statless enchanted piece is not in the inventory at all — it is
+         added from the enchantment every time the sheet reads — so removing
+         it means removing the enchantment, or it would reappear on the next
+         draw. */
+      if (LOADOUT.isVirtual(id)) {
+        const pieceId = id.slice(LOADOUT.VIRTUAL.length);
+        st.enchanted = (st.enchanted || []).filter((p) => p.id !== pieceId);
+        const book = LOADOUT.read(st);
+        LOADOUT.pull(book, id);
+        LOADOUT.sync(st, book);
+        delete st.equipWarning;
+        return;
+      }
+      /* Throwing away an enchanted sword throws away its enchantment. Left
+         behind, it would quietly move onto the next sword you picked up. */
+      const carried = enchantOn[id];
+      if (carried) st.enchanted = (st.enchanted || []).filter((p) => p.id !== carried.id);
       const book = LOADOUT.read(st);
       LOADOUT.remove(book, id);
       delete st.equipWarning;
@@ -13413,7 +13635,73 @@ window.REVELRY_SPELL_ART = (function () {
       </figure>`;
   }
 
-  return { spellDiagram, spellShape, colourFor, ELEMENT_COLOUR };
+  /* ----- reading a spell ---------------------------------------------------
+     The diagram, then every part's rules, then whatever fires on its own.
+
+     This used to live inside the Spellforge flyout. The character builder's
+     enchanting forge needs exactly the same reading — someone binding Fire,
+     Project and Direct into a sword should see what that spell does in the
+     same words and colours they would see casting it — so it lives here and
+     both of them ask for it. Two copies of this markup would drift, and the
+     first thing to drift would be a colour.
+
+     `sourceOf(name)` names where a part came from; without one, a part is
+     labelled by its kind. */
+  const partColour = (name) => ELEMENT_COLOUR[SPELLS.canon(name)] || "";
+
+  function partBlock(name, count, sourceOf) {
+    const def = SPELLS.elementMap.get(name) || SPELLS.componentMap.get(name);
+    if (!def) return "";
+    const n = count[name] || 0;
+    const isEl = SPELLS.isElement(name);
+    const from = (sourceOf && sourceOf(name)) || (isEl ? "Element" : "Component");
+    return `
+        <div class="sr-block ${isEl ? "is-element" : "is-component"}"${isEl ? ` style="--c: ${partColour(name)}"` : ""}>
+          <div class="sr-block-head">
+            <b>${esc(name)}</b>
+            ${n > 1 ? `<span class="sr-times">×${n}</span>` : ""}
+            <span class="sr-from">${esc(from)}</span>
+          </div>
+          ${(def.each || []).map((line) => `<p>${esc(line)}</p>`).join("")}
+          ${n > 1 && def.stack ? `<p class="sr-sub">${esc(def.stack)}</p>` : ""}
+          ${def.needs ? `<p class="sr-sub">${esc(def.needs)}</p>` : ""}
+          ${def.ritual ? `<p class="sr-sub">${esc(def.ritual)}</p>` : ""}
+        </div>`;
+  }
+
+  function spellReading(parts, opts) {
+    const o = opts || {};
+    if (!parts || !parts.length) return "";
+    const fired = SPELLS.matches(parts);
+    const count = fired.count;
+    const els = Object.keys(count).filter(SPELLS.isElement).sort();
+    const comps = Object.keys(count).filter(SPELLS.isComponent).sort();
+    const combos = fired.pairings.concat(fired.recipes);
+    const head = o.head || "sr-head";
+
+    return `
+      ${spellDiagram(parts)}
+
+      ${els.length ? `<h4 class="${head}">Elements <i>in this spell</i></h4>
+        ${els.map((n) => partBlock(n, count, o.sourceOf)).join("")}` : ""}
+
+      ${comps.length ? `<h4 class="${head}">Components <i>in this spell</i></h4>
+        ${comps.map((n) => partBlock(n, count, o.sourceOf)).join("")}` : ""}
+
+      ${combos.length ? `<h4 class="${head}">What fires <i>automatic</i></h4>
+        ${combos.map((f) => `
+          <div class="sr-block is-fired">
+            <div class="sr-block-head">
+              <b>${esc(f.n)}</b>
+              <span class="sr-from">${f.parts ? "named spell" : "combination"}</span>
+            </div>
+            <p>${esc(f.text)}</p>
+            ${(f.detail || []).map((d) => `<p class="sr-sub">${esc(d)}</p>`).join("")}
+          </div>`).join("")}` : ""}
+    `;
+  }
+
+  return { spellDiagram, spellShape, colourFor, ELEMENT_COLOUR, partColour, partBlock, spellReading };
 })();
     </script>
     <script>
@@ -13737,63 +14025,22 @@ window.REVELRY_CASTING = (function () {
         </button>`;
     };
 
-    /* One block per part, Elements before Components — the order the doc
-       lists them and the order you think about a spell in. Every line of the
-       part's rules is here; this is the reading copy. */
-    const block = (name) => {
-      const def = SPELLS.elementMap.get(name) || SPELLS.componentMap.get(name);
-      if (!def) return "";
-      const n = count[name] || 0;
-      const isEl = SPELLS.isElement(name);
-      return `
-        <div class="sr-block ${isEl ? "is-element" : "is-component"}"${isEl ? ` style="--c: ${elementColour(name)}"` : ""}>
-          <div class="sr-block-head">
-            <b>${esc(name)}</b>
-            ${n > 1 ? `<span class="sr-times">×${n}</span>` : ""}
-            <span class="sr-from">${esc(sourceOf(info, name) || (isEl ? "Element" : "Component"))}</span>
-          </div>
-          ${(def.each || []).map((line) => `<p>${esc(line)}</p>`).join("")}
-          ${n > 1 && def.stack ? `<p class="sr-sub">${esc(def.stack)}</p>` : ""}
-          ${def.needs ? `<p class="sr-sub">${esc(def.needs)}</p>` : ""}
-          ${def.ritual ? `<p class="sr-sub">${esc(def.ritual)}</p>` : ""}
-        </div>`;
-    };
-
     /* Elements first, then Components, each in the order it first landed on
        the bench — the order you built the spell in. */
     const benchOrder = parts.filter((name, i) => parts.indexOf(name) === i)
       .sort((a, b) => (SPELLS.isElement(a) ? 0 : 1) - (SPELLS.isElement(b) ? 0 : 1));
 
-    const inSpellElements = Object.keys(count).filter(SPELLS.isElement).sort();
-    const inSpellComponents = Object.keys(count).filter(SPELLS.isComponent).sort();
-    const combos = fired.pairings.concat(fired.recipes);
 
     /* ----- left column: the shape, then what this spell does -----
        The diagram leads, because the shape is the thing you cannot hold in
        your head from a list of names. What the margin can buy is *not*
        repeated here — that lives in the maneuver flyout, which is what you
        are reading when it matters. */
-    const reading = size ? `
-      ${ART ? ART.spellDiagram(parts) : ""}
-
-      ${inSpellElements.length ? `<h4 class="sr-head">Elements <i>in this spell</i></h4>
-        ${inSpellElements.map(block).join("")}` : ""}
-
-      ${inSpellComponents.length ? `<h4 class="sr-head">Components <i>in this spell</i></h4>
-        ${inSpellComponents.map(block).join("")}` : ""}
-
-      ${combos.length ? `<h4 class="sr-head">What fires <i>automatic</i></h4>
-        ${combos.map((f) => `
-          <div class="sr-block is-fired">
-            <div class="sr-block-head">
-              <b>${esc(f.n)}</b>
-              <span class="sr-from">${f.parts ? "named spell" : "combination"}</span>
-            </div>
-            <p>${esc(f.text)}</p>
-            ${(f.detail || []).map((d) => `<p class="sr-sub">${esc(d)}</p>`).join("")}
-          </div>`).join("")}` : ""}
-
-    ` : `<p class="sr-empty">Pick an Element to begin. Everything it does will be described here.</p>`;
+    /* The reading itself is shared with the builder's enchanting forge, so a
+       spell bound into a sword reads exactly as it does when cast. */
+    const reading = size
+      ? (ART ? ART.spellReading(parts, { sourceOf: (name) => sourceOf(info, name) }) : "")
+      : `<p class="sr-empty">Pick an Element to begin. Everything it does will be described here.</p>`;
 
     /* ----- right column: the bench and the catalogue ----- */
     const controls = `

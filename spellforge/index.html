@@ -7196,6 +7196,35 @@ window.REVELRY_LOADOUT = (function () {
     return "gear-" + Date.now().toString(36) + "-" + counter.toString(36);
   }
 
+  /* ----- enchanted gear with no statistics --------------------------------
+     A sword someone enchanted is still a sword: it is an ordinary instance in
+     the inventory, and the enchantment is laid over it when the card is drawn.
+
+     A piece with *no* statistics — gloves carrying a spell, a plain cloak — is
+     a different case. It is not a catalogue item at all, so nothing ever put
+     it in the inventory, and it still has to be something you can drag into a
+     slot and take off again.
+
+     So it is added at read time, with an id derived from the enchantment
+     (`ench:` + its id) so it is the same object every time and a slot can
+     hold it. It is never written back: the builder's `enchanted` list is
+     where it lives, and if the reconciler below ever saw it by name it would
+     count it as surplus — it is in no one's `equipment` list — and delete
+     it on every read. */
+  const VIRTUAL = "ench:";
+  const isVirtual = (id) => String(id || "").indexOf(VIRTUAL) === 0;
+
+  function trinkets(state) {
+    const E = window.REVELRY_ENCHANTING;
+    return (((state || {}).enchanted) || [])
+      .filter((p) => p && typeof p === "object" && !p.base && p.id)
+      .map((p) => ({
+        id: VIRTUAL + p.id,
+        name: E ? E.label(p) : (p.name || "Enchanted trinket"),
+        ench: p.id
+      }));
+  }
+
   /* ----- reading a character ------------------------------------------- */
 
   /* Old saves hold names. Read them once into instances, putting whatever was
@@ -7216,7 +7245,7 @@ window.REVELRY_LOADOUT = (function () {
       else slots.worn.push(item.id);
     });
 
-    return { inventory, slots };
+    return { inventory: inventory.concat(trinkets(state)), slots };
   }
 
   function inSlots(slots, id) {
@@ -7237,8 +7266,9 @@ window.REVELRY_LOADOUT = (function () {
     if (!Array.isArray(st.inventory)) { dirty = true; return migrate(st); }
 
     const inventory = st.inventory
-      .filter((x) => x && x.name)
-      .map((x) => ({ id: x.id || newId(), name: x.name }));
+      .filter((x) => x && x.name && !isVirtual(x.id))
+      .map((x) => ({ id: x.id || newId(), name: x.name }))
+      .concat(trinkets(st));
     const raw = st.slots || {};
     const held = (id) => (id && inventory.some((x) => x.id === id) ? id : "");
 
@@ -7266,7 +7296,10 @@ window.REVELRY_LOADOUT = (function () {
     const want = {};
     state.equipment.forEach((name) => { want[name] = (want[name] || 0) + 1; });
     const have = {};
-    book.inventory.forEach((x) => { have[x.name] = (have[x.name] || 0) + 1; });
+    book.inventory.forEach((x) => {
+      if (isVirtual(x.id)) return;
+      have[x.name] = (have[x.name] || 0) + 1;
+    });
 
     Object.keys(want).forEach((name) => {
       for (let i = have[name] || 0; i < want[name]; i += 1) { add(book, name); dirty = true; }
@@ -7276,7 +7309,7 @@ window.REVELRY_LOADOUT = (function () {
       let surplus = have[name] - (want[name] || 0);
       if (surplus <= 0) return;
       const packedFirst = book.inventory
-        .filter((x) => x.name === name)
+        .filter((x) => x.name === name && !isVirtual(x.id))
         .sort((a, b) => (slotOf(book, a.id) ? 1 : 0) - (slotOf(book, b.id) ? 1 : 0));
       while (surplus > 0 && packedFirst.length) {
         remove(book, packedFirst.shift().id);
@@ -7295,14 +7328,15 @@ window.REVELRY_LOADOUT = (function () {
      in two hands appear there twice, which is exactly what the combat layer
      needs to price the pair. */
   function sync(state, book) {
-    state.inventory = book.inventory.map((x) => ({ id: x.id, name: x.name }));
+    const real = book.inventory.filter((x) => !isVirtual(x.id));
+    state.inventory = real.map((x) => ({ id: x.id, name: x.name }));
     state.slots = {
       primary: book.slots.primary,
       secondary: book.slots.secondary,
       armor: book.slots.armor,
       worn: book.slots.worn.slice()
     };
-    state.equipment = book.inventory.map((x) => x.name);
+    state.equipment = real.map((x) => x.name);
     state.equipped = equippedNames(state, book);
     return state;
   }
@@ -7492,7 +7526,8 @@ window.REVELRY_LOADOUT = (function () {
 
   return {
     SLOTS, MULTI, read, sync, byId, equippedNames, handsUsed, hands, kindOf,
-    canPlace, place, pull, add, remove, slotOf, suggestSlot, useRules, newId, settled
+    canPlace, place, pull, add, remove, slotOf, suggestSlot, useRules, newId, settled,
+    isVirtual, VIRTUAL
   };
 })();
     </script>
@@ -7650,7 +7685,73 @@ window.REVELRY_SPELL_ART = (function () {
       </figure>`;
   }
 
-  return { spellDiagram, spellShape, colourFor, ELEMENT_COLOUR };
+  /* ----- reading a spell ---------------------------------------------------
+     The diagram, then every part's rules, then whatever fires on its own.
+
+     This used to live inside the Spellforge flyout. The character builder's
+     enchanting forge needs exactly the same reading — someone binding Fire,
+     Project and Direct into a sword should see what that spell does in the
+     same words and colours they would see casting it — so it lives here and
+     both of them ask for it. Two copies of this markup would drift, and the
+     first thing to drift would be a colour.
+
+     `sourceOf(name)` names where a part came from; without one, a part is
+     labelled by its kind. */
+  const partColour = (name) => ELEMENT_COLOUR[SPELLS.canon(name)] || "";
+
+  function partBlock(name, count, sourceOf) {
+    const def = SPELLS.elementMap.get(name) || SPELLS.componentMap.get(name);
+    if (!def) return "";
+    const n = count[name] || 0;
+    const isEl = SPELLS.isElement(name);
+    const from = (sourceOf && sourceOf(name)) || (isEl ? "Element" : "Component");
+    return `
+        <div class="sr-block ${isEl ? "is-element" : "is-component"}"${isEl ? ` style="--c: ${partColour(name)}"` : ""}>
+          <div class="sr-block-head">
+            <b>${esc(name)}</b>
+            ${n > 1 ? `<span class="sr-times">×${n}</span>` : ""}
+            <span class="sr-from">${esc(from)}</span>
+          </div>
+          ${(def.each || []).map((line) => `<p>${esc(line)}</p>`).join("")}
+          ${n > 1 && def.stack ? `<p class="sr-sub">${esc(def.stack)}</p>` : ""}
+          ${def.needs ? `<p class="sr-sub">${esc(def.needs)}</p>` : ""}
+          ${def.ritual ? `<p class="sr-sub">${esc(def.ritual)}</p>` : ""}
+        </div>`;
+  }
+
+  function spellReading(parts, opts) {
+    const o = opts || {};
+    if (!parts || !parts.length) return "";
+    const fired = SPELLS.matches(parts);
+    const count = fired.count;
+    const els = Object.keys(count).filter(SPELLS.isElement).sort();
+    const comps = Object.keys(count).filter(SPELLS.isComponent).sort();
+    const combos = fired.pairings.concat(fired.recipes);
+    const head = o.head || "sr-head";
+
+    return `
+      ${spellDiagram(parts)}
+
+      ${els.length ? `<h4 class="${head}">Elements <i>in this spell</i></h4>
+        ${els.map((n) => partBlock(n, count, o.sourceOf)).join("")}` : ""}
+
+      ${comps.length ? `<h4 class="${head}">Components <i>in this spell</i></h4>
+        ${comps.map((n) => partBlock(n, count, o.sourceOf)).join("")}` : ""}
+
+      ${combos.length ? `<h4 class="${head}">What fires <i>automatic</i></h4>
+        ${combos.map((f) => `
+          <div class="sr-block is-fired">
+            <div class="sr-block-head">
+              <b>${esc(f.n)}</b>
+              <span class="sr-from">${f.parts ? "named spell" : "combination"}</span>
+            </div>
+            <p>${esc(f.text)}</p>
+            ${(f.detail || []).map((d) => `<p class="sr-sub">${esc(d)}</p>`).join("")}
+          </div>`).join("")}` : ""}
+    `;
+  }
+
+  return { spellDiagram, spellShape, colourFor, ELEMENT_COLOUR, partColour, partBlock, spellReading };
 })();
     </script>
     <script>
