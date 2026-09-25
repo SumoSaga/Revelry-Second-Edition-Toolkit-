@@ -2676,6 +2676,110 @@ button:hover, .primary-button:hover, .secondary-button:hover, .ghost-button:hove
 @media (prefers-reduced-motion: reduce) {
   .vault-panel.just-saved { animation: none; border-color: var(--teal, var(--accent)); }
 }
+
+/* ----- the enchanting forge, in the Equipment step ------------------------
+   The five fixed arcane wearables are gone; a character builds the piece they
+   want. It sits in this step because it spends the same starting slots as
+   everything above it, and the running total at the foot says so. */
+.enchant-block {
+  margin-top: 1.4rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.enchant-list { display: grid; gap: 0.75rem; margin: 0.6rem 0; }
+.ench-empty { font-style: italic; opacity: 0.7; margin: 0.5rem 0; }
+
+.ench-card {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid rgba(var(--accent-rgb), 0.6);
+  border-radius: calc(var(--radius) - 2px);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.ench-head { display: flex; align-items: center; gap: 0.5rem; }
+.ench-name { flex: 1; min-width: 0; }
+.ench-cost {
+  white-space: nowrap;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(var(--accent-rgb), 0.14);
+  color: var(--accent-pale);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.ench-row { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: end; }
+.ench-row label { display: grid; gap: 0.2rem; font-size: 0.74rem; color: var(--muted); flex: 1 1 12rem; }
+.ench-row select { min-height: 2.2rem; font-size: 0.82rem; }
+
+.ench-focus {
+  min-height: 2.2rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+.ench-focus.on {
+  border-color: rgba(var(--accent-rgb), 0.7);
+  background: rgba(var(--accent-rgb), 0.16);
+  color: var(--accent-pale);
+}
+
+.ench-parts h6 {
+  margin: 0.4rem 0 0.3rem;
+  color: var(--muted);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.ench-grid { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+
+.ench-part {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 0.76rem;
+}
+.ench-part:hover:not(.out) { border-color: rgba(var(--accent-rgb), 0.6); }
+.ench-part.on {
+  border-color: rgba(var(--accent-rgb), 0.75);
+  background: rgba(var(--accent-rgb), 0.18);
+  color: var(--accent-pale);
+  font-weight: 700;
+}
+.ench-part i { font-style: normal; margin-left: 0.25rem; opacity: 0.8; }
+
+/* Out of reach rather than hidden: knowing Time arrives at level 5 is worth
+   more than a shorter list. */
+.ench-part.out { opacity: 0.35; cursor: not-allowed; }
+
+.ench-summary { margin: 0; color: var(--muted); font-size: 0.78rem; font-style: italic; }
+
+.ench-problems {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #ff8c78;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.ench-left { margin: 0.5rem 0 0; color: var(--muted); font-size: 0.8rem; }
+.ench-left.over { color: #ff8c78; font-weight: 700; }
+
+.ench-hint { display: block; margin-top: 0.15rem; color: var(--muted); font-size: 0.68rem; font-style: italic; line-height: 1.35; }
 /* ============ theme.css ============ */
 /* =========================================================================
    Revelry Toolkit — Shared "Elevated Dark Fantasy" theme layer
@@ -4084,6 +4188,25 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
 .custom-read-bit i { color: var(--muted, #b4a079); font-style: normal; font-size: 0.68rem; }
 .custom-read-bit b { color: var(--accent-lit); }
+
+/* ----- enchanted gear on the play sheet ---------------------------------- */
+.ench-piece-parts { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.35rem; }
+.ench-pill {
+  border-color: rgba(var(--accent-rgb), 0.45);
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent-pale);
+  font-size: 0.72rem;
+}
+.ench-note { margin: 0.35rem 0 0; color: #d7bd8d; font-size: 0.76rem; line-height: 1.4; }
+.ench-rules {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-style: italic;
+  line-height: 1.45;
+}
+.ench-rules.over { color: #ff8c78; font-style: normal; }
+.mini-badge.over { border-color: rgba(255, 140, 120, 0.6); color: #ff8c78; }
 /* ============ parry-combat.css ============ */
 /* REVELRY · PARRY EDITION — Atk/Def strip, Arms & Equipment block,
    maneuvers flyout, builder gear badges, and scroll comfort.
@@ -7751,51 +7874,6 @@ window.REVELRY_DATA = (function () {
     null
   ],
   [
-    "Arcane Tattoo Needle",
-    "arcane",
-    "arcane",
-    "1 handful",
-    "Arcane item.",
-    "Use inks to create a tattoo sigil effect. You decide its appearance.",
-    null
-  ],
-  [
-    "Wanderers Cloak",
-    "arcane",
-    "arcane",
-    "2 handfuls",
-    "Arcane item.",
-    "Spells containing two or fewer Components or Elements can be crafted with advantage on Sleight of Hand Tests to conceal the cast.",
-    null
-  ],
-  [
-    "Caster's Head Piece",
-    "arcane",
-    "arcane",
-    "2 handfuls",
-    "Arcane item.",
-    "Defense rolls against arcane sources gain +1, and charm spells you cast last an additional turn.",
-    null
-  ],
-  [
-    "Vibrant Flamers Robe",
-    "arcane",
-    "arcane",
-    "2 handfuls",
-    "Arcane item.",
-    "Spells targeting you that contain a Fire Element are reduced by one Fire Element.",
-    null
-  ],
-  [
-    "Lantern-Wrapped Shawl",
-    "arcane",
-    "arcane",
-    "1 handful",
-    "Arcane item.",
-    "You are immune to magical darkness. While illuminated you gain +1 to Defense rolls against Intuition effects. After casting a Light-based spell, your next Perception check has advantage.",
-    null
-  ],
-  [
     "Smoke Bomb",
     "gear",
     "gear",
@@ -8628,41 +8706,6 @@ window.REVELRY_DATA = (function () {
     "kind": "arcane",
     "traits": [
       "Spells cast with the Anchored Component gain the Trip Wire Component, and a free action. Trip Wire: when a target enters the radius of an anchored spell, it casts automatically."
-    ]
-  },
-  "Arcane Tattoo Needle": {
-    "cls": null,
-    "kind": "arcane",
-    "traits": [
-      "Use inks to create a tattoo sigil effect. You decide its appearance."
-    ]
-  },
-  "Wanderers Cloak": {
-    "cls": null,
-    "kind": "arcane",
-    "traits": [
-      "Spells containing two or fewer Components or Elements can be crafted with advantage on Sleight of Hand Tests to conceal the cast."
-    ]
-  },
-  "Caster's Head Piece": {
-    "cls": null,
-    "kind": "arcane",
-    "traits": [
-      "Defense rolls against arcane sources gain +1, and charm spells you cast last an additional turn."
-    ]
-  },
-  "Vibrant Flamers Robe": {
-    "cls": null,
-    "kind": "arcane",
-    "traits": [
-      "Spells targeting you that contain a Fire Element are reduced by one Fire Element."
-    ]
-  },
-  "Lantern-Wrapped Shawl": {
-    "cls": null,
-    "kind": "arcane",
-    "traits": [
-      "You are immune to magical darkness. While illuminated you gain +1 to Defense rolls against Intuition effects. After casting a Light-based spell, your next Perception check has advantage."
     ]
   }
 };
@@ -10325,6 +10368,222 @@ window.REVELRY_CUSTOM_GEAR = (function () {
 })();
     </script>
     <script>
+/* ============ enchanting.js ============ */
+/* =========================================================================
+   Revelry — building enchanted gear at character creation.
+
+   The arcane wearables used to be a list of five fixed items, which meant a
+   spell sword's whole arcane identity was "I picked the robe". They are gone.
+   In their place a character spends starting slots to build the enchanted
+   gear they actually want, and this is the arithmetic of that trade.
+
+   THE BUDGET is the one every character already has: **one wearable, and
+   three weapons or arcane items**. Enchanting does not add a pool; it spends
+   out of that one, which is what keeps it a decision rather than a bonus.
+
+   WHAT A PIECE COSTS is the sum of three independent things:
+
+       the gear       1 slot, unless it has no statistics at all
+       the spell      1 slot, if you put one in it
+       Spell Focus    1 slot, if it casts through
+
+   So, straight out of the doc's own examples:
+
+       enchanted short sword     gear 1 + spell 1          = 2 equipment
+       enchanted leather armor   gear 1 (worn) + spell 1    = 1 worn + 1 equipment
+       a plain cloak with a spell             spell 1       = 1 slot, either pool
+       a weapon made a Spell Focus  gear 1 + focus 1        = 2 equipment
+       ... and a spell in it too    gear 1 + focus 1 + 1    = 3 equipment
+
+   The gear slot comes from the pool the item belongs to: something worn
+   spends the wearable, anything else spends an equipment slot. A piece with
+   no statistics belongs to neither until the player says so, so it carries
+   its own `pool`.
+
+   HOW BIG A SPELL CAN BE, and which parts are available, is a matter of
+   level. The tiers below are the doc's, and the parts it does not list are
+   not enchantable — Luck, and the Continuate, Echo, Sustain and Permanence
+   Components, stay castable but cannot be bound into an object.
+   ========================================================================= */
+
+window.REVELRY_ENCHANTING = (function () {
+  "use strict";
+
+  /* Each tier states what it *adds* and how large a spell it allows. A part
+     stays available once its tier is reached, so reading the list for a level
+     means folding every tier up to it. */
+  const TIERS = [
+    {
+      tier: 1, from: 1, to: 2, parts: 3,
+      elements: ["Water", "Fire", "Wind", "Earth", "Life Force", "Necrotic", "Light",
+                 "Force", "Radiant", "Electricity", "Poison", "Shadow", "Eldritch", "Nature"],
+      components: ["Project", "Direct", "Concentrate", "Disperse", "Anchor"]
+    },
+    { tier: 2, from: 3, to: 4, parts: 4, elements: [], components: ["Ricochet", "Absorb", "Inject"] },
+    { tier: 3, from: 5, to: Infinity, parts: 5, elements: ["Time", "Space"], components: [] }
+  ];
+
+  const tierFor = (level) => {
+    const n = Math.max(1, Number(level) || 1);
+    const hit = TIERS.find((t) => n >= t.from && n <= t.to);
+    return hit ? hit.tier : 3;
+  };
+
+  /* Everything reachable at a level, and how many parts one piece may hold. */
+  function available(level) {
+    const tier = tierFor(level);
+    const reached = TIERS.filter((t) => t.tier <= tier);
+    return {
+      tier,
+      parts: reached[reached.length - 1].parts,
+      elements: reached.flatMap((t) => t.elements),
+      components: reached.flatMap((t) => t.components)
+    };
+  }
+
+  const enchantable = (level, name) => {
+    const a = available(level);
+    return a.elements.indexOf(name) !== -1 || a.components.indexOf(name) !== -1;
+  };
+
+  /* The tier a part first becomes available at, for telling someone *when*
+     rather than only that they cannot have it yet. */
+  function tierOf(name) {
+    const hit = TIERS.find((t) => t.elements.indexOf(name) !== -1 || t.components.indexOf(name) !== -1);
+    return hit ? hit.tier : 0;
+  }
+
+  const levelForTier = (tier) => (TIERS.find((t) => t.tier === tier) || {}).from || 1;
+
+  /* ----- what a piece costs --------------------------------------------- */
+
+  /* A piece is:
+       { id, name, base, pool, focus, parts: [] }
+
+     `base` is a catalogue item the character **already owns**, or "" for gear
+     with no statistics at all.
+
+     THIS ONLY PRICES THE ENCHANTMENT. The doc is explicit that the object is
+     a starting item in its own right — "they would take the shortsword as one
+     of their starting three items and *then* enchant it, counting as another
+     starting item, totaling to two" — and the equipment step already charges
+     for that. Pricing the object here as well was the first version of this
+     function, and it billed an enchanted short sword twice.
+
+     A piece with no statistics is the exception, and the only reason
+     "neutral" gear exists: there is no object to have bought, so its single
+     slot is the enchantment's.
+
+     `pool` says which budget a statless piece draws on, because the doc lets
+     the player choose — "either the wearable item or one of the three". */
+  function cost(piece, lookup) {
+    const item = piece.base ? (lookup || {})[piece.base] : null;
+    const statless = !piece.base;
+    const worn = statless ? piece.pool === "worn" : Boolean(item && item.type === "armor");
+
+    /* Each enchantment is a slot: the spell is one, making it a Focus is one,
+       and a Focus that also holds a spell is therefore two. */
+    const enchantments = (piece.parts && piece.parts.length ? 1 : 0) + (piece.focus ? 1 : 0);
+
+    /* Only a statless piece can spend the wearable slot, and only for its
+       first enchantment — there is one wearable, not several. */
+    if (statless && worn && enchantments) {
+      return { wearable: 1, carried: enchantments - 1, total: enchantments };
+    }
+    return { wearable: 0, carried: enchantments, total: enchantments };
+  }
+
+  /* ----- is it legal ----------------------------------------------------- */
+
+  /* Reasons it cannot be built, in the player's terms. Returned as a list
+     because more than one can be true at once and hiding the others behind
+     the first makes the form feel like it is arguing. */
+  function problems(piece, level, lookup) {
+    const out = [];
+    const a = available(level);
+    const parts = piece.parts || [];
+    const item = piece.base ? (lookup || {})[piece.base] : null;
+
+    if (piece.base && !item) out.push(`${piece.base} is not in the catalogue.`);
+
+    if (parts.length > a.parts) {
+      out.push(`A tier ${a.tier} enchantment holds ${a.parts} parts. This has ${parts.length}.`);
+    }
+
+    parts.forEach((name) => {
+      if (enchantable(level, name)) return;
+      const tier = tierOf(name);
+      out.push(tier
+        ? `${name} cannot be bound until tier ${tier}, at level ${levelForTier(tier)}.`
+        : `${name} cannot be bound into an object.`);
+    });
+
+    /* "Items that take up a hand slot can be enchanted as Spell Focuses." */
+    if (piece.focus) {
+      if (!piece.base) out.push("A Spell Focus has to be a real object — pick something to enchant.");
+      else if (!handed(item)) out.push(`${piece.base} does not take a hand, so it cannot be a Spell Focus.`);
+    }
+
+    if (!parts.length && !piece.focus) {
+      out.push("Nothing has been bound into it yet.");
+    }
+
+    return out;
+  }
+
+  function handed(item) {
+    if (!item) return false;
+    const profile = ((window.REVELRY_DATA || {}).GEAR || {})[item.name];
+    if (profile) return Number(profile.hands || 0) > 0;
+    return /one-?handed|two-?handed/i.test(item.stats || "");
+  }
+
+  /* ----- the whole character --------------------------------------------- */
+
+  const read = (state) => ((state || {}).enchanted || []).filter((p) => p && typeof p === "object");
+
+  /* What every piece costs together, so the builder can price the next one
+     against what is already spent. */
+  function spent(state, lookup) {
+    return read(state).reduce((sum, piece) => {
+      const c = cost(piece, lookup);
+      return { wearable: sum.wearable + c.wearable, carried: sum.carried + c.carried };
+    }, { wearable: 0, carried: 0 });
+  }
+
+  /* A plain-language name for a piece that has none of its own. */
+  function label(piece) {
+    if (piece.name && piece.name.trim()) return piece.name.trim();
+    if (piece.base) return `Enchanted ${piece.base}`;
+    return "Enchanted trinket";
+  }
+
+  /* One line describing what it is, for a card. */
+  function describe(piece, lookup) {
+    const bits = [];
+    if (piece.base) bits.push(piece.base);
+    else bits.push("no statistics");
+    if (piece.focus) bits.push("Spell Focus");
+    if (piece.parts && piece.parts.length) bits.push(piece.parts.join(" + "));
+    return bits.join(" · ");
+  }
+
+  /* The two rules that bind at the table rather than at creation. Kept here
+     so the sheet and the builder quote them the same way. */
+  const USE = "Activated as an action, once per turn, and it counts as "
+    + "originating from you for rolls and ranges. Only a spell holding Absorb "
+    + "can be activated as a reaction.";
+  const ACTIVE_LIMIT = "You may have as many arcane items active as your Ranks "
+    + "in Arcana. Carry as many as you like; choose which are active at each long rest.";
+
+  return {
+    TIERS, tierFor, available, enchantable, tierOf, levelForTier,
+    cost, problems, handed, read, spent, label, describe,
+    USE, ACTIVE_LIMIT
+  };
+})();
+    </script>
+    <script>
 /* ============ sheet.js ============ */
 /* The catalogues all come from revelry-data.js, generated from the doc.
    They used to be inline here AND in the other page's script, which is how
@@ -10924,6 +11183,52 @@ function gearCard(item, state, lookup, where) {
     </article>`;
 }
 
+/* ----- enchanted gear, at the table --------------------------------------
+   Built at creation out of starting slots; read here. The two rules that bind
+   in play rather than at creation are printed with it, because the second one
+   is a number the sheet already knows: how many of these you may have active
+   is your Ranks in Arcana, and a character who built three of them with one
+   rank needs telling. */
+function enchantedSection(state, d, lookup) {
+  const E = window.REVELRY_ENCHANTING;
+  if (!E) return "";
+  const pieces = E.read(state);
+  if (!pieces.length) return "";
+
+  const active = Number(d.arcana || 0);
+  const over = pieces.length > active;
+
+  const cards = pieces.map((piece) => {
+    const parts = piece.parts || [];
+    const reaction = parts.indexOf("Absorb") !== -1;
+    return `
+      <article class="detail-card ench-piece">
+        <strong>${escapeHtml(E.label(piece))}</strong>
+        <small>${escapeHtml(E.describe(piece, lookup))}</small>
+        ${parts.length ? `<div class="ench-piece-parts">${
+          parts.filter((n, i) => parts.indexOf(n) === i).map((name) => {
+            const n = parts.filter((p) => p === name).length;
+            return `<span class="pill ench-pill">${escapeHtml(name)}${n > 1 ? ` ×${n}` : ""}</span>`;
+          }).join("")}</div>` : ""}
+        ${piece.focus ? `<p class="ench-note"><b>Spell Focus.</b> Cast through this without a free hand.</p>` : ""}
+        ${reaction ? `<p class="ench-note"><b>Holds Absorb</b>, so this one may be activated as a reaction.</p>` : ""}
+      </article>`;
+  }).join("");
+
+  return `
+    <section class="sheet-block enchanted-sheet-block">
+      <div class="sheet-block-head">
+        <h4>Enchanted Gear</h4>
+        <span class="mini-badge${over ? " over" : ""}">${pieces.length} carried · ${active} active</span>
+      </div>
+      <div class="${sheetDetailMode === "compact" ? "pill-row" : "detail-grid"}">${cards}</div>
+      <p class="ench-rules">${escapeHtml(E.USE)}</p>
+      <p class="ench-rules">${escapeHtml(E.ACTIVE_LIMIT)}</p>
+      ${over ? `<p class="ench-rules over">You are carrying ${pieces.length} but only ${active}
+        can be active — your Ranks in Arcana. Choose which at your next long rest.</p>` : ""}
+    </section>`;
+}
+
 function slotBox(slot, label, hint, book, state, lookup) {
   const ids = LOADOUT.MULTI[slot] ? book.slots[slot] : [book.slots[slot]].filter(Boolean);
   const cards = ids.map((id) => {
@@ -11447,6 +11752,7 @@ function sheetMarkup(entry) {
     </section>
     ${editableSection("traits", "Traits", state.traits || [], "trait-detail", traitLookup, traitOptions.filter((trait) => traitTierAllowed(trait, Number(fields.level || 1))), "Custom trait")}
     ${equipmentSection(state, equipmentLookup, fields.uniqueItem, entry.id)}
+    ${enchantedSection(state, d, equipmentLookup)}
     ${customEditableSection("expertises", "Expertises", expertisesLabel, "expertise-pill", "New expertise", "Detail (optional)", customDetails(state, "expertises"))}
     ${customEditableSection("experiences", "Experiences", experiences, "experience-pill", "New experience", "Detail — e.g. +2 when...", customDetails(state, "experiences"))}
   `;
