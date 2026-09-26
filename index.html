@@ -2682,12 +2682,46 @@ button:hover, .primary-button:hover, .secondary-button:hover, .ghost-button:hove
    want. It sits in this step because it spends the same starting slots as
    everything above it, and the running total at the foot says so. */
 .enchant-block {
-  margin-top: 1.4rem;
-  padding: 1rem;
-  border: 1px solid var(--line);
+  margin: 0.9rem 0 1.1rem;
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
   border-radius: var(--radius);
   background: rgba(0, 0, 0, 0.18);
 }
+
+/* The fold. A full-width bar, so it reads as a section you can open rather
+   than one more button among the gear cards under it. */
+.enchant-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, rgba(var(--accent-rgb), 0.12), transparent 70%);
+  color: var(--paper-bright);
+  cursor: pointer;
+  text-align: left;
+}
+.enchant-toggle:hover { background: linear-gradient(90deg, rgba(var(--accent-rgb), 0.2), transparent 75%); }
+.enchant-toggle.open { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.enchant-toggle-mark { color: var(--accent); font-size: 1rem; }
+.enchant-toggle-title { font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.03em; }
+.enchant-count { color: var(--accent-pale); font-family: var(--font-body); font-size: 0.8rem; font-weight: 400; }
+.enchant-toggle .mini-badge { margin-left: auto; font-family: var(--font-body); font-weight: 400; }
+.enchant-toggle-cue {
+  color: var(--accent-lit);
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.enchant-toggle-cue::after { content: " ▾"; }
+.enchant-toggle.open .enchant-toggle-cue::after { content: " ▴"; }
+
+.enchant-body { padding: 0.2rem 1rem 1rem; }
+.enchant-body .helper:first-child { margin-top: 0.6rem; }
 
 .enchant-list { display: grid; gap: 0.75rem; margin: 0.6rem 0; }
 .ench-empty { font-style: italic; opacity: 0.7; margin: 0.5rem 0; }
@@ -4529,23 +4563,33 @@ window.REVELRY_PALETTE = (function () {
                 <p class="helper" id="equip-warning"></p>
                 <div class="equipped-builder-grid" id="equipped-list"></div>
               </div>
-              <div class="choice-grid" id="equipment-grid"></div>
-
-              <!-- Enchanting spends out of the same budget as everything above
-                   it, so it lives in the same step. Put it on its own screen
-                   and the slot arithmetic is split across two places. -->
+              <!-- Enchanting sits between what you have taken and the catalogue,
+                   not at the foot of a forty-item grid. It spends the same
+                   budget as the gear above it, and it enchants gear you have
+                   already taken, so it belongs right under the list of what
+                   you are holding. Folded shut by default: most characters
+                   never open it, and the catalogue should not be pushed down
+                   for them. -->
               <div class="enchant-block" id="enchant-block">
-                <div class="sheet-block-head">
-                  <h4>Enchanted Gear</h4>
+                <button class="enchant-toggle" type="button" id="enchant-toggle"
+                  aria-expanded="false" aria-controls="enchant-body">
+                  <span class="enchant-toggle-mark" aria-hidden="true">✦</span>
+                  <span class="enchant-toggle-title">Enchanted Gear</span>
+                  <span id="enchant-count" class="enchant-count"></span>
                   <span id="enchant-tier" class="mini-badge">Tier 1</span>
+                  <span class="enchant-toggle-cue" id="enchant-cue">Open the forge</span>
+                </button>
+                <div class="enchant-body" id="enchant-body" hidden>
+                  <p class="helper">Build the arcane gear you want instead of picking a pre-made one.
+                    It spends the same starting slots as anything else: <b>the object costs one</b>
+                    unless it has no statistics at all, <b>the spell costs one</b>, and
+                    <b>making it a Spell Focus costs one</b>.</p>
+                  <div id="enchant-list" class="enchant-list"></div>
+                  <button class="secondary-button small" type="button" id="enchant-add">Forge an enchanted item</button>
                 </div>
-                <p class="helper">Build the arcane gear you want instead of picking a pre-made one.
-                  It spends the same starting slots as anything else: <b>the object costs one</b>
-                  unless it has no statistics at all, <b>the spell costs one</b>, and
-                  <b>making it a Spell Focus costs one</b>.</p>
-                <div id="enchant-list" class="enchant-list"></div>
-                <button class="secondary-button small" type="button" id="enchant-add">Forge an enchanted item</button>
               </div>
+
+              <div class="choice-grid" id="equipment-grid"></div>
             </section>
 
             <section class="wizard-step" data-step="7">
@@ -10574,9 +10618,29 @@ function enchantNewPiece() {
   return { id: `ench-${Date.now().toString(36)}`, name: "", base: "", pool: "carried", focus: false, parts: [] };
 }
 
+/* Whether the forge is unfolded. It lives above the catalogue now, so it
+   starts shut — most characters never open it, and the gear grid should not
+   be pushed down for them. Once opened it stays open while you work, across
+   every redraw. */
+let forgeOpen = false;
+
+function renderForgeToggle(count) {
+  const body = $("#enchant-body");
+  const toggle = $("#enchant-toggle");
+  if (!body || !toggle) return;
+  body.hidden = !forgeOpen;
+  toggle.setAttribute("aria-expanded", forgeOpen ? "true" : "false");
+  toggle.classList.toggle("open", forgeOpen);
+  const cue = $("#enchant-cue");
+  if (cue) cue.textContent = forgeOpen ? "Close" : (count ? "Open" : "Open the forge");
+  const tally = $("#enchant-count");
+  if (tally) tally.textContent = count ? `${count} forged` : "";
+}
+
 function renderEnchanting() {
   const list = $("#enchant-list");
   if (!list || !ENCHANT()) return;
+  renderForgeToggle(ENCHANT().read(state).length);
 
   const level = enchantLevel();
   const a = ENCHANT().available(level);
@@ -11734,7 +11798,13 @@ function setupEvents() {
       return;
     }
     /* ----- the enchanting forge ----- */
+    if (event.target.closest("#enchant-toggle")) {
+      forgeOpen = !forgeOpen;
+      renderEnchanting();
+      return;
+    }
     if (event.target.closest("#enchant-add")) {
+      forgeOpen = true;
       state.enchanted = (state.enchanted || []).concat([enchantNewPiece()]);
       renderEnchanting();
       renderSheet();
