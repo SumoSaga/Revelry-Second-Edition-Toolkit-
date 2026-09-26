@@ -4293,26 +4293,6 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
 .gear-ench-note { margin: 0; color: #d7bd8d; font-size: 0.72rem; line-height: 1.4; }
 
-.gear-ench-read summary {
-  cursor: pointer;
-  color: var(--accent-lit);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.gear-ench-read[open] summary { margin-bottom: 0.35rem; }
-.gear-ench-read .spell-diagram-figure { margin: 0 0 0.3rem; max-width: 260px; }
-.gear-ench-read .sr-block { margin-bottom: 0.3rem; }
-.gear-ench-read .sr-block p { font-size: 0.72rem; }
-.gear-ench-read-head {
-  margin: 0.3rem 0 0.15rem;
-  color: var(--muted);
-  font-size: 0.6rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.gear-ench-read-head i { font-style: normal; text-transform: none; letter-spacing: 0.02em; }
-
 .ench-active {
   margin-left: auto;
   margin-right: 0.5rem;
@@ -11383,9 +11363,10 @@ let enchantOn = {};
 /* An enchantment laid over the card of the thing it is bound into.
 
    In the pack it is a line of coloured pills, so a bag of five items stays
-   scannable. In a slot it opens up the way the item's own features do: the
-   pills, whether it is a Spell Focus, whether it can answer as a reaction,
-   and — folded away — the same reading of the spell the Spellforge gives. */
+   scannable. In a slot it adds whether it is a Spell Focus and whether it can
+   answer as a reaction. The full reading of the spell stays in the builder's
+   forge; on the sheet a folded "How it works" cost a line on every card and
+   gave little back. */
 function enchantOverlay(piece, equipped) {
   const E = window.REVELRY_ENCHANTING;
   const ART = window.REVELRY_SPELL_ART;
@@ -11409,10 +11390,6 @@ function enchantOverlay(piece, equipped) {
       ${pills ? `<div class="gear-ench-pills">${pills}</div>` : ""}
       ${equipped && piece.focus ? `<p class="gear-ench-note">Cast through this without a free hand.</p>` : ""}
       ${equipped && parts.indexOf("Absorb") !== -1 ? `<p class="gear-ench-note">Holds Absorb, so it may be activated as a reaction.</p>` : ""}
-      ${equipped && parts.length && ART ? `<details class="gear-ench-read">
-        <summary>How it works</summary>
-        ${ART.spellReading(parts, { head: "gear-ench-read-head" })}
-      </details>` : ""}
     </div>`;
 }
 
