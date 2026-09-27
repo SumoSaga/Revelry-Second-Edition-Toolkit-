@@ -2843,6 +2843,39 @@ button:hover, .primary-button:hover, .secondary-button:hover, .ghost-button:hove
 .ench-left.over { color: #ff8c78; font-weight: 700; }
 
 .ench-hint { display: block; margin-top: 0.15rem; color: var(--muted); font-size: 0.68rem; font-style: italic; line-height: 1.35; }
+
+/* ----- Expertise controls, compact ---------------------------------------
+   Every button on these pages inherits `min-height: 42px` and 0.72rem of
+   padding from the base button rule above — right for Save and Next, wrong
+   for a 0.68rem chip. That is what made a one-word Expertise toggle stand as
+   tall as a primary button on every gear card. These are chips, sized as
+   chips. */
+.gear-exp-toggle,
+.equipped-builder-card .gear-exp {
+  min-height: 0;
+  line-height: 1.2;
+}
+
+.gear-exp-toggle { margin-top: 0.3rem; padding: 0.12rem 0.45rem; }
+
+.equipped-builder-card .gear-exp {
+  padding: 0.14rem 0.45rem 0.14rem 0.25rem;
+  font-size: 0.72rem;
+}
+.equipped-builder-card .gear-exp .ge-mark { flex-basis: 0.8rem; height: 0.8rem; font-size: 0.6rem; }
+
+/* Trained: the chip heads its own text on one line, so there is no rule and
+   no gap above it any more. */
+.gear-exp-text {
+  margin: 0.3rem 0 0 !important;
+  padding-top: 0;
+  border-top: 0;
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+.gear-exp-text .gear-exp-toggle { margin: 0 0.25rem 0 0; vertical-align: baseline; }
+
+.builder-gear-exp { margin-top: 0.25rem; }
 /* ============ theme.css ============ */
 /* =========================================================================
    Revelry Toolkit — Shared "Elevated Dark Fantasy" theme layer
@@ -4311,6 +4344,10 @@ html, body { max-width: 100%; overflow-x: hidden; }
   line-height: 1.45;
 }
 .gear-ench-rules.over { color: #ff8c78; font-style: normal; }
+
+/* The trained chip sits inline at the head of its text; the rule above would
+   otherwise push it down off the line it is meant to start. */
+.gear-tile .gear-exp-text .gear-exp-toggle { margin: 0 0.25rem 0 0; }
 /* ============ parry-combat.css ============ */
 /* REVELRY · PARRY EDITION — Atk/Def strip, Arms & Equipment block,
    maneuvers flyout, builder gear badges, and scroll comfort.
@@ -11328,10 +11365,16 @@ function ammoTrack(name, entryId) {
 function gearExpBlock(name, detail, state) {
   if (!detail || !detail.expertise) return "";
   const active = ((state && state.gearExpertise) || []).includes(name);
-  return `
-    ${active ? `<p class="gear-exp-text"><b>${escapeHtml(detail.expertise.name)}.</b> ${escapeHtml(detail.expertise.text)}</p>` : ""}
-    <button type="button" class="gear-exp-toggle ${active ? "on" : ""}" data-gear-exp="${escapeHtml(name)}" title="Toggle whether your character has Expertise in this item">${active ? "✓ Expertise active" : `+ Add Expertise: ${escapeHtml(detail.expertise.name)}`}</button>
-  `;
+  /* One line, not two. Trained, the toggle *is* the heading of the
+     Expertise text, so its name is said once; untrained, it is a single small
+     chip naming what you would get. It used to be a paragraph with its own
+     rule above it and then a separate button under that. */
+  const toggle = `<button type="button" class="gear-exp-toggle ${active ? "on" : ""}" data-gear-exp="${escapeHtml(name)}"
+    title="${active ? "Trained — click to drop it" : `Train ${escapeHtml(detail.expertise.name)}: ${escapeHtml(detail.expertise.text)}`}">${
+    active ? "✓" : "+ Expertise:"} ${escapeHtml(detail.expertise.name)}</button>`;
+  return active
+    ? `<p class="gear-exp-text">${toggle} ${escapeHtml(detail.expertise.text)}</p>`
+    : toggle;
 }
 
 /* The loadout module does not know about Expertise toggles that change how
