@@ -4786,7 +4786,7 @@ window.REVELRY_DATA = (function () {
   "startingExpertises": 2,
   "startingExperiences": 2,
   "experienceBonus": 2,
-  "baseGrit": 5,
+  "baseGrit": 3,
   "baseMovement": 30,
   "movementPerDex": 5,
   "startingHands": 2,
@@ -10269,15 +10269,16 @@ function derived() {
   let movement = (heritageBase.length ? Math.min(...heritageBase) : 30) + a.dexterity * 5;
   activeGear.forEach((name) => { movement -= effectiveSpeedPenalty(name); });
   const armorerBonus = ((state.traits || []).includes("Armorer") && activeGear.some((name) => { const it = equipment.find((e) => e.name === name); return it && it.type === "armor"; })) ? 1 : 0;
-  /* Grit is the only track Revelry has: 5, plus one for each point of
-     Willpower and one for every level past the first. Injuries and their
-     severity tracks are gone, and with them the Stress they fed. */
+  /* Grit is the only track Revelry has: `RULES.baseGrit`, plus one for each
+     point of Willpower and one for every level past the first. Read from the
+     data rather than written here, so the builder and the play sheet cannot
+     disagree about it. */
   const level = characterLevel();
   return {
     movement: Math.max(5, movement),
     armorerBonus,
     level,
-    grit: 5 + a.willpower + (level - 1)
+    grit: DATA.RULES.baseGrit + a.willpower + (level - 1)
       + heritageEffectSum(state, "gritSlots")
       + (state.community === "Ridgeborne" ? 1 : 0),
     armorSlots,
@@ -12092,6 +12093,10 @@ init();
     { id: "knockback", cost: 2, name: "Knockback", scope: "ranged",
       text: "Throw the target backward. Slammed into something solid, they take 1 Stress per 10 ft. they couldn't travel.",
       scale: (a) => ({ value: `${10 + 5 * a.strength} ft.`, from: `10 + 5 × Strength ${a.strength}` }) },
+    /* Ranged only, and the ranged answer to Bind: rather than locking the
+       target in place, it ties their attention to you. */
+    { id: "pin", cost: 2, name: "Pin", scope: "ranged",
+      text: "The target has disadvantage on action rolls, except those that concern the one pinning them." },
     { id: "break", cost: 2, name: "Break", scope: "both",
       text: "Pressure the guard — the target's Poise fills by 2. Only menacing foes carry a Poise gauge." },
     { id: "bind", cost: 2, name: "Bind & Reposition", scope: "melee",

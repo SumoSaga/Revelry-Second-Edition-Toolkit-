@@ -5384,7 +5384,7 @@ window.REVELRY_DATA = (function () {
   "startingExpertises": 2,
   "startingExperiences": 2,
   "experienceBonus": 2,
-  "baseGrit": 5,
+  "baseGrit": 3,
   "baseMovement": 30,
   "movementPerDex": 5,
   "startingHands": 2,
@@ -11171,11 +11171,13 @@ function derived(payload) {
     return item && item.type === "armor";
   });
   const armorerBonus = (traits.includes("Armorer") && hasArmorEquipped) ? 1 : 0;
-  /* Grit is the only track this system has. Revelry gives every character
-     5, plus a slot for each point of Willpower and one for every level past
-     the first. Injuries, and the Stress they used to feed, are gone. */
+  /* Grit is the only track this system has: a base every character starts
+     with, plus a slot for each point of Willpower and one for every level
+     past the first. The base is `RULES.baseGrit`, one number in the data —
+     this used to be a literal 5 here and another in the builder, which is
+     exactly how the two would have drifted the first time it changed. */
   const level = Math.max(1, Number((payload.fields || {}).level || 1));
-  const grit = 5 + a.willpower + (level - 1)
+  const grit = DATA.RULES.baseGrit + a.willpower + (level - 1)
     + heritageEffectSum(state, "gritSlots")
     + (state.community === "Ridgeborne" ? 1 : 0);
   /* The two numbers that bound a spell: Willpower is how many parts one
@@ -12723,6 +12725,10 @@ function handleAddFilter(event) {
     { id: "knockback", cost: 2, name: "Knockback", scope: "ranged",
       text: "Throw the target backward. Slammed into something solid, they take 1 Stress per 10 ft. they couldn't travel.",
       scale: (a) => ({ value: `${10 + 5 * a.strength} ft.`, from: `10 + 5 × Strength ${a.strength}` }) },
+    /* Ranged only, and the ranged answer to Bind: rather than locking the
+       target in place, it ties their attention to you. */
+    { id: "pin", cost: 2, name: "Pin", scope: "ranged",
+      text: "The target has disadvantage on action rolls, except those that concern the one pinning them." },
     { id: "break", cost: 2, name: "Break", scope: "both",
       text: "Pressure the guard — the target's Poise fills by 2. Only menacing foes carry a Poise gauge." },
     { id: "bind", cost: 2, name: "Bind & Reposition", scope: "melee",
