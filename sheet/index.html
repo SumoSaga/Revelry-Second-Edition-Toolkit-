@@ -10,6 +10,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="revelry-build" content="ce5d25675cc6" data-root="../">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0d0a09">
     <title>Revelry | Play Sheet</title>
@@ -6044,6 +6045,127 @@ body::after { display: none !important; }
     </style>
     <!-- Honours the palette chosen in the builder. In the head so the page
          never paints teal and then snaps. -->
+    <!-- Reloads once if this is a cached copy older than the published site. -->
+    <script>
+/* ============ fresh.js ============ */
+/* =========================================================================
+   Revelry — never show an old copy of a page.
+
+   GitHub Pages lets a browser keep any page for ten minutes, and phones
+   keep them longer. The browser also files "the site" and ".../index.html"
+   as two different pages, so after a publish the address you land on could
+   go on showing the old Builder while the Play Sheet's link to the very same
+   file fetched the new one.
+
+   So each published page carries the id of the build it came from, and the
+   build writes the same id to version.json at the root of the site. On every
+   load the page asks for version.json — past every cache — and if the site
+   has moved on, it reloads itself once from a fresh address.
+
+   The rules it keeps:
+     • It acts only on load. A tab left open on a phone for a day is told a
+       newer version exists (a bar with a Reload button) rather than being
+       reloaded under someone who is halfway through typing.
+     • One reload per build, per page, per tab. If the fresh address still came
+       back stale, it stops rather than looping.
+     • Offline, or opened from a file on disk, it does nothing at all.
+     • The ?v= it adds to force the fresh copy is removed from the address
+       bar once the page is current, so links copied from it stay clean.
+
+   The source pages carry no build id (the build adds it), so in the working
+   folder and in the test harness this file does nothing.
+   ========================================================================= */
+
+(function () {
+  "use strict";
+
+  const meta = document.querySelector('meta[name="revelry-build"]');
+  if (!meta || !/^https?:$/.test(location.protocol) || !window.fetch) return;
+
+  const mine = meta.getAttribute("content");
+  const root = meta.getAttribute("data-root") || "./";
+  const LONG_AWAY = 5 * 60 * 1000;
+  let lastCheck = 0;
+
+  function once(build) {
+    /* Per page, not per tab: the Builder having refreshed itself says
+       nothing about whether the Spellforge's cached copy is current. */
+    const key = `revelry-refreshed-${build}-${location.pathname}`;
+    try {
+      if (sessionStorage.getItem(key)) return false;
+      sessionStorage.setItem(key, "1");
+    } catch {
+      /* No session storage: reload only if this address has not already tried. */
+      return new URL(location.href).searchParams.get("v") !== build;
+    }
+    return true;
+  }
+
+  /* Drop our own ?v= once the page is the current one — and fetch the plain
+     address once more, past the cache, so the copy the browser holds under it
+     is this one too. Otherwise Back, or the next visit, would open the old
+     copy again and have to reload a second time. */
+  function tidy() {
+    const url = new URL(location.href);
+    if (!url.searchParams.has("v")) return;
+    url.searchParams.delete("v");
+    url.hash = "";
+    try { history.replaceState(history.state, "", url.toString() + location.hash); } catch { /* not allowed */ }
+    fetch(url.toString(), { cache: "reload", credentials: "same-origin" }).catch(() => {});
+  }
+
+  function offer(build) {
+    if (document.getElementById("revelry-update")) return;
+    const bar = document.createElement("div");
+    bar.id = "revelry-update";
+    bar.setAttribute("role", "status");
+    bar.style.cssText = [
+      "position:fixed", "left:12px", "right:12px", "top:calc(12px + env(safe-area-inset-top, 0px))",
+      "z-index:2147483000", "display:flex", "align-items:center", "gap:12px",
+      "max-width:520px", "margin:0 auto", "padding:10px 12px 10px 16px",
+      "border:1px solid rgba(241,201,118,.5)", "border-radius:12px",
+      "background:rgba(18,14,12,.97)", "color:#fdf4dc", "font:inherit", "font-size:15px",
+      "box-shadow:0 18px 40px -18px rgba(0,0,0,.9)"
+    ].join(";");
+    bar.innerHTML = '<span style="flex:1">A newer version of this page is ready.</span>'
+      + '<button type="button" style="min-height:40px;padding:0 16px;border-radius:10px;border:1px solid rgba(241,201,118,.7);'
+      + 'background:linear-gradient(180deg,#f1c976,#c08a3e);color:#1b120a;font:inherit;font-weight:700;cursor:pointer">Reload</button>';
+    bar.querySelector("button").addEventListener("click", () => go(build));
+    (document.body || document.documentElement).appendChild(bar);
+  }
+
+  function go(build) {
+    const url = new URL(location.href);
+    url.searchParams.set("v", build);
+    location.replace(url.toString());
+  }
+
+  function check(onLoad) {
+    lastCheck = Date.now();
+    fetch(`${root}version.json?t=${Date.now()}`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((v) => {
+        if (!v || !v.build) return;
+        if (v.build === mine) { tidy(); return; }
+        if (onLoad) { if (once(v.build)) go(v.build); else offer(v.build); }
+        else offer(v.build);
+      })
+      .catch(() => { /* offline, or the stamp is missing: keep what we have */ });
+  }
+
+  check(true);
+
+  /* Back/forward can restore a page from memory without loading it. */
+  window.addEventListener("pageshow", (event) => { if (event.persisted) check(true); });
+
+  /* Coming back to a tab after a while: offer, never force. */
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && Date.now() - lastCheck > LONG_AWAY) check(false);
+  });
+
+  window.REVELRY_FRESH = { build: mine, check };
+})();
+    </script>
     <script>
 /* ============ palette.js ============ */
 /* =========================================================================
