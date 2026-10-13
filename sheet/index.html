@@ -10,7 +10,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0d0a09">
     <title>Revelry | Play Sheet</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -5176,6 +5177,872 @@ body::after { display: none !important; }
 }
 
 .sr-over { margin: 0.3rem 0 0; color: #ff8c78; font-size: 0.74rem; }
+/* ============ sheet-mobile.css ============ */
+/* =========================================================================
+   Revelry — the Play Sheet on a phone or a tablet held upright.
+
+   Everything here sits inside one media query, so it switches itself on at
+   900px and narrower and is simply absent above that. There is no second
+   page and no second rendering: sheet.js still draws the sheet, the combat
+   layer still adds its strip and its rack, and this only rearranges them
+   — tabs instead of one long scroll, an app bar, a quick line of the
+   numbers you read across the table, and the flyouts as full sheets.
+
+   900px is every iPad in portrait and nothing in landscape. A tablet turned
+   sideways has the room for the desktop layout, and gets it.
+
+   Sizes are set for a thumb: nothing you tap mid-turn is under 40px, and
+   the controls you reach for most — Grit, Momentum, the rank dots — are the
+   largest things on their row.
+
+   No !important. Where a desktop rule has to lose, it loses on specificity.
+   ========================================================================= */
+
+/* The phone shell is in the page at every width, and hidden above 900px. */
+.m-bar, .m-quick, .m-tabs, .m-menu { display: none; }
+
+@media (max-width: 900px) {
+  .sheet-only-page {
+    --m-gutter: 12px;
+    --m-bar-h: 54px;
+    --m-tabs-h: 62px;
+    --m-safe-top: env(safe-area-inset-top, 0px);
+    --m-safe-bottom: env(safe-area-inset-bottom, 0px);
+    --m-momentum: #c4b5ff;
+    --m-momentum-rgb: 160, 140, 255;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    padding-bottom: calc(var(--m-tabs-h) + var(--m-safe-bottom) + 16px);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* The ember field is a canvas redrawn every frame. On a phone that is
+     battery for decoration; the combat layer already blanks it. */
+  .sheet-only-page #ember-field { display: none; }
+
+  .sheet-only-page button,
+  .sheet-only-page select,
+  .sheet-only-page input { touch-action: manipulation; }
+
+  /* ----- the app bar ------------------------------------------------------ */
+
+  .m-bar {
+    position: sticky;
+    top: 0;
+    z-index: 35;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    min-height: calc(var(--m-bar-h) + var(--m-safe-top));
+    padding: var(--m-safe-top) calc(var(--m-gutter) + env(safe-area-inset-right, 0px)) 0 calc(var(--m-gutter) + env(safe-area-inset-left, 0px));
+    background: var(--panel-glass);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .m-brand {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    color: #1b120a;
+    background: linear-gradient(160deg, #ffe4a8, var(--gold) 55%, var(--brass));
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.05rem;
+    text-decoration: none;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4) inset;
+  }
+
+  .m-pick {
+    position: relative;
+    display: grid;
+    min-width: 0;
+    margin: 0;
+  }
+
+  .m-pick-label {
+    color: var(--accent);
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+
+  .sheet-only-page .m-pick select {
+    width: 100%;
+    min-height: 0;
+    padding: 0 1.4rem 0 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--paper-bright);
+    font-family: var(--font-display);
+    font-size: 1.12rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    appearance: none;
+    -webkit-appearance: none;
+    box-shadow: none;
+  }
+
+  .m-pick::after {
+    content: "";
+    position: absolute;
+    right: 0.2rem;
+    bottom: 0.55rem;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-right: 2px solid var(--muted);
+    border-bottom: 2px solid var(--muted);
+    transform: rotate(45deg);
+    pointer-events: none;
+  }
+
+  .sheet-only-page .m-pick select:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  .m-icon-button {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    min-height: 42px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.25);
+    color: var(--paper-bright);
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+
+  /* ----- the quick line --------------------------------------------------- */
+
+  .m-quick {
+    position: sticky;
+    top: calc(var(--m-bar-h) + var(--m-safe-top));
+    z-index: 34;
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    padding: 8px calc(var(--m-gutter) + env(safe-area-inset-right, 0px)) 8px calc(var(--m-gutter) + env(safe-area-inset-left, 0px));
+    background: var(--panel-glass);
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 10px 24px -18px rgba(0, 0, 0, 0.9);
+  }
+
+  .m-no-character .m-quick { display: none; }
+
+  .m-q {
+    flex: 1 1 0;
+    min-width: 0;
+    display: grid;
+    justify-items: center;
+    gap: 1px;
+    min-height: 44px;
+    padding: 4px 2px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.28);
+    color: inherit;
+    font: inherit;
+  }
+
+  .m-q span {
+    color: var(--muted);
+    font-size: 0.56rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+
+  .m-q b {
+    font-family: var(--font-display);
+    font-size: 1.12rem;
+    line-height: 1.05;
+    white-space: nowrap;
+  }
+
+  .m-q-atk b { color: #e2b25f; }
+  .m-q-def b { color: #8fbcdf; }
+  .m-q-grit b { color: #ffb39f; }
+  /* Anything in this violet is Momentum. */
+  .m-q-mom { border-color: rgba(var(--m-momentum-rgb), 0.28); background: rgba(var(--m-momentum-rgb), 0.07); }
+  .m-q-mom span, .m-q-mom b { color: var(--m-momentum); }
+
+  .m-q-actions { display: flex; gap: 6px; }
+
+  .m-q-act {
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    line-height: 1;
+    color: #f0c36d;
+    background: linear-gradient(180deg, rgba(214, 168, 84, 0.22), rgba(214, 168, 84, 0.05));
+    border: 1px solid rgba(214, 168, 84, 0.5);
+  }
+
+  .m-q-act[hidden] { display: none; }
+
+  .m-q-forge {
+    color: var(--accent-lit);
+    background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.2), rgba(var(--accent-rgb), 0.04));
+    border-color: rgba(var(--accent-rgb), 0.5);
+  }
+
+  .m-q-act.on {
+    color: #1b120a;
+    background: #f0c36d;
+    border-color: #f0c36d;
+  }
+
+  .m-q-forge.on { background: var(--accent); border-color: var(--accent); }
+
+  /* ----- the page --------------------------------------------------------- */
+
+  .sheet-only-page .sheet-page-shell {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: var(--m-gutter) calc(var(--m-gutter) + env(safe-area-inset-right, 0px)) 0 calc(var(--m-gutter) + env(safe-area-inset-left, 0px));
+  }
+
+  /* theme.css lifts <main> to z-index 2, which makes it a stacking context:
+     the add drawers inside it could then never rise above the app bar. */
+  .sheet-only-page .sheet-page-shell { z-index: auto; }
+
+  .sheet-only-page #sheet-empty { margin-top: 1rem; padding: 1.5rem 1.1rem; }
+  .sheet-only-page #sheet-empty h2 { font-size: 1.4rem; }
+
+  .sheet-only-page .m-sheet {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .sheet-only-page .m-sheet > * { min-width: 0; margin: 0; }
+
+  /* One tab at a time. A section is shown when its tag matches the tab. */
+  body.sheet-only-page[data-m-tab="play"] .m-sheet > [data-m-section]:not([data-m-section="play"]),
+  body.sheet-only-page[data-m-tab="skills"] .m-sheet > [data-m-section]:not([data-m-section="skills"]),
+  body.sheet-only-page[data-m-tab="gear"] .m-sheet > [data-m-section]:not([data-m-section="gear"]),
+  body.sheet-only-page[data-m-tab="traits"] .m-sheet > [data-m-section]:not([data-m-section="traits"]),
+  body.sheet-only-page[data-m-tab="story"] .m-sheet > [data-m-section]:not([data-m-section="story"]) {
+    display: none;
+  }
+
+  /* Every block reads as one card on the page, at one padding. */
+  .sheet-only-page .m-sheet .sheet-block,
+  .sheet-only-page .m-sheet .test-panel,
+  .sheet-only-page .m-sheet .condition-tracker {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .sheet-only-page .m-sheet .sheet-block h4 { font-size: 0.82rem; letter-spacing: 0.14em; }
+
+  /* ----- Play: the title -------------------------------------------------- */
+
+  .sheet-only-page .m-sheet .play-sheet-title {
+    display: grid;
+    gap: 12px;
+    padding: 16px 14px 14px;
+    border-left-width: 4px;
+    border-radius: 14px;
+  }
+
+  .sheet-only-page .m-sheet .play-sheet-title h3 {
+    font-size: 1.6rem;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+
+  .sheet-only-page .m-sheet .play-sheet-title p { margin: 0; font-size: 0.98rem; color: var(--paper); }
+
+  .sheet-only-page .m-sheet .title-side { display: grid; gap: 10px; align-items: stretch; }
+
+  .sheet-only-page .m-sheet .title-badges {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .sheet-only-page .m-sheet .sheet-badge,
+  .sheet-only-page .m-sheet .level-badge {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.86rem;
+  }
+
+  .sheet-only-page .m-sheet .level-badge { padding-block: 0.2rem; }
+
+  .sheet-only-page .m-sheet .level-badge input {
+    width: 3.4rem;
+    min-height: 2.1rem;
+    font-size: 1rem;
+  }
+
+  /* Momentum gets the whole width: six pips you can hit without looking. The
+     label and the count share the top line so the pips can have all of the
+     second. */
+  .sheet-only-page .m-sheet .momentum-badge {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "label count"
+      "pips pips";
+    align-items: center;
+    gap: 6px 10px;
+    align-self: stretch;
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 14px;
+  }
+
+  .sheet-only-page .m-sheet .momentum-badge .momentum-label { grid-area: label; font-size: 0.66rem; letter-spacing: 0.16em; }
+
+  .sheet-only-page .m-sheet .momentum-badge .momentum-pips {
+    grid-area: pips;
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .sheet-only-page .m-sheet .momentum-badge .momentum-pip {
+    flex: 1 1 0;
+    max-width: 46px;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 1;
+  }
+
+  .sheet-only-page .m-sheet .momentum-count { grid-area: count; font-size: 1.15rem; }
+
+  .sheet-only-page .m-sheet .play-sheet-title .sheet-kicker { display: none; }
+
+  /* ----- Play: the exchange strip ----------------------------------------- */
+
+  .sheet-only-page .m-sheet .pc-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .sheet-only-page .m-sheet .pc-num,
+  .sheet-only-page .m-sheet .pc-num + .pc-num {
+    grid-template-columns: 1fr auto;
+    padding: 8px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.22);
+  }
+
+  .sheet-only-page .m-sheet .pc-num { align-items: start; }
+  .sheet-only-page .m-sheet .pc-num strong { font-size: 2rem; align-self: center; }
+  .sheet-only-page .m-sheet .pc-num em { display: block; white-space: normal; font-size: 0.62rem; line-height: 1.3; }
+
+  .sheet-only-page .m-sheet .pc-hands,
+  .sheet-only-page .m-sheet .pc-strip-empty { grid-column: 1 / -1; }
+
+  .sheet-only-page .m-sheet .pc-hands { display: flex; gap: 6px; }
+  .sheet-only-page .m-sheet .pc-slot { flex: 1 1 0; min-height: 52px; padding: 6px 10px; justify-content: start; justify-items: start; align-content: center; }
+  .sheet-only-page .m-sheet .pc-slot b { font-size: 0.9rem; }
+  .sheet-only-page .m-sheet .pc-swap,
+  .sheet-only-page .m-sheet .pc-grip { min-width: 44px; min-height: 52px; }
+
+  /* The flyout buttons live in the quick line, which is always on screen.
+     The strip's own pair are still there, hidden, because the quick line
+     presses them. */
+  .sheet-only-page .m-sheet .pc-strip-buttons { display: none; }
+
+  /* ----- Play: Grit, Armor, Wounds ---------------------------------------- */
+
+  .sheet-only-page .m-sheet .condition-tracker { margin: 0; }
+  .sheet-only-page .m-sheet .tracker-slot-grid { gap: 10px; }
+
+  .sheet-only-page .m-sheet .track-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "label count"
+      "boxes boxes";
+    gap: 8px 10px;
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .sheet-only-page .m-sheet .track-row > strong { grid-area: label; font-size: 0.86rem; }
+  .sheet-only-page .m-sheet .track-row > .track-count { grid-area: count; font-size: 0.9rem; }
+  .sheet-only-page .m-sheet .track-row > .track-boxes { grid-area: boxes; gap: 8px; }
+
+  .sheet-only-page .m-sheet .grit-box,
+  .sheet-only-page .m-sheet .armor-box {
+    flex: 1 0 34px;
+    max-width: 46px;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 1;
+    border-radius: 8px;
+  }
+
+  .sheet-only-page .m-sheet .track-row.wound-row-head {
+    grid-template-areas:
+      "label count"
+      "list list";
+  }
+
+  .sheet-only-page .m-sheet .wound-row-head > #add-wound { grid-area: count; min-height: 40px; }
+  .sheet-only-page .m-sheet .wound-row-head > .wound-list { grid-area: list; }
+  .sheet-only-page .m-sheet .wound-empty { margin: 0; font-size: 0.86rem; }
+  .sheet-only-page .m-sheet .wound-row { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 6px; }
+  .sheet-only-page .m-sheet .wound-row input { min-height: 44px; font-size: 16px; }
+  .sheet-only-page .m-sheet .wound-row .chip-remove { min-height: 44px; }
+
+  /* ----- Skills ----------------------------------------------------------- */
+
+  .sheet-only-page .m-sheet .test-panel-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .sheet-only-page .m-sheet .test-panel header { margin-bottom: 10px; }
+  .sheet-only-page .m-sheet .test-panel h4 { font-size: 0.86rem; letter-spacing: 0.16em; }
+
+  .sheet-only-page .m-sheet .ability-defense-row,
+  .sheet-only-page .m-sheet .ability-defense-row.no-defense {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .sheet-only-page .m-sheet .linked-ability {
+    padding: 10px 6px;
+    border-radius: 12px;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .sheet-only-page .m-sheet .linked-ability strong {
+    font-size: 2.2rem;
+    padding: 2px 0;
+    cursor: pointer;
+  }
+
+  .sheet-only-page .m-sheet .skill-list { gap: 0; }
+
+  .sheet-only-page .m-sheet .skill-row {
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 9px 0;
+  }
+
+  .sheet-only-page .m-sheet .skill-list > .skill-row:first-child { border-top: 0; }
+
+  .sheet-only-page .m-sheet .skill-total {
+    width: 48px;
+    height: 44px;
+    font-size: 1.4rem;
+  }
+
+  .sheet-only-page .m-sheet .skill-name b { font-size: 0.98rem; line-height: 1.2; }
+  .sheet-only-page .m-sheet .skill-name small { font-size: 0.72rem; }
+
+  .sheet-only-page .m-sheet .rank-dots { gap: 4px; }
+
+  /* The dot is drawn at 22px, but its button is 28px: the extra is
+     transparent border, so a near miss still lands. */
+  .sheet-only-page .m-sheet .rank-dot {
+    width: 28px;
+    height: 28px;
+    min-height: 28px;
+    border-width: 3px;
+    background-clip: padding-box;
+    box-shadow: inset 0 0 0 2px rgba(242, 220, 165, 0.72);
+    border-color: transparent;
+  }
+
+  .sheet-only-page .m-sheet .rank-dot.filled {
+    border-color: transparent;
+    background: var(--teal);
+    background-clip: padding-box;
+    box-shadow: inset 0 0 0 2px var(--teal);
+  }
+
+  .sheet-only-page .m-sheet .rank-dot.bonus.filled {
+    background: var(--gold);
+    box-shadow: inset 0 0 0 2px var(--gold);
+  }
+
+  /* ----- Gear ------------------------------------------------------------- */
+
+  .sheet-only-page .m-sheet .pc-head {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .sheet-only-page .m-sheet .pc-head > h4 { margin: 0; }
+  .sheet-only-page .m-sheet .pc-head-centre { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; }
+  .sheet-only-page .m-sheet .pc-head-actions .ghost-button { min-height: 40px; padding-inline: 1rem; }
+
+  .sheet-only-page .m-sheet .sheet-density {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sheet-only-page .m-sheet .mode-toggle button { min-height: 38px; padding-inline: 0.9rem; }
+
+  /* The equipment section is folded into the Arms block, which has its own
+     fold; the inner one only lands on top of the hand count. */
+  .sheet-only-page .m-sheet .parry-block .sheet-block > .collapse-toggle { display: none; }
+
+  /* There is nothing to drag with a finger; a tap on a carried card equips
+     it, which the rack already does. */
+  .sheet-only-page .m-sheet .gear-slot-empty { font-size: 0; }
+  .sheet-only-page .m-sheet .gear-slot-empty::after { content: "Tap a carried card to equip it"; font-size: 0.86rem; }
+
+  .sheet-only-page .m-sheet .gear-layout,
+  .sheet-only-page .m-sheet .parry-block .detail-grid { grid-template-columns: 1fr; }
+
+  /* ----- Traits and Story ------------------------------------------------- */
+
+  .sheet-only-page .m-sheet .sheet-block-head:not(.pc-head) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .sheet-only-page .m-sheet .sheet-block-head h4 { margin: 0; }
+  .sheet-only-page .m-sheet .sheet-block-head .ghost-button.small { min-height: 40px; padding-inline: 1rem; }
+  .sheet-only-page .m-sheet .sheet-block > .sheet-block-head { margin-bottom: 10px; }
+
+  .sheet-only-page .m-sheet .detail-grid { grid-template-columns: 1fr; gap: 10px; }
+
+  .sheet-only-page .m-sheet .detail-card[data-removable-card] {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  .sheet-only-page .m-sheet .sheet-field-grid { grid-template-columns: 1fr; gap: 10px; }
+
+  .sheet-only-page .m-sheet .collapse-toggle { width: 40px; height: 40px; min-height: 40px; top: 10px; right: 10px; }
+  .sheet-only-page .m-sheet .sheet-block > .sheet-block-head,
+  .sheet-only-page .m-sheet .sheet-block > h4 { padding-right: 50px; }
+
+  /* Typing into anything under 16px makes iOS zoom the page. */
+  .sheet-only-page input,
+  .sheet-only-page select,
+  .sheet-only-page textarea { font-size: max(16px, 1em); }
+  .sheet-only-page .m-pick select { font-size: 1.12rem; }
+
+  /* Long-press feedback: the card answers the moment the hold registers. */
+  .sheet-only-page .m-held { transform: scale(0.97); transition: transform 120ms ease; }
+
+  /* ----- the tab bar ------------------------------------------------------ */
+
+  .m-tabs {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 36;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    min-height: calc(var(--m-tabs-h) + var(--m-safe-bottom));
+    padding: 4px env(safe-area-inset-right, 0px) var(--m-safe-bottom) env(safe-area-inset-left, 0px);
+    background: var(--panel-glass);
+    border-top: 1px solid var(--line);
+  }
+
+  .m-tabs button {
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 3px;
+    min-height: 54px;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+
+  .m-tabs svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  .m-tabs button[aria-selected="true"] { color: var(--paper-bright); }
+  .m-tabs button[aria-selected="true"] svg { stroke: var(--accent); fill: rgba(var(--accent-rgb), 0.16); }
+  .m-tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+
+  .m-no-character .m-tabs { display: none; }
+
+  /* ----- flyouts as full sheets ------------------------------------------- */
+
+  /* They open under the app bar and the quick line, so Attack, Defense and
+     the two flyout buttons stay in reach while a margin is being spent. */
+  .sheet-only-page .pm-panel,
+  .sheet-only-page .sr-panel {
+    top: var(--m-top, calc(var(--m-bar-h) + 60px));
+    bottom: 0;
+    height: auto;
+    width: 100%;
+    max-width: none;
+    z-index: 33;
+    padding: 18px calc(16px + env(safe-area-inset-right, 0px)) calc(var(--m-tabs-h) + var(--m-safe-bottom) + 24px) calc(16px + env(safe-area-inset-left, 0px));
+    border: 0;
+    border-top: 1px solid var(--line);
+    box-shadow: none;
+  }
+
+  .sheet-only-page .pm-panel { background: hsl(var(--surf-h) var(--surf-s) 7%); }
+  .sheet-only-page .sr-panel { background: rgb(12, 16, 18); }
+  .sheet-only-page .sr-panel .sr-body { grid-template-columns: 1fr; }
+  .sheet-only-page .pm-close { width: 40px; height: 40px; font-size: 1.2rem; }
+
+  .m-flyout-open,
+  .m-menu-open { overflow: hidden; }
+
+  /* The add drawers already cover the page; on a phone they take all of it. */
+  .sheet-only-page .add-drawer { z-index: 45; }
+  .sheet-only-page .add-drawer-panel {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    padding: calc(16px + var(--m-safe-top)) 16px calc(24px + var(--m-safe-bottom));
+    border-left: 0;
+  }
+  .sheet-only-page .add-drawer-panel .section-actions { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .sheet-only-page .add-option-card { min-height: 48px; }
+
+  .sheet-only-page .toast {
+    /* theme.css puts the toast in flow on the desktop sheet; here it floats. */
+    position: fixed;
+    left: var(--m-gutter);
+    right: var(--m-gutter);
+    bottom: calc(var(--m-tabs-h) + var(--m-safe-bottom) + 10px);
+    max-width: none;
+    z-index: 50;
+    /* Hidden, it is transparent but still there — right over the tab bar. */
+    pointer-events: none;
+  }
+
+  .sheet-only-page .toast.show { pointer-events: auto; }
+
+  .sheet-only-page .trait-modal { z-index: 70; }
+  .sheet-only-page .trait-modal-card { width: calc(100% - 24px); max-height: 85dvh; overflow: auto; }
+
+  /* ----- the menu --------------------------------------------------------- */
+
+  .m-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+  }
+
+  .m-menu[hidden] { display: none; }
+
+  .m-menu-scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(5, 4, 6, 0.6);
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+
+  .m-menu-sheet {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: grid;
+    gap: 10px;
+    max-height: 88dvh;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 10px calc(16px + env(safe-area-inset-right, 0px)) calc(16px + var(--m-safe-bottom)) calc(16px + env(safe-area-inset-left, 0px));
+    border-top: 1px solid var(--line-strong);
+    border-radius: 20px 20px 0 0;
+    background: var(--panel-drawer);
+    box-shadow: 0 -24px 60px rgba(0, 0, 0, 0.5);
+    transform: translateY(100%);
+    transition: transform 200ms cubic-bezier(.2, .8, .2, 1);
+  }
+
+  .m-menu.open .m-menu-scrim { opacity: 1; }
+  .m-menu.open .m-menu-sheet { transform: none; }
+
+  .m-grab {
+    justify-self: center;
+    width: 40px;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .m-menu h2 { margin: 2px 0 2px; font-size: 1.1rem; letter-spacing: 0.08em; }
+
+  .m-menu-links { display: grid; gap: 6px; }
+
+  .m-menu-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.25);
+    color: var(--paper-bright);
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: left;
+    text-decoration: none;
+    justify-content: flex-start;
+  }
+
+  .m-menu-item.danger { color: var(--danger); border-color: rgba(255, 140, 120, 0.4); }
+
+  .m-menu-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 48px;
+    padding: 4px 2px;
+  }
+
+  .m-menu-row > span {
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .m-menu-row [data-palette-switch] { display: flex; gap: 8px; }
+  .m-menu-row [data-palette-switch] button { min-width: 34px; min-height: 34px; }
+
+  .m-menu-hint { margin: 0; color: var(--muted); font-size: 0.86rem; font-style: italic; line-height: 1.45; }
+
+  .m-menu-close {
+    min-height: 48px;
+    border: 1px solid rgba(214, 168, 84, 0.55);
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(214, 168, 84, 0.28), rgba(214, 168, 84, 0.08));
+    color: #ffe4a8;
+    font: inherit;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  /* ----- larger screens: tablets ------------------------------------------ */
+
+  @media (min-width: 640px) {
+    .sheet-only-page { --m-gutter: 20px; }
+
+    .sheet-only-page .m-sheet .play-sheet-title {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
+    }
+
+    .sheet-only-page .m-sheet .title-badges { justify-content: flex-end; }
+    .sheet-only-page .m-sheet .play-sheet-title > div:first-child { padding-top: 4px; }
+    .sheet-only-page .m-sheet .title-side { min-width: 340px; }
+
+    .sheet-only-page .m-sheet .pc-strip { grid-template-columns: auto auto minmax(0, 1fr); align-items: stretch; }
+    .sheet-only-page .m-sheet .pc-hands { grid-column: auto; }
+
+    .sheet-only-page .m-sheet .skill-list {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 22px;
+    }
+
+    .sheet-only-page .m-sheet .skill-list > .skill-row:nth-child(2) { border-top: 0; }
+
+    .sheet-only-page .m-sheet .detail-grid { grid-template-columns: 1fr 1fr; }
+    .sheet-only-page .m-sheet .sheet-field-grid { grid-template-columns: 1fr 1fr; }
+
+    .m-tabs { grid-template-columns: repeat(5, minmax(0, 120px)); justify-content: center; }
+
+    .m-menu-sheet {
+      left: 50%;
+      right: auto;
+      width: min(480px, 100%);
+      transform: translate(-50%, 100%);
+    }
+    .m-menu.open .m-menu-sheet { transform: translate(-50%, 0); }
+
+    .sheet-only-page .toast { left: auto; right: var(--m-gutter); max-width: 360px; }
+  }
+    /* ----- the desktop chrome steps aside ----------------------------------- */
+
+  /* The header and the toolbar are the desktop's. Their controls are not
+     lost: the character picker is moved into the app bar by
+     sheet-mobile.js, and the menu's buttons press the toolbar's own. */
+  .sheet-only-page .site-header,
+  .sheet-only-page .sheet-page-toolbar { display: none; }
+
+  .sheet-only-page .m-bar { display: grid; }
+  .sheet-only-page .m-quick { display: flex; }
+  .sheet-only-page .m-tabs { display: grid; }
+  .sheet-only-page .m-menu:not([hidden]) { display: block; }
+
+  /* The card around the sheet is a frame for a desk. Here every block is
+     already its own card, and the frame's overflow: hidden is what clipped
+     the sheet's right edge on a phone. */
+  .sheet-only-page .sheet-page-shell { width: 100%; }
+  .sheet-only-page .sheet-page-card {
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    overflow: visible;
+  }
+  .sheet-only-page .sheet-page-card::before { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m-menu-sheet, .m-menu-scrim { transition: none; }
+}
+
+@media print {
+  .m-bar, .m-quick, .m-tabs, .m-menu { display: none; }
+  body.sheet-only-page[data-m-tab] .m-sheet > [data-m-section][data-m-section] { display: block; }
+}
     </style>
     <!-- Honours the palette chosen in the builder. In the head so the page
          never paints teal and then snaps. -->
@@ -5297,7 +6164,7 @@ window.REVELRY_PALETTE = (function () {
 })();
     </script>
   </head>
-  <body class="sheet-only-page">
+  <body class="sheet-only-page" data-m-tab="play">
     <canvas id="ember-field" aria-hidden="true"></canvas>
     <header class="site-header">
       <a class="brand" href="../index.html" aria-label="Revelry Toolkit home">
@@ -5312,6 +6179,30 @@ window.REVELRY_PALETTE = (function () {
       <div data-palette-switch></div>
       <button class="ghost-button" id="print-sheet" type="button">Print</button>
     </header>
+
+    <!-- ===== Phone and tablet shell: shown at 900px and narrower only. ===== -->
+    <header class="m-bar">
+      <a class="m-brand" href="../index.html" aria-label="Revelry Toolkit home">R</a>
+      <!-- The character picker is the toolbar's own; sheet-mobile.js moves it
+           in here on a small screen and back when the screen grows. -->
+      <div class="m-pick" data-m-pick-slot>
+        <span class="m-pick-label">Character</span>
+      </div>
+      <button class="m-icon-button" id="m-menu-open" type="button" aria-haspopup="dialog" aria-controls="m-menu" aria-label="Menu">
+        <span aria-hidden="true">⋯</span>
+      </button>
+    </header>
+
+    <div class="m-quick" id="m-quick" aria-label="At a glance">
+      <button type="button" class="m-q m-q-atk" data-m-go="play"><span>Atk</span><b data-q="atk">—</b></button>
+      <button type="button" class="m-q m-q-def" data-m-go="play"><span>Def</span><b data-q="def">—</b></button>
+      <button type="button" class="m-q m-q-grit" data-m-go="play"><span>Grit</span><b data-q="grit">—</b></button>
+      <button type="button" class="m-q m-q-mom" data-m-go="play"><span>Mom</span><b data-q="mom">—</b></button>
+      <span class="m-q-actions">
+        <button type="button" class="m-q-act m-q-forge" data-forge-flyout hidden aria-label="Spellforge">◇</button>
+        <button type="button" class="m-q-act m-q-man" data-m-maneuvers aria-label="Maneuvers">◆</button>
+      </span>
+    </div>
 
     <main class="sheet-page-shell">
       <section class="sheet-page-toolbar">
@@ -5337,9 +6228,62 @@ window.REVELRY_PALETTE = (function () {
           <p>Create and save a character in the Character Builder, then return here to use the focused play sheet.</p>
           <a class="primary-button" href="../index.html">Open Character Builder</a>
         </div>
-        <div id="standalone-character-sheet" class="character-sheet play-sheet"></div>
+        <div id="standalone-character-sheet" class="character-sheet play-sheet m-sheet"></div>
       </section>
     </main>
+
+    <div class="m-tabs" role="tablist" aria-label="Sheet sections">
+      <button type="button" role="tab" data-m-tab-button="play" aria-selected="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.2-3 7.6-7 9-4-1.4-7-4.8-7-9V6z"/></svg>
+        <span>Play</span>
+      </button>
+      <button type="button" role="tab" data-m-tab-button="skills" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.6 6.8L22 9.3l-5.6 4.6L18.2 21 12 17.2 5.8 21l1.8-7.1L2 9.3l7.4-.5z"/></svg>
+        <span>Skills</span>
+      </button>
+      <button type="button" role="tab" data-m-tab-button="gear" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 3.5l6 6-9.8 9.8-3-3 1.4-1.4-1.6-1.6-1.4 1.4-3-3z"/><path d="M4 20l3-3"/></svg>
+        <span>Gear</span>
+      </button>
+      <button type="button" role="tab" data-m-tab-button="traits" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></svg>
+        <span>Traits</span>
+      </button>
+      <button type="button" role="tab" data-m-tab-button="story" aria-selected="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4.2 4.3-6.5 8-6.5s6.8 2.3 8 6.5"/></svg>
+        <span>Story</span>
+      </button>
+    </div>
+
+    <div class="m-menu" id="m-menu" role="dialog" aria-modal="true" aria-labelledby="m-menu-title" hidden>
+      <div class="m-menu-scrim" data-m-menu-close></div>
+      <div class="m-menu-sheet">
+        <div class="m-grab" aria-hidden="true"></div>
+        <h2 id="m-menu-title">Revelry</h2>
+        <div class="m-menu-links">
+          <!-- Each of these presses the toolbar's own control, so there is
+               one Export, one Print and one Delete, wired once. -->
+          <button class="m-menu-item" type="button" data-m-proxy="#edit-character">Edit in Builder</button>
+          <a class="m-menu-item" href="../spellforge/index.html">Open the full Spellforge</a>
+          <button class="m-menu-item" type="button" data-m-proxy="#export-sheet-json">Export character</button>
+          <button class="m-menu-item" type="button" data-m-proxy="#print-sheet">Print</button>
+        </div>
+        <div class="m-menu-row">
+          <span>Card detail</span>
+          <div class="mode-toggle compact-toggle m-density">
+            <button type="button" data-m-density="full">Full</button>
+            <button type="button" data-m-density="compact">Compact</button>
+          </div>
+        </div>
+        <div class="m-menu-row">
+          <span>Palette</span>
+          <div data-palette-switch></div>
+        </div>
+        <p class="m-menu-hint">Tap a score to raise it; press and hold to lower it. Press and hold a trait or feature card to remove it.</p>
+        <button class="m-menu-item danger" type="button" data-m-proxy="#delete-sheet-character">Delete this character</button>
+        <button class="m-menu-close" type="button" data-m-menu-close>Done</button>
+      </div>
+    </div>
 
     <div class="trait-modal" id="sheet-trait-modal" hidden>
       <div class="trait-modal-card">
@@ -12069,7 +13013,12 @@ function renderSheet() {
   empty.hidden = true;
   sheet.innerHTML = sheetMarkup(entry);
   enhanceCollapsibles();
-  $("#edit-character").href = `character.html#sheet`;
+  /* Keep the link's own path and only add the anchor. The build rewrites
+     "../index.html" in the markup to wherever the builder lands in dist/,
+     but not inside this template string — so writing the bare name here sent
+     the published sheet to sheet/character.html, which does not exist. */
+  const edit = $("#edit-character");
+  if (edit) edit.href = `${(edit.getAttribute("href") || "../index.html").split("#")[0]}#sheet`;
 }
 
 function handleSheetClick(event) {
@@ -14355,6 +15304,439 @@ window.REVELRY_CASTING = (function () {
   else render();
 
   window.SPELL_RAIL = { render, setOpen, get open() { return open; }, casterInfo, activeEntry };
+})();
+    </script>
+    <script>
+/* ============ sheet-mobile.js ============ */
+/* =========================================================================
+   Revelry — the Play Sheet on a phone or a tablet held upright.
+
+   sheet-mobile.css switches the small-screen layout on at 900px and
+   narrower; this is the part of it that is not CSS. Above 900px it does
+   almost nothing, and the desktop sheet is exactly what it was.
+
+   The sheet itself is not rebuilt here. sheet.js draws it, parry-combat.js
+   adds the exchange strip and the rack, spell-rail.js adds the Spellforge
+   flyout, and every rule and every write still goes through them — so a
+   character opened on a phone and on the desktop sheet is the same
+   character, and a fix to either is a fix to both.
+
+   What this file owns is the shell around that sheet:
+
+     1. Tabs. Every top-level section of the sheet is tagged with the tab it
+        belongs to, after every draw, and the CSS shows one tab at a time. It
+        tags rather than moves: the combat layer finds its strip and its rack
+        inside the sheet host, and a section carried somewhere else would
+        stop being redrawn.
+     2. The quick line under the app bar — Attack, Defense, Grit, Momentum —
+        read off the drawn sheet, so it can never disagree with it.
+     3. The two flyouts as full-screen sheets, one at a time.
+     4. Long-press. The desktop lowers an ability and removes a card with a
+        right-click; a phone has no right button, so holding a finger down
+        sends the same contextmenu event the sheet already listens for.
+        This one works at every width, because a tablet in landscape gets
+        the desktop layout and still has no right button.
+     5. The character picker. There is one <select>, the toolbar's, and on a
+        small screen it is moved into the app bar — so sheet.js keeps finding
+        it by its id, and nothing listens to a copy.
+   ========================================================================= */
+
+(function () {
+  "use strict";
+
+  const TABS = ["play", "skills", "gear", "traits", "story"];
+  const TAB_KEY = "revelry-mobile-tab";
+  const host = document.getElementById("standalone-character-sheet");
+  const body = document.body;
+  if (!host) return;
+
+  /* Must match the breakpoint in sheet-mobile.css. */
+  const SMALL = window.matchMedia ? window.matchMedia("(max-width: 900px)") : { matches: false };
+  const small = () => Boolean(SMALL.matches);
+
+  const store = {
+    get(key) { try { return localStorage.getItem(key); } catch { return null; } },
+    set(key, value) { try { localStorage.setItem(key, value); } catch { /* storage denied: not worth an error */ } }
+  };
+
+  /* ----- 1. which tab each section belongs to ------------------------- */
+
+  /* Anything not listed lands on Story rather than vanishing, so a section
+     added to the sheet later is still somewhere on the phone. */
+  const PLACES = [
+    [".play-sheet-title", "play"],
+    ["[data-parry-strip], .pc-strip", "play"],
+    [".condition-tracker", "play"],
+    [".test-panel-grid", "skills"],
+    [".parry-block", "gear"],
+    ['[data-edit-section="equipment"]', "gear"],
+    [".sheet-density", "gear"],
+    ['[data-edit-section="traits"]', "traits"],
+    [".features-block", "traits"],
+    [".identity-block", "story"],
+    ['[data-edit-section="expertises"]', "story"],
+    ['[data-edit-section="experiences"]', "story"]
+  ];
+
+  function tag() {
+    [...host.children].forEach((el) => {
+      const hit = PLACES.find(([selector]) => el.matches(selector));
+      const tab = hit ? hit[1] : "story";
+      if (el.dataset.mSection !== tab) el.dataset.mSection = tab;
+    });
+  }
+
+  function setTab(tab, { scroll = true } = {}) {
+    if (!TABS.includes(tab)) tab = "play";
+    closeFlyouts();
+    const changed = body.dataset.mTab !== tab;
+    body.dataset.mTab = tab;
+    document.querySelectorAll("[data-m-tab-button]").forEach((button) => {
+      const on = button.dataset.mTabButton === tab;
+      button.setAttribute("aria-selected", on ? "true" : "false");
+      button.tabIndex = on ? 0 : -1;
+    });
+    store.set(TAB_KEY, tab);
+    if (scroll && changed && small()) window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+  }
+
+  /* ----- 2. the quick line -------------------------------------------- */
+
+  const text = (selector) => {
+    const el = host.querySelector(selector);
+    return el ? el.textContent.replace(/\s+/g, " ").trim() : "";
+  };
+
+  function quick() {
+    const put = (key, value) => {
+      const el = document.querySelector(`[data-q="${key}"]`);
+      if (el && el.textContent !== value) el.textContent = value;
+    };
+    put("atk", text(".pc-atk strong") || "—");
+    put("def", text(".pc-def strong") || "—");
+
+    /* "3 / 7 −1": the spent / the maximum, and the Wound penalty if any. */
+    const grit = text(".grit-row .track-count").match(/(\d+)\s*\/\s*(\d+)/);
+    put("grit", grit ? `${Math.max(0, grit[2] - grit[1])}/${grit[2]}` : "—");
+    const mom = text(".momentum-count");
+    put("mom", mom || "—");
+
+    const forge = document.querySelector(".m-q-forge");
+    if (forge) forge.hidden = !host.querySelector(".pc-strip [data-forge-flyout]");
+
+    const empty = !host.children.length;
+    body.classList.toggle("m-no-character", empty);
+
+    /* The level and name live in the sheet title; the picker shows the name
+       already, so only the level is lifted into the bar. */
+    const level = host.querySelector('[data-sheet-field="level"]');
+    const pick = document.querySelector(".m-pick-label");
+    if (pick) pick.textContent = level ? `Level ${level.value || 1}` : "Character";
+  }
+
+  /* ----- 3. flyouts --------------------------------------------------- */
+
+  const openPanels = () => [...document.querySelectorAll(".pm-panel.open, .sr-panel.open")];
+  let openOrder = [];
+
+  function closeFlyouts() {
+    const man = document.querySelector(".pm-panel.open [data-parry-close]");
+    if (man) man.click();
+    if (window.SPELL_RAIL && window.SPELL_RAIL.open) window.SPELL_RAIL.setOpen(false);
+  }
+
+  function closePanel(el) {
+    if (el.classList.contains("sr-panel")) { if (window.SPELL_RAIL) window.SPELL_RAIL.setOpen(false); }
+    else { const x = el.querySelector("[data-parry-close]"); if (x) x.click(); }
+  }
+
+  /* Only one fits on a phone. Whichever opened last wins, and the other is
+     closed — the quick line keeps both buttons, so swapping is one tap. */
+  function oneAtATime() {
+    const open = openPanels();
+    /* Oldest first: anything still open keeps its place, a new one goes last. */
+    openOrder = openOrder.filter((el) => open.includes(el)).concat(open.filter((el) => !openOrder.includes(el)));
+    if (small() && openOrder.length > 1) {
+      openOrder.slice(0, -1).forEach(closePanel);
+      openOrder = openOrder.slice(-1);
+    }
+    const now = openOrder;
+    body.classList.toggle("m-flyout-open", small() && now.length > 0);
+    body.classList.toggle("m-drawer-open", Boolean(document.querySelector(".add-drawer.open")));
+    document.querySelector(".m-q-man")?.classList.toggle("on", now.some((el) => el.classList.contains("pm-panel")));
+    document.querySelector(".m-q-forge")?.classList.toggle("on", now.some((el) => el.classList.contains("sr-panel")));
+  }
+
+  function toggleManeuvers() {
+    const panel = document.querySelector(".pm-panel.open");
+    if (panel) { const x = panel.querySelector("[data-parry-close]"); if (x) x.click(); return; }
+    const button = host.querySelector(".pc-strip [data-parry-flyout]");
+    if (button) button.click();
+  }
+
+  /* ----- 4. long-press ------------------------------------------------ */
+
+  const HOLD = [
+    "[data-sheet-ability-card]",
+    "[data-removable-card]",
+    "[data-forge-add]"
+  ].join(", ");
+  const HOLD_MS = 520;
+  let hold = null;
+  let lastTouch = 0;
+  let swallowClickUntil = 0;
+
+  function cancelHold() {
+    if (hold) clearTimeout(hold.timer);
+    hold = null;
+  }
+
+  document.addEventListener("touchstart", (event) => {
+    lastTouch = Date.now();
+    if (event.touches.length !== 1) { cancelHold(); return; }
+    const target = event.target.closest(HOLD);
+    if (!target) return;
+    const t = event.touches[0];
+    hold = {
+      target,
+      x: t.clientX,
+      y: t.clientY,
+      timer: setTimeout(() => fireHold(), HOLD_MS)
+    };
+  }, { passive: true });
+
+  document.addEventListener("touchmove", (event) => {
+    if (!hold) return;
+    const t = event.touches[0];
+    if (Math.hypot(t.clientX - hold.x, t.clientY - hold.y) > 10) cancelHold();
+  }, { passive: true });
+
+  document.addEventListener("touchend", () => { lastTouch = Date.now(); cancelHold(); }, { passive: true });
+  document.addEventListener("touchcancel", cancelHold, { passive: true });
+
+  function fireHold() {
+    if (!hold) return;
+    const { target, x, y } = hold;
+    hold = null;
+    /* The finger is still down; the click it will make on the way up would
+       raise the very score this just lowered. */
+    swallowClickUntil = Date.now() + 900;
+
+    const card = target.closest("[data-removable-card]");
+    if (card) {
+      const name = card.dataset.removableCard.split(":").slice(1).join(":");
+      if (!window.confirm(`Remove ${name || "this card"}?`)) return;
+    }
+    if (navigator.vibrate) { try { navigator.vibrate(12); } catch { /* not allowed */ } }
+    target.classList.add("m-held");
+    setTimeout(() => target.classList.remove("m-held"), 260);
+    target.dispatchEvent(new MouseEvent("contextmenu", {
+      bubbles: true, cancelable: true, clientX: x, clientY: y, button: 2
+    }));
+  }
+
+  /* Android raises its own contextmenu on a long-press. Ours is the one that
+     counts, so the native one is dropped while a finger is on the glass. */
+  document.addEventListener("contextmenu", (event) => {
+    if (event.isTrusted && Date.now() - lastTouch < 1500) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }, true);
+
+  document.addEventListener("click", (event) => {
+    if (Date.now() < swallowClickUntil) {
+      swallowClickUntil = 0;
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }, true);
+
+  /* ----- swipe between tabs ------------------------------------------- */
+
+  let swipe = null;
+  document.addEventListener("touchstart", (event) => {
+    if (!small() || event.touches.length !== 1) { swipe = null; return; }
+    if (body.classList.contains("m-flyout-open") || body.classList.contains("m-drawer-open")) { swipe = null; return; }
+    const target = event.target;
+    /* Fields keep the gesture: a sideways drag in one is moving the caret.
+       A swipe that starts on a dot is still a swipe — moving cancels the tap. */
+    if (target.closest("input, select, textarea, .m-quick, .m-tabs, .m-menu")) { swipe = null; return; }
+    const t = event.touches[0];
+    swipe = { x: t.clientX, y: t.clientY, at: Date.now() };
+  }, { passive: true });
+
+  document.addEventListener("touchend", (event) => {
+    if (!swipe) return;
+    const t = event.changedTouches[0];
+    const dx = t.clientX - swipe.x;
+    const dy = t.clientY - swipe.y;
+    const quickEnough = Date.now() - swipe.at < 600;
+    swipe = null;
+    if (!quickEnough || Math.abs(dx) < 72 || Math.abs(dy) > Math.abs(dx) * 0.55) return;
+    const i = TABS.indexOf(body.dataset.mTab);
+    const next = TABS[i + (dx < 0 ? 1 : -1)];
+    if (next) setTab(next);
+  }, { passive: true });
+
+  /* ----- the menu ----------------------------------------------------- */
+
+  const menu = document.getElementById("m-menu");
+  let menuReturn = null;
+
+  function density() {
+    const mode = store.get("revelry-sheet-detail-mode") || "full";
+    document.querySelectorAll("[data-m-density]").forEach((button) => {
+      button.classList.toggle("active", button.dataset.mDensity === mode);
+      button.setAttribute("aria-pressed", button.dataset.mDensity === mode ? "true" : "false");
+    });
+  }
+
+  function openMenu() {
+    if (!menu) return;
+    closeFlyouts();
+    menuReturn = document.activeElement;
+    density();
+    menu.hidden = false;
+    body.classList.add("m-menu-open");
+    requestAnimationFrame(() => menu.classList.add("open"));
+    const first = menu.querySelector(".m-menu-item");
+    if (first) first.focus({ preventScroll: true });
+  }
+
+  function closeMenu() {
+    if (!menu || menu.hidden) return;
+    menu.classList.remove("open");
+    body.classList.remove("m-menu-open");
+    setTimeout(() => { menu.hidden = true; }, 180);
+    if (menuReturn && menuReturn.focus) menuReturn.focus({ preventScroll: true });
+  }
+
+  /* ----- wiring ------------------------------------------------------- */
+
+  document.addEventListener("click", (event) => {
+    const tabButton = event.target.closest("[data-m-tab-button]");
+    if (tabButton) { setTab(tabButton.dataset.mTabButton); return; }
+
+    const go = event.target.closest("[data-m-go]");
+    if (go) { setTab(go.dataset.mGo); return; }
+
+    if (event.target.closest("[data-m-maneuvers]")) {
+      event.stopPropagation();
+      toggleManeuvers();
+      return;
+    }
+
+    if (event.target.closest("#m-menu-open")) { openMenu(); return; }
+    if (event.target.closest("[data-m-menu-close]")) { closeMenu(); return; }
+
+    /* The menu's actions press the toolbar's own controls, which stay in
+       the page (hidden) so each is wired once, by sheet.js. */
+    const proxy = event.target.closest("[data-m-proxy]");
+    if (proxy) {
+      const real = document.querySelector(proxy.dataset.mProxy);
+      closeMenu();
+      if (real) real.click();
+      return;
+    }
+
+    const mode = event.target.closest("[data-m-density]");
+    if (mode) {
+      const target = host.querySelector(`[data-detail-mode="${mode.dataset.mDensity}"]`);
+      if (target) target.click();
+      density();
+      return;
+    }
+
+    /* Leaving the page from the menu should not leave it open behind you
+       when the browser's back button brings you here again. */
+    if (event.target.closest(".m-menu a")) setTimeout(closeMenu, 0);
+  });
+
+  /* Arrow keys across the tab bar, as a tablist should. */
+  document.querySelector(".m-tabs")?.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+    const i = TABS.indexOf(body.dataset.mTab);
+    const next = TABS[(i + (event.key === "ArrowRight" ? 1 : TABS.length - 1)) % TABS.length];
+    setTab(next, { scroll: false });
+    document.querySelector(`[data-m-tab-button="${next}"]`)?.focus();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      if (menu && !menu.hidden) closeMenu();
+      else closeFlyouts();
+    }
+  });
+
+  /* The bar and the quick line are sticky; the flyouts open beneath them so
+     Attack, Defense and both flyout buttons stay in view. Their height is
+     measured rather than assumed, because the safe-area inset is not known
+     until the page is on a device. */
+  function measure() {
+    const bar = document.querySelector(".m-bar");
+    const q = document.getElementById("m-quick");
+    const tabs = document.querySelector(".m-tabs");
+    const top = (bar ? bar.offsetHeight : 0) + (q ? q.offsetHeight : 0);
+    document.documentElement.style.setProperty("--m-top", `${top}px`);
+    document.documentElement.style.setProperty("--m-bottom", `${tabs ? tabs.offsetHeight : 0}px`);
+  }
+
+  /* ----- 5. one picker, two homes -------------------------------------- */
+
+  const picker = document.getElementById("sheet-character-select");
+  const deskHome = picker ? picker.parentElement : null;
+  const phoneHome = document.querySelector("[data-m-pick-slot]");
+
+  function arrange() {
+    if (!picker || !deskHome || !phoneHome) return;
+    const want = small() ? phoneHome : deskHome;
+    if (picker.parentElement !== want) want.appendChild(picker);
+    if (!small()) {
+      closeMenu();
+      body.classList.remove("m-flyout-open", "m-drawer-open");
+    }
+    measure();
+  }
+
+  if (SMALL.addEventListener) SMALL.addEventListener("change", arrange);
+  else if (SMALL.addListener) SMALL.addListener(arrange);
+
+  let pending = false;
+  function settle() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => {
+      pending = false;
+      tag();
+      quick();
+      oneAtATime();
+    });
+  }
+
+  new MutationObserver(settle).observe(host, { childList: true, subtree: true, characterData: true });
+  new MutationObserver(settle).observe(body, { attributes: true, attributeFilter: ["class"], subtree: true });
+
+  window.addEventListener("resize", measure);
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(measure);
+    [".m-bar", "#m-quick", ".m-tabs"].forEach((s) => { const el = document.querySelector(s); if (el) ro.observe(el); });
+  }
+
+  function boot() {
+    const saved = store.get(TAB_KEY);
+    setTab(TABS.includes(saved) ? saved : "play", { scroll: false });
+    arrange();
+    tag();
+    quick();
+    measure();
+    density();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+
+  window.REVELRY_MOBILE = { setTab, tag, quick, arrange, TABS };
 })();
     </script>
   </body>
