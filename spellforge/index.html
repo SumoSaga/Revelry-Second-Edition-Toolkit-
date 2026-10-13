@@ -10,7 +10,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0d0a09">
     <title>Revelry | Spellforge</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1503,7 +1504,10 @@ select:focus {
   line-height: 1.4;
 }
 
-.ss-strike b {
+/* Only the leading cost is a badge. Written as `.ss-strike b`, this also
+   boxed the bold words in the description — "1 Grit" squeezed into a
+   1.4rem square with "Grit" spilling out underneath. */
+.ss-strike > b {
   display: inline-grid;
   place-items: center;
   width: 1.4rem;
@@ -1516,6 +1520,7 @@ select:focus {
 }
 
 .ss-strike span { display: block; margin-left: 1.75rem; color: #d7bd8d; }
+.ss-strike span b { color: #fdf4dc; }
 
 .ss-fires {
   margin: 0.45rem 0 0;
@@ -2304,6 +2309,220 @@ html, body { max-width: 100%; overflow-x: hidden; }
 @media print {
   .palette-switch { display: none; }
 }
+/* ============ spellforge-mobile.css ============ */
+/* =========================================================================
+   Revelry — the Spellforge on a phone or a tablet held upright.
+
+   The same breakpoint as the Play Sheet and the Builder: everything is
+   inside one media query, on at 900px and narrower, absent above it.
+
+   The page already stacked on a phone; what it lacked was a sense of where
+   the spell is. The bench is at the top and the parts you tap are a long
+   scroll below it, so every tap was made blind. A bar at the bottom of the
+   screen now carries the spell — its parts, the actions it costs, the turns
+   it takes — and a tap on it goes back up to the bench.
+
+   No !important.
+   ========================================================================= */
+
+.f-spellbar { display: none; }
+
+@media (max-width: 900px) {
+  .forge-page {
+    --f-bar-h: 62px;
+    --f-safe-bottom: env(safe-area-inset-bottom, 0px);
+    overflow-x: hidden;
+    padding-bottom: calc(var(--f-bar-h) + var(--f-safe-bottom) + 16px);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  .forge-page #keira-field { display: none; }
+  .forge-page button,
+  .forge-page select,
+  .forge-page input { touch-action: manipulation; }
+  .forge-page input,
+  .forge-page select,
+  .forge-page textarea { font-size: max(16px, 1em); }
+
+  /* ----- header: one row of links, and it scrolls away ------------------ */
+
+  .forge-page .app-header {
+    width: auto;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "brand palette"
+      "nav nav";
+    align-items: center;
+    gap: 8px 12px;
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .forge-page .app-header .brand { grid-area: brand; }
+  .forge-page .app-header [data-palette-switch] { grid-area: palette; justify-self: end; }
+
+  .forge-page .app-header nav {
+    grid-area: nav;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -14px;
+    padding: 0 14px;
+  }
+  .forge-page .app-header nav::-webkit-scrollbar { display: none; }
+  .forge-page .app-header nav a { flex: 0 0 auto; white-space: nowrap; }
+
+  /* ----- the title and the actions -------------------------------------- */
+
+  .forge-page .spell-hero { width: auto; padding: 14px 14px 8px; }
+  .forge-page .spell-hero h1 { font-size: 2rem; }
+  .forge-page .spell-hero .lede { font-size: 0.9rem; }
+
+  /* Six actions in one row you can scroll, and not pinned: pinned, two rows
+     of them sat over the bench for the whole session. */
+  .forge-page .forge-action-bar {
+    position: static;
+    width: auto;
+    margin: 0 0 10px;
+    padding: 6px 0;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .forge-page .forge-action-bar .header-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 14px;
+  }
+  .forge-page .forge-action-bar .header-actions::-webkit-scrollbar { display: none; }
+  .forge-page .forge-action-bar .action-button { flex: 0 0 auto; min-height: 42px; padding-inline: 16px; }
+
+  /* ----- the panels ----------------------------------------------------- */
+
+  .forge-page .layout {
+    width: auto;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 0 12px;
+  }
+
+  .forge-page .controls-panel { grid-column: auto; }
+  .forge-page .forge-panel { padding: 14px; border-radius: 14px; min-width: 0; }
+  .forge-page .sheet-panel { position: static; }
+
+  .forge-page .catalog,
+  .forge-page .item-list,
+  .forge-page .notes-grid { grid-template-columns: minmax(0, 1fr); }
+
+  /* The four numbers fit on one line, as they do on the desktop. */
+  .forge-page .meters { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .forge-page .meter { padding: 8px 6px; text-align: center; min-width: 0; }
+  .forge-page .meter span,
+  .forge-page .meter small { font-size: 0.6rem; line-height: 1.2; }
+  .forge-page .meter strong { font-size: 1.5rem; }
+
+  /* Elements / Components / Combos: three across, not three rows. */
+  .forge-page .tabs { flex-direction: row; gap: 6px; }
+  .forge-page .tab { min-height: 44px; font-size: 0.86rem; padding-inline: 4px; }
+
+  .forge-page .toolbar { flex-direction: column; align-items: stretch; }
+
+  .forge-page .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .forge-page .stat-grid .field:first-child { grid-column: 1 / -1; }
+
+  .forge-page .part-tile { min-height: 48px; }
+  .forge-page .selected-parts button,
+  .forge-page .tray-clear { min-height: 36px; }
+
+  /* ----- the spell, at the bottom of the screen ------------------------- */
+
+  .forge-page .f-spellbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-height: calc(var(--f-bar-h) + var(--f-safe-bottom));
+    margin: 0;
+    padding: 8px calc(12px + env(safe-area-inset-right, 0px)) calc(8px + var(--f-safe-bottom)) calc(12px + env(safe-area-inset-left, 0px));
+    border: 0;
+    border-top: 1px solid rgba(240, 195, 109, 0.28);
+    border-radius: 0;
+    background: rgba(18, 16, 15, 0.97);
+    box-shadow: 0 -12px 30px -18px rgba(0, 0, 0, 0.9);
+    color: inherit;
+    font: inherit;
+    text-align: left;
+  }
+
+  .f-spellbar .f-name {
+    display: grid;
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  .f-spellbar .f-name b {
+    overflow: hidden;
+    color: #fff8ea;
+    font-size: 0.98rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .f-spellbar .f-name small {
+    overflow: hidden;
+    color: #c9b48d;
+    font-size: 0.74rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .f-spellbar .f-stat {
+    display: grid;
+    justify-items: center;
+    min-width: 46px;
+    padding: 4px 6px;
+    border: 1px solid #5e4f34;
+    border-radius: 8px;
+    background: #171514;
+  }
+
+  .f-spellbar .f-stat span {
+    color: #c9b48d;
+    font-size: 0.56rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .f-spellbar .f-stat strong { font-size: 1.1rem; line-height: 1.1; color: #ffe6ad; }
+  .f-spellbar .f-stat.over strong { color: #ff8c78; }
+
+  .forge-page .toast,
+  .forge-page .toast.show { bottom: calc(var(--f-bar-h) + var(--f-safe-bottom) + 10px); }
+}
+
+@media (max-width: 900px) and (min-width: 640px) {
+  .forge-page .layout { padding: 0 20px; }
+  .forge-page .catalog,
+  .forge-page .item-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .forge-page .stat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .forge-page .stat-grid .field:first-child { grid-column: auto; }
+}
     </style>
     <!-- Honours the palette chosen in the builder. In the head so the page
          never paints teal and then snaps. -->
@@ -2425,7 +2644,7 @@ window.REVELRY_PALETTE = (function () {
 })();
     </script>
   </head>
-  <body>
+  <body class="forge-page">
     <canvas id="keira-field" aria-hidden="true"></canvas>
 
     <header class="app-header">
@@ -8609,6 +8828,192 @@ window.FORGE = {
   state, metrics, access, addPart, removePart, clearSpell, saveSpell,
   fires, render, summaryText, savedSpells
 };
+    </script>
+    <script>
+/* ============ touch-hold.js ============ */
+/* =========================================================================
+   Revelry — press and hold, for every page.
+
+   The toolkit does a handful of things with a right-click: the Play Sheet
+   lowers an ability and removes a card, the Spellforge takes a part back
+   off the bench, the Builder takes a part out of an enchantment. A phone or
+   a tablet has no right button, so holding a finger still for half a
+   second sends the same `contextmenu` event those pages already listen
+   for. Nothing downstream needed to learn that touch exists.
+
+   A page says which things can be held:
+
+       REVELRY_HOLD.watch("[data-part]");
+       REVELRY_HOLD.watch("[data-removable-card]", { confirm: (el) => "Remove it?" });
+
+   `confirm` returns a question to ask first, or nothing to act at once.
+
+   Three things it takes care of so the pages do not have to:
+     • moving the finger more than a few pixels is a scroll, not a hold;
+     • the click the finger makes on its way up is swallowed, or a hold on
+       an ability score would lower it and then raise it straight back;
+     • Android raises its own contextmenu on a long press, which would act
+       twice — the native one is dropped while a finger is on the glass.
+   ========================================================================= */
+
+window.REVELRY_HOLD = window.REVELRY_HOLD || (function () {
+  "use strict";
+
+  const HOLD_MS = 520;
+  const rules = [];
+  let hold = null;
+  let lastTouch = 0;
+  let swallowClickUntil = 0;
+
+  function match(target) {
+    for (const rule of rules) {
+      const el = target.closest && target.closest(rule.selector);
+      if (el) return { el, rule };
+    }
+    return null;
+  }
+
+  function cancel() {
+    if (hold) clearTimeout(hold.timer);
+    hold = null;
+  }
+
+  function fire() {
+    if (!hold) return;
+    const { el, rule, x, y } = hold;
+    hold = null;
+    swallowClickUntil = Date.now() + 900;
+
+    const question = rule.confirm ? rule.confirm(el) : "";
+    if (question && !window.confirm(question)) return;
+
+    if (navigator.vibrate) { try { navigator.vibrate(12); } catch { /* not allowed */ } }
+    el.classList.add("is-held");
+    setTimeout(() => el.classList.remove("is-held"), 260);
+    el.dispatchEvent(new MouseEvent("contextmenu", {
+      bubbles: true, cancelable: true, clientX: x, clientY: y, button: 2
+    }));
+  }
+
+  document.addEventListener("touchstart", (event) => {
+    lastTouch = Date.now();
+    cancel();
+    if (event.touches.length !== 1) return;
+    const hit = match(event.target);
+    if (!hit) return;
+    const t = event.touches[0];
+    hold = { el: hit.el, rule: hit.rule, x: t.clientX, y: t.clientY, timer: setTimeout(fire, HOLD_MS) };
+  }, { passive: true });
+
+  document.addEventListener("touchmove", (event) => {
+    if (!hold) return;
+    const t = event.touches[0];
+    if (Math.hypot(t.clientX - hold.x, t.clientY - hold.y) > 10) cancel();
+  }, { passive: true });
+
+  document.addEventListener("touchend", () => { lastTouch = Date.now(); cancel(); }, { passive: true });
+  document.addEventListener("touchcancel", cancel, { passive: true });
+
+  document.addEventListener("contextmenu", (event) => {
+    if (event.isTrusted && Date.now() - lastTouch < 1500) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }, true);
+
+  document.addEventListener("click", (event) => {
+    if (Date.now() < swallowClickUntil) {
+      swallowClickUntil = 0;
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }, true);
+
+  /* Held things should not select their text or raise iOS's callout. */
+  const style = document.createElement("style");
+  style.textContent = ".is-held { transform: scale(0.97); transition: transform 120ms ease; }";
+  document.head.appendChild(style);
+
+  function watch(selector, options = {}) {
+    rules.push({ selector, confirm: options.confirm });
+    const css = document.createElement("style");
+    css.textContent = `@media (hover: none) { ${selector} { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; } }`;
+    document.head.appendChild(css);
+  }
+
+  return { watch, HOLD_MS };
+})();
+    </script>
+    <script>
+/* ============ spellforge-mobile.js ============ */
+/* =========================================================================
+   Revelry — the Spellforge on a phone or a tablet held upright.
+
+   spellforge-mobile.css does the layout at 900px and narrower. This adds
+   the one thing a stacked page cannot show: the spell, while you are
+   scrolled down among the parts. It reads the bench the forge has already
+   drawn — the tray, the action count, the turns — so it can never disagree
+   with it, and a tap on it goes back up to the bench.
+
+   It changes nothing in spellforge.js. Above 900px the bar is hidden.
+   ========================================================================= */
+
+(function () {
+  "use strict";
+
+  const bench = document.querySelector(".sheet-panel");
+  const tray = document.getElementById("selected-parts");
+  const count = document.getElementById("parts-count");
+  const paid = document.getElementById("paid-actions");
+  const turns = document.getElementById("turns-needed");
+  const name = document.getElementById("spell-name");
+  if (!bench || !tray || !count) return;
+
+  const bar = document.createElement("button");
+  bar.type = "button";
+  bar.className = "f-spellbar";
+  bar.setAttribute("aria-label", "Back to the casting bench");
+  bar.innerHTML = `
+    <span class="f-name"><b data-f="name">Untitled Spell</b><small data-f="parts">Nothing on the bench yet</small></span>
+    <span class="f-stat" data-f-box="size"><span>Parts</span><strong data-f="size">0/0</strong></span>
+    <span class="f-stat"><span>Actions</span><strong data-f="paid">0</strong></span>
+    <span class="f-stat"><span>Turns</span><strong data-f="turns">0</strong></span>`;
+  document.body.appendChild(bar);
+
+  const put = (key, value) => {
+    const el = bar.querySelector(`[data-f="${key}"]`);
+    if (el && el.textContent !== value) el.textContent = value;
+  };
+
+  function read() {
+    put("name", (name && name.value.trim()) || "Untitled Spell");
+    /* Each chip is the part's name, then "×n" if there is more than one. */
+    const parts = [...tray.querySelectorAll("[data-drop-name]")].map((chip) => {
+      const n = chip.querySelector("i");
+      return chip.dataset.dropName + (n ? ` ${n.textContent.trim()}` : "");
+    });
+    put("parts", parts.length ? parts.join(" · ") : "Nothing on the bench yet");
+    put("size", count.textContent.replace(/\s+/g, ""));
+    bar.querySelector('[data-f-box="size"]').classList.toggle("over", count.classList.contains("over"));
+    put("paid", paid ? paid.textContent.trim() : "0");
+    put("turns", turns ? turns.textContent.trim() : "0");
+  }
+
+  bar.addEventListener("click", () => {
+    const top = bench.getBoundingClientRect().top + window.scrollY - 8;
+    window.scrollTo({ top, behavior: "smooth" });
+  });
+
+  const watch = { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["class"] };
+  [tray, count, paid, turns].filter(Boolean).forEach((el) => new MutationObserver(read).observe(el, watch));
+  if (name) name.addEventListener("input", read);
+
+  /* A right-click takes a part back off the bench; so does a held finger. */
+  if (window.REVELRY_HOLD) window.REVELRY_HOLD.watch("[data-part]");
+
+  read();
+  window.REVELRY_FORGE_MOBILE = { read, bar };
+})();
     </script>
   </body>
 </html>
