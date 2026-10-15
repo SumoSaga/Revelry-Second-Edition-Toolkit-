@@ -10,7 +10,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="revelry-build" content="ce5d25675cc6" data-root="../">
+    <meta name="revelry-build" content="7f6dd03aaf6e" data-root="../">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0d0a09">
     <title>Revelry | Spellforge</title>
@@ -4223,9 +4223,9 @@ window.REVELRY_DATA = (function () {
     "Dark Light Cult",
     "Tier 1",
     "Necromancy",
-    "You gain access to the Life Force, Necrotic, and Poison Elements\nYou gain access to the Sustain and Concentrate Components\nYou gain access to the following Spell: Undead Summon\n> Undead Summon: This spell can be cast by targeting a deceased creature and combining an Element of Necrotic with an Element of Life Force and the Sustain Component. The number of Necrotic Elements needed to cast this spell is determined by the size of the target: Small creatures require one instance, Medium require two, Large require three, etc. The spellcaster must then make a Willpower test against the target's Cognitive Defense. On a success, the spell animates the undead target and becomes one of the Caster's Summons with the features and abilities of the creature. On a fail, the corpse is disintegrated into the ether, and the spell cannot be cast on the target again.\n> Summons can maneuver once for free like Player Characters. Undead Summons are destroyed when they take an amount of damage determined by their size: Small are destroyed with Stress or greater, Medium with a Serious Injury or greater, Large and above with a Critical Injury or greater. Undead Summon is not considered a sustained spell requiring concentration once cast, but each Summon a Caster creates is considered an arcane Item they are attuned to (A Caster may only be attuned to a number of arcane objects equal to their Arcana Rank).",
+    "You gain access to the Life Force, Necrotic, and Poison Elements\nYou gain access to the Sustain and Concentrate Components\nYou gain access to the following Spell: Undead Summon\n> Undead Summon: This spell can be cast by targeting a deceased creature and combining an Element of Necrotic with an Element of Life Force and the Sustain Component. The number of Necrotic Elements needed to cast this spell is determined by the size of the target: Small creatures require one instance, Medium require two, Large require three, etc. The spellcaster must then make a Willpower test contested by the target's Willpower. On a success, the spell animates the undead target and becomes one of the Caster's Summons with the features and abilities of the creature. On a fail, the corpse is disintegrated into the ether, and the spell cannot be cast on the target again.\n> Summons can maneuver once for free like Player Characters. Undead Summons are destroyed when they take an amount of damage determined by their size: Small are destroyed when they take 2 Grit, Medium when they take 3 Grit, Large when they take 4 Grit, and so on with varying types of creatures. Undead Summon is not considered a sustained spell requiring concentration once cast, but each Summon a Caster creates is considered an arcane Item they are attuned to (A Caster may only be attuned to a number of arcane objects equal to their Arcana Rank).",
     "",
-    true
+    false
   ],
   [
     "Spellcaster",
@@ -4268,9 +4268,18 @@ window.REVELRY_DATA = (function () {
     "Mage",
     "Tier 1",
     "Volatile Keira",
-    "Spend 3 Momentum to reroll any number of your damage dice on an attack that deals Arcane Damage\nElemental Summoner:\nYou gain access to the Life Force Element\nYou gain access to the following spell: Elemental Summon\n> Elemental Summon: This spell can be cast by combining an Element of Fire, Water, Earth, or Wind with an Element of Life Force and the Sustain Component. For each pair of an Element and Life Force, an elemental sprite is created depending on the type of element. Elemental sprites are intangible, which means they cannot hold objects.\n> Summons can maneuver once for free like Player Characters. Summons are considered to be destroyed if they take any form of damage (Stress, Injuries, etc.). Elemental Summon is not considered a sustained spell requiring concentration once cast, but each Summon a Caster creates is considered an arcane Item they are attuned to (A Caster may only be attuned to a number of objects equal to their Arcana Rank).\n> Fire Sprite:\n> 45ft of Movement / Resistant to Fire Damage / 1d8 Fire Damage / Provide a 15ft circle of dim light\n> Water Sprite:\n> 35ft of Movement / Resistant to Water Damage / 1d8 Water Damage / Have double movement speed in water\n> Earth Sprite:\n> 30ft of Movement / Resistant to Earth Damage / 1d8 Earth Damage / Provides Half Cover to targets behind this creature\n> Wind Sprite:\n> 35ft of Movement / Resistant to Wind Damage / 1d8 Wind Damage / Has a fly speed equal to its movement speed",
+    "Spend 3 Momentum to reroll any number of your damage dice on an attack that deals Arcane Damage",
     "",
-    true
+    false
+  ],
+  [
+    "Spellcaster",
+    "Mage",
+    "Tier 1",
+    "Elemental Summoner",
+    "You gain access to the Life Force Element and Sustain Component\nYou gain access to the following spell: Elemental Summon\n> Elemental Summon: This spell can be cast by combining an Element of Fire, Water, Earth, or Wind with an Element of Life Force and the Sustain Component. For each pair of an Element and Life Force, an elemental sprite is created depending on the type of element. Elemental sprites are intangible, which means they cannot hold objects.\n> Summons can maneuver once for free like Player Characters. Summons are considered to be destroyed if they take any form of damage. Elemental Summon is not considered a sustained spell requiring concentration once cast, but each Summon a Caster creates is considered an arcane Item they are attuned to (A Caster may only be attuned to a number of objects equal to their Arcana Rank).\n> Fire Sprite:\n> 45ft of Movement / Resistant to Fire Damage / Atk +1 / Def +1 / If this creature's attack roll exceeds by a margin of 5+ the target gains the Burning condition for a number of turns equal to your Rank in Arcana. Provide a 15ft circle of dim light\n> Water Sprite:\n> 35ft of Movement / Resistant to Water Damage / Atk +1 / Def +1 / The target of this creature's attack, on a success, is Soaked until its next turn. This immediately douses the In Flames condition, and targets contesting a Freeze condition have a -2 to their roll. Have double movement speed in water\n> Earth Sprite:\n> 30ft of Movement / Resistant to Earth Damage / Atk +1 / Def +1 / The target of this creature's successful attacks halves their movement. Provides Half Cover to targets behind this creature\n> Wind Sprite:\n> 35ft of Movement / Resistant to Wind Damage / Atk +1 / Def +1 / After a successful attack, this creature or an ally within reach may immediately move 5ft. This distance increases by 5ft per Rank in Arcana\n> Has a fly speed equal to its movement speed",
+    "",
+    false
   ],
   [
     "Spellcaster",
@@ -4889,9 +4898,9 @@ window.REVELRY_DATA = (function () {
     "Mage",
     "Tier 2",
     "Fortified Elemental Focusing",
-    "Summons you create from the Elemental Summon Spell now take 2 Grit to destroy. Attacks made by these Summons are now considered to mirror the spellcasting element they represent instead of their traditional attacks. You may also use other elements to create Sprites from the following list:\n> Life Force Sprite:\n> 30ft of Movement / Targets that start their turn within 10ft of this creature clear one Stress.\n> Necrotic Sprite:\n> 35ft of Movement / Resistant to Necrotic Damage / 1d8 Necrotic Damage - Injuries can't be reduced by Armor Slots\n> Light Sprite:\n> 35ft of Movement / Emits a 30ft radius of bright light\n> Force Sprite:\n> 30ft of Movement / Targets that start their turn within 10ft of this creature are pushed 10ft directly away\n> Radiant Sprite:\n> 35ft of Movement / Targets that start their turn within 10ft of this creature gain a +1 to their Physical or Cognitive Defense (Chosen by the Caster once the summon has been created)\n> Electricity Sprite:\n> 40ft of Movement / Resistant to Electrical Damage / 1d6 Electrical Damage - targets within 10ft of the original target of the attack are also considered to be attacked. These new targets then check to see if other new targets are within 10ft with the Wet Condition.\n> Poison Sprite:\n> 30ft of Movement / Targets that start their turn within 10ft of this creature must make a Resist Test against the Caster of this Summon/s Cognitive Defense. On a failure, the target has disadvantage on rolls made during this initiative turn.\n> Shadow Sprite:\n> 35ft of Movement / This creature emits a 10ft radius of line-of-sight obscuring magical darkness. Light sources and open flames within this radius are extinguished or neutralized until it leaves the creatures radius",
+    "Summons you create from the Elemental Summon Spell now take 2 Grit to destroy. Attacks made by these Summons are now considered to mirror the spellcasting element they represent instead of their traditional attacks and utilize the caster's Willpower as their Atk and Def bonuses. You may also use other elements to create Sprites from the following list:\n> Life Force Sprite:\n> 30ft of Movement / Targets that start their turn within 10ft of this creature clear 1 Grit.\n> Necrotic Sprite:\n> 35ft of Movement / Resistant to Necrotic Damage / Grit from this creature's attacks can't be reduced by Armor Slots\n> Light Sprite:\n> 35ft of Movement / Emits a 30ft radius of bright light\n> Force Sprite:\n> 30ft of Movement / Targets that start their turn within 10ft of this creature are pushed 10ft directly away\n> Radiant Sprite:\n> 35ft of Movement / Targets that start their turn within 10ft of this creature gain a +1 to their Defense rolls relating to Strength and Dexterity or Intellect and Willpower (Chosen by the Caster once the summon has been created)\n> Electricity Sprite:\n> 40ft of Movement / Resistant to Electrical Damage / Targets within 10ft of the original target of this creature's attack are also considered to be attacked. These new targets then check to see if other new targets are within 10ft with the Wet Condition.\n> Poison Sprite:\n> 30ft of Movement / Targets that start their turn within 10ft of this creature must make a Resist Test contested by the Caster's Arcana. On a failure, the target has disadvantage on rolls made during this initiative turn.\n> Shadow Sprite:\n> 35ft of Movement / This creature emits a 10ft radius of line-of-sight obscuring magical darkness. Light sources and open flames within this radius are extinguished or neutralized until it leaves the creatures radius",
     "",
-    true
+    false
   ],
   [
     "Spellcaster",
@@ -6530,6 +6539,14 @@ window.REVELRY_DATA = (function () {
       "Anchor"
     ]
   },
+  "Elemental Summoner": {
+    "elements": [
+      "Life Force"
+    ],
+    "components": [
+      "Sustain"
+    ]
+  },
   "Spiritual Companion": {
     "elements": [
       "Nature"
@@ -7377,12 +7394,12 @@ window.REVELRY_SPELLS = (function () {
       "Wind"
     ],
     "from": "Elemental Summoner",
-    "text": "Each Element paired with a Life Force creates an intangible sprite of that type. Sprites maneuver once for free and are destroyed by any damage. Each counts as an arcane item you are attuned to, capped at your Arcana Rank.",
+    "text": "Each Element paired with a Life Force creates an intangible sprite of that type, with Atk +1 and Def +1. Sprites maneuver once for free and are destroyed by any damage. Each counts as an arcane item you are attuned to, capped at your Arcana Rank.",
     "detail": [
-      "Fire Sprite: 45 ft., resists Fire, sheds dim light in 15 ft.",
-      "Water Sprite: 35 ft., resists Water, double speed in water.",
-      "Earth Sprite: 30 ft., resists Earth, gives half cover to targets behind it.",
-      "Wind Sprite: 35 ft., resists Wind, fly speed equal to its movement."
+      "Fire Sprite: 45 ft., resists Fire, sheds dim light in 15 ft. A hit by a margin of 5+ sets the target Burning for turns equal to your Rank in Arcana.",
+      "Water Sprite: 35 ft., resists Water, double speed in water. A hit Soaks the target until its next turn, dousing In Flames; targets contesting Freeze take -2.",
+      "Earth Sprite: 30 ft., resists Earth, gives half cover to targets behind it. A hit halves the target's movement.",
+      "Wind Sprite: 35 ft., resists Wind, flies at its movement speed. After a hit it or an ally within reach moves 5 ft., +5 ft. per Rank in Arcana."
     ]
   },
   {
@@ -7393,7 +7410,7 @@ window.REVELRY_SPELLS = (function () {
       "Sustain": 1
     },
     "from": "Necromancy",
-    "text": "Target a deceased creature. Necrotic instances scale with size: one for Small, two for Medium, three for Large. Make a Willpower Test contested by the target's Willpower. On a success it animates as your Summon with its own features; on a failure the corpse disintegrates and cannot be targeted again."
+    "text": "Target a deceased creature. Necrotic instances scale with size: one for Small, two for Medium, three for Large. Make a Willpower Test contested by the target's Willpower. On a success it animates as your Summon with its own features; on a failure the corpse disintegrates and cannot be targeted again. Destroyed after 2 Grit if Small, 3 if Medium, 4 if Large, and so on."
   },
   {
     "n": "Reanimate",
