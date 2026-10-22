@@ -10,7 +10,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="revelry-build" content="7f6dd03aaf6e" data-root="./">
+    <meta name="revelry-build" content="22c8e26c1bcf" data-root="./">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0d0a09" />
     <title>Revelry | Character Builder</title>
@@ -6441,7 +6441,7 @@ window.REVELRY_DATA = (function () {
     "Dark Light Cult",
     "Tier 1",
     "Necromancy",
-    "You gain access to the Life Force, Necrotic, and Poison Elements\nYou gain access to the Sustain and Concentrate Components\nYou gain access to the following Spell: Undead Summon\n> Undead Summon: This spell can be cast by targeting a deceased creature and combining an Element of Necrotic with an Element of Life Force and the Sustain Component. The number of Necrotic Elements needed to cast this spell is determined by the size of the target: Small creatures require one instance, Medium require two, Large require three, etc. The spellcaster must then make a Willpower test contested by the target's Willpower. On a success, the spell animates the undead target and becomes one of the Caster's Summons with the features and abilities of the creature. On a fail, the corpse is disintegrated into the ether, and the spell cannot be cast on the target again.\n> Summons can maneuver once for free like Player Characters. Undead Summons are destroyed when they take an amount of damage determined by their size: Small are destroyed when they take 2 Grit, Medium when they take 3 Grit, Large when they take 4 Grit, and so on with varying types of creatures. Undead Summon is not considered a sustained spell requiring concentration once cast, but each Summon a Caster creates is considered an arcane Item they are attuned to (A Caster may only be attuned to a number of arcane objects equal to their Arcana Rank).",
+    "You gain access to the Life Force and Necrotic Elements\nYou gain access to the Sustain and Concentrate Components\nYou gain access to the following Spell: Undead Summon\n> Undead Summon: This spell can be cast by targeting a deceased creature and combining an Element of Necrotic with an Element of Life Force and the Sustain Component. The number of Necrotic Elements needed to cast this spell is determined by the size of the target: Small creatures require one instance, Medium require two, Large require three, etc. The spellcaster must then make a Willpower test contested by the target's Willpower. On a success, the spell animates the undead target and becomes one of the Caster's Summons with the features and abilities of the creature. On a fail, the corpse is disintegrated into the ether, and the spell cannot be cast on the target again.\n> Summons can maneuver once for free like Player Characters. Undead Summons are destroyed when they take an amount of damage determined by their size: Small are destroyed when they take 2 Grit, Medium when they take 3 Grit, Large when they take 4 Grit, and so on with varying types of creatures. Undead Summon is not considered a sustained spell requiring concentration once cast, but each Summon a Caster creates is considered an arcane Item they are attuned to (A Caster may only be attuned to a number of arcane objects equal to their Arcana Rank).",
     "",
     false
   ],
@@ -6465,6 +6465,15 @@ window.REVELRY_DATA = (function () {
   ],
   [
     "Spellcaster",
+    "Dark Light Cult",
+    "Tier 1",
+    "Alchemical Keira",
+    "You gain access to the Poison, Acid, and Blood Elements\nYou gain advantage on downtime move action rolls pertaining to crafting potions and similar concoctions. You count as having one additional Rank in Crafting when determining the number of potions you can craft in a downtime move",
+    "",
+    false
+  ],
+  [
+    "Spellcaster",
     "Mage",
     "Tier 1",
     "Continued Training",
@@ -6478,6 +6487,15 @@ window.REVELRY_DATA = (function () {
     "Tier 1",
     "Leyline Perfection",
     "You gain access to the Sustain, Concentrate, and Anchor Components\nYou can sense the presence of arcane people and objects within 30ft",
+    "",
+    false
+  ],
+  [
+    "Spellcaster",
+    "Mage",
+    "Tier 1",
+    "Electrostatic Resonance",
+    "You gain access to the Gravity, Magnetism, and Metal Elements",
     "",
     false
   ],
@@ -6513,7 +6531,7 @@ window.REVELRY_DATA = (function () {
     "Nature Tamers",
     "Tier 1",
     "Eldritch Wanderer",
-    "You gain access to the Eldritch Element\nYour familiarity and connection to the ancient world and lore of the wilds come to surface through either a trained connection or through the beconing of something from beyond. You gain an Expertise in Wildland Folklore and Wildland Creatures\n(Strange Patterns): Choose a number between 1 and 20\\. When you roll that number on a d20 die roll, gain 1 Momentum or clear a Grit. You can change this number when you take a long rest",
+    "You gain access to the Eldritch and Memory Elements\nYour familiarity and connection to the ancient world and lore of the wilds come to surface through either a trained connection or through the beconing of something from beyond. You gain an Expertise in Wildland Folklore and Wildland Creatures\n(Strange Patterns): Choose a number between 1 and 20\\. When you roll that number on a d20 die roll, gain 1 Momentum or clear a Grit. You can change this number when you take a long rest",
     "",
     false
   ],
@@ -8723,8 +8741,7 @@ window.REVELRY_DATA = (function () {
   "Necromancy": {
     "elements": [
       "Life Force",
-      "Necrotic",
-      "Poison"
+      "Necrotic"
     ],
     "components": [
       "Sustain",
@@ -8734,6 +8751,14 @@ window.REVELRY_DATA = (function () {
   "Voidcaller": {
     "elements": [
       "Shadow"
+    ],
+    "components": []
+  },
+  "Alchemical Keira": {
+    "elements": [
+      "Poison",
+      "Acid",
+      "Blood"
     ],
     "components": []
   },
@@ -8757,6 +8782,14 @@ window.REVELRY_DATA = (function () {
       "Anchor"
     ]
   },
+  "Electrostatic Resonance": {
+    "elements": [
+      "Gravity",
+      "Magnetism",
+      "Metal"
+    ],
+    "components": []
+  },
   "Elemental Summoner": {
     "elements": [
       "Life Force"
@@ -8775,7 +8808,8 @@ window.REVELRY_DATA = (function () {
   },
   "Eldritch Wanderer": {
     "elements": [
-      "Eldritch"
+      "Eldritch",
+      "Memory"
     ],
     "components": []
   },
@@ -9245,8 +9279,8 @@ window.REVELRY_DATA = (function () {
    the doc, regenerate, run build-data.py again.
 
    The doc marks an Element effect you buy with maneuver points by leading it
-   with "(1)". Exactly six carry one, and those are the six that give a spell
-   its own Strike option in the exchange. Everything else an Element does is
+   with "(1)". Thirteen carry one, and those are the thirteen that give a
+   spell its own Strike option in the exchange. Everything else an Element does is
    automatic and costs nothing.
    ========================================================================= */
 
@@ -9297,9 +9331,9 @@ window.REVELRY_SPELLS = (function () {
     "n": "Life Force",
     "tag": "restorative",
     "each": [
-      "Removes 1 Grit from the target.",
-      "Targeting a creature requires a DC 13 Arcana Test, or the spell removes no Grit."
-    ]
+      "Targeting a creature calls for an Arcana Test contested by 10. Every margin of success clears one marked Grit from the target."
+    ],
+    "stack": "Each additional instance of Life Force doubles the Grit the margin clears."
   },
   {
     "n": "Necrotic",
@@ -9328,8 +9362,9 @@ window.REVELRY_SPELLS = (function () {
     "n": "Radiant",
     "tag": "restorative",
     "each": [
-      "The target gains +1 to Attack or Defense rolls until initiative shifts back to your turn."
-    ]
+      "On a hit, make an Arcana Test contested by 10. For each margin of success the target gains +1 to Attack or Defense rolls until initiative shifts back to your turn."
+    ],
+    "stack": "Each additional instance of Radiant doubles the bonus the margin creates."
   },
   {
     "n": "Electricity",
@@ -9392,6 +9427,65 @@ window.REVELRY_SPELLS = (function () {
       "You must have line of sight to the destination, and the distance spent reaching the target subtracts from the distance it can travel."
     ],
     "ritual": "Ritual Cast (10 minutes): teleport yourself and willing creatures within reach to a location you have been before on this plane."
+  },
+  {
+    "n": "Sound",
+    "tag": "elemental",
+    "each": [
+      "Shockwave: 1 Grit. On a hit the target makes a Resist Test contested by your Arcana; on a failure they are Deafened until initiative shifts."
+    ]
+  },
+  {
+    "n": "Psychic",
+    "tag": "mind",
+    "each": [
+      "Mind Spike: 1 Grit, and the target has disadvantage on its next Intellect or Willpower roll."
+    ]
+  },
+  {
+    "n": "Metal",
+    "tag": "elemental",
+    "each": [
+      "Shear: 1 Grit. You conjure or control metal fragments nearby. On a hit, a target in metal armor makes a Resist Test contested by your Arcana, or their Armor Slots reduce incoming Grit at half the rate until initiative shifts back to you.",
+      "You can reshape a 5 ft. cube of metal into simple objects."
+    ]
+  },
+  {
+    "n": "Gravity",
+    "tag": "elemental",
+    "each": [
+      "Pulse: 1 Grit. A target in range that fails a Resist Test contested by your Arcana is pulled 5 ft. toward a point you choose, per instance of Gravity."
+    ]
+  },
+  {
+    "n": "Magnetism",
+    "tag": "elemental",
+    "each": [
+      "Electrostatic: 1 Grit. On a hit, targets wearing metal armor or carrying metal items are caught by Electricity's chaining effect without needing the Wet condition, until the spell ends.",
+      "Affected targets in range wearing or carrying metal are pushed up to 10 ft. away from each other until they stand 10 ft. apart. An affected creature trying to move toward another affected creature or object makes a Resist Test contested by your Arcana, or its Move Action stops."
+    ]
+  },
+  {
+    "n": "Acid",
+    "tag": "harmful",
+    "each": [
+      "Corrosion: 1 Grit, and the target automatically marks one Armor Slot without gaining its benefit."
+    ]
+  },
+  {
+    "n": "Blood",
+    "tag": "harmful",
+    "each": [
+      "Siphon: 1 Grit. The spell gains +1 to hit per instance of Blood. On a hit, you gain 1 Grit per instance."
+    ],
+    "needs": "Casting it costs you 1 marked Grit per instance of Blood."
+  },
+  {
+    "n": "Memory",
+    "tag": "mind",
+    "each": [
+      "The target forgets one detail you choose (a name, a location, a plan) for 1 turn, unless they succeed on a Resist Test contested by your Arcana."
+    ]
   }
 ];
 
@@ -9586,6 +9680,110 @@ window.REVELRY_SPELLS = (function () {
       "Concentrate": 1
     },
     "text": "The Space Element's ritual teleport can reach any location, regardless of your current plane."
+  },
+  {
+    "n": "Sonic Blast",
+    "all": {
+      "Sound": 1,
+      "Wind": 1
+    },
+    "text": "The spell produces a blast, pushing targets 10 ft. away."
+  },
+  {
+    "n": "Concussive Burst",
+    "all": {
+      "Sound": 1,
+      "Concentrate": 1
+    },
+    "text": "A concussive burst knocks creatures prone on a failed Resist Test contested by your Arcana."
+  },
+  {
+    "n": "Disorienting Tremor",
+    "all": {
+      "Sound": 1,
+      "Earth": 1
+    },
+    "text": "A target that fails its Resist Test contested by your Arcana is Disoriented until the spell ends. Disoriented: disadvantage on Action Rolls."
+  },
+  {
+    "n": "Dread",
+    "all": {
+      "Psychic": 1,
+      "Concentrate": 1
+    },
+    "text": "The target makes a Resist Test contested by your Arcana or becomes Frightened of you until initiative shifts back to you."
+  },
+  {
+    "n": "Mind Shatter",
+    "all": {
+      "Psychic": 1,
+      "Eldritch": 1
+    },
+    "text": "A target that fails a Resist Test contested by your Arcana is Stunned for one turn."
+  },
+  {
+    "n": "Displacement",
+    "all": {
+      "Psychic": 1,
+      "Space": 1
+    },
+    "text": "Instead of moving one target to a new location, you may swap the positions of two creatures in range if the target fails a Resist Test contested by your Arcana."
+  },
+  {
+    "n": "Metalshaping",
+    "all": {
+      "Metal": 1,
+      "Concentrate": 1
+    },
+    "text": "You can shape metal within the spell's area into any shape you like."
+  },
+  {
+    "n": "Weightless",
+    "all": {
+      "Gravity": 1,
+      "Concentrate": 1
+    },
+    "text": "The spell's radius can remove gravity, allowing movement in any direction."
+  },
+  {
+    "n": "Gravity Well",
+    "all": {
+      "Gravity": 1,
+      "Disperse": 1
+    },
+    "text": "A 10 ft. radius Gravity Well forms in range for the spell's duration. It is difficult terrain, and creatures in it make a Resist Test contested by your Arcana or are dragged toward its centre a distance equal to the spell's radius."
+  },
+  {
+    "n": "Attraction",
+    "all": {
+      "Magnetism": 1,
+      "Concentrate": 1
+    },
+    "text": "Targets the spell would repel are drawn toward one another instead."
+  },
+  {
+    "n": "Caustic Venom",
+    "all": {
+      "Acid": 1,
+      "Poison": 1
+    },
+    "text": "The spell ignores damage resistances, except resistance to Acid and Poison."
+  },
+  {
+    "n": "Blood Bind",
+    "all": {
+      "Blood": 1,
+      "Concentrate": 1
+    },
+    "text": "The spell binds to a target who fails a Resist Test contested by your Arcana. A bound target takes 1 Grit whenever it takes an action."
+  },
+  {
+    "n": "False Memory",
+    "all": {
+      "Memory": 1,
+      "Concentrate": 1
+    },
+    "text": "A target who fails a Resist Test contested by your Arcana is given a brief false memory of your choosing."
   }
 ];
 
@@ -9660,7 +9858,7 @@ window.REVELRY_SPELLS = (function () {
 };
 
   /* The doc marks a point-bought Element effect by leading it with "(1)".
-     Exactly six carry one, and those six are the Strike options a prepared
+     Thirteen carry one, and those are the Strike options a prepared
      spell adds to the exchange. Everything else an Element does is automatic
      and costs nothing, which is why it lives in the forge and not here. */
   const STRIKES = {
@@ -9669,7 +9867,14 @@ window.REVELRY_SPELLS = (function () {
     Wind: { label: "Gust", text: "Deals <b>1 Grit</b>, and you or an ally within reach moves <b>5 ft.</b>, +5 ft. per Rank in Arcana." },
     Earth: { label: "Crush", text: "Deals <b>1 Grit</b> and <b>halves</b> the target's movement." },
     Necrotic: { label: "Gloom", text: "Deals <b>1 Grit</b>, and the target's next attack is at disadvantage." },
-    Electricity: { label: "Electrify", text: "Deals <b>1 Grit</b>. Anyone within 10 ft. who is Wet takes <b>1 Grit</b> too, then check again from them." }
+    Electricity: { label: "Electrify", text: "Deals <b>1 Grit</b>. Anyone within 10 ft. who is Wet takes <b>1 Grit</b> too, then check again from them." },
+    Sound: { label: "Shockwave", text: "Deals <b>1 Grit</b>. The target makes a Resist Test against your Arcana or is <b>Deafened</b> until initiative shifts." },
+    Psychic: { label: "Mind Spike", text: "Deals <b>1 Grit</b>, and the target's next Intellect or Willpower roll is at <b>disadvantage</b>." },
+    Metal: { label: "Shear", text: "Deals <b>1 Grit</b>. A target in metal armor makes a Resist Test against your Arcana or its Armor Slots work at <b>half rate</b> until initiative shifts back to you." },
+    Gravity: { label: "Pulse", text: "Deals <b>1 Grit</b>. On a failed Resist Test the target is pulled <b>5 ft.</b> toward a point you choose, per instance of Gravity." },
+    Magnetism: { label: "Electrostatic", text: "Deals <b>1 Grit</b>. Targets in metal armor or carrying metal take Electricity's chaining effect <b>without needing to be Wet</b> until the spell ends." },
+    Acid: { label: "Corrosion", text: "Deals <b>1 Grit</b>, and the target marks <b>one Armor Slot</b> without gaining its benefit." },
+    Blood: { label: "Siphon", text: "Deals <b>1 Grit</b>, and you gain <b>1 Grit</b> per instance of Blood. The spell is +1 to hit per instance." }
   };
 
   /* One Strike option per Element the spell holds. They are options to
@@ -9758,7 +9963,9 @@ window.REVELRY_SPELL_ART = (function () {
     Water: "#4fa8ff", Fire: "#ff7a3d", Wind: "#9fd8e8", Earth: "#c08a3e",
     "Life Force": "#7ef2a8", Necrotic: "#8f6fd0", Light: "#ffe9a8", Force: "#c9c9d8",
     Radiant: "#ffd76a", Electricity: "#7ee0ff", Poison: "#a8d04f", Nature: "#69c079",
-    Shadow: "#6a5b7a", Eldritch: "#e46fd0", Luck: "#f0c36d", Time: "#b6a6ff", Space: "#7f7fff"
+    Shadow: "#6a5b7a", Eldritch: "#e46fd0", Luck: "#f0c36d", Time: "#b6a6ff", Space: "#7f7fff",
+    Sound: "#f4b6ff", Psychic: "#ff5fa2", Metal: "#aab6c4", Gravity: "#4b57a8",
+    Magnetism: "#e5484d", Acid: "#d4e157", Blood: "#a3121f", Memory: "#d6b38a"
   };
 
   /* The first Element in the spell gives it its colour. A spell with only
