@@ -10,7 +10,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="revelry-build" content="22c8e26c1bcf" data-root="../">
+    <meta name="revelry-build" content="e209fd64b41d" data-root="../">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0d0a09">
     <title>Revelry | Spellforge</title>
@@ -4268,7 +4268,7 @@ window.REVELRY_DATA = (function () {
     "Mage",
     "Tier 1",
     "Leyline Perfection",
-    "You gain access to the Sustain, Concentrate, and Anchor Components\nYou can sense the presence of arcane people and objects within 30ft",
+    "You gain access to the Sound Element\nYou gain access to the Sustain, Concentrate, and Anchor Components\nYou can sense the presence of arcane people and objects within 30ft",
     "",
     false
   ],
@@ -4313,7 +4313,7 @@ window.REVELRY_DATA = (function () {
     "Nature Tamers",
     "Tier 1",
     "Eldritch Wanderer",
-    "You gain access to the Eldritch and Memory Elements\nYour familiarity and connection to the ancient world and lore of the wilds come to surface through either a trained connection or through the beconing of something from beyond. You gain an Expertise in Wildland Folklore and Wildland Creatures\n(Strange Patterns): Choose a number between 1 and 20\\. When you roll that number on a d20 die roll, gain 1 Momentum or clear a Grit. You can change this number when you take a long rest",
+    "You gain access to the Eldritch Element\nYour familiarity and connection to the ancient world and lore of the wilds come to surface through either a trained connection or through the beconing of something from beyond. You gain an Expertise in Wildland Folklore and Wildland Creatures\n(Strange Patterns): Choose a number between 1 and 20\\. When you roll that number on a d20 die roll, gain 1 Momentum or clear a Grit. You can change this number when you take a long rest",
     "",
     false
   ],
@@ -4844,7 +4844,7 @@ window.REVELRY_DATA = (function () {
     "Dark Light Cult",
     "Tier 2",
     "Essence Manipulation",
-    "You gain access to the Echo, Absorb, and Inject Components",
+    "You gain access to the Memory and Psychic Elements\nYou gain access to the Echo, Absorb, and Inject Components",
     "",
     false
   ],
@@ -6557,7 +6557,9 @@ window.REVELRY_DATA = (function () {
     ]
   },
   "Leyline Perfection": {
-    "elements": [],
+    "elements": [
+      "Sound"
+    ],
     "components": [
       "Sustain",
       "Concentrate",
@@ -6590,8 +6592,7 @@ window.REVELRY_DATA = (function () {
   },
   "Eldritch Wanderer": {
     "elements": [
-      "Eldritch",
-      "Memory"
+      "Eldritch"
     ],
     "components": []
   },
@@ -6602,7 +6603,10 @@ window.REVELRY_DATA = (function () {
     "components": []
   },
   "Essence Manipulation": {
-    "elements": [],
+    "elements": [
+      "Memory",
+      "Psychic"
+    ],
     "components": [
       "Echo",
       "Absorb",
