@@ -10,7 +10,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="revelry-build" content="bd38f55b38aa" data-root="../">
+    <meta name="revelry-build" content="de629362915f" data-root="../">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0d0a09">
     <title>Revelry | Play Sheet</title>
@@ -2794,6 +2794,12 @@ button:hover, .primary-button:hover, .secondary-button:hover, .ghost-button:hove
    more than a shorter list. */
 .ench-grid .sr-part.out { opacity: 0.32; cursor: not-allowed; }
 .ench-grid .sr-part.out:hover { border-color: rgba(255, 255, 255, 0.12); background: rgba(0, 0, 0, 0.28); }
+/* Permanence: always in the spell, never one of the choices, never removable. */
+.ench-grid .sr-part.ench-locked { cursor: default; opacity: 1; border-style: dashed; }
+.ench-grid .sr-part.ench-locked i { font-style: normal; font-size: 0.66rem; margin-left: 0.3rem; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.06em; }
+.ench-choices { margin: 0.55rem 0 0; font-size: 0.8rem; color: var(--muted, #d6c8ad); }
+.ench-choices b { color: var(--paper-bright, #fff8ea); }
+.ench-choices.over, .ench-choices.over b { color: #ff8c78; }
 
 /* Picker on the left, reading on the right, the way the flyout sits. */
 .ench-body {
@@ -11874,8 +11880,16 @@ window.REVELRY_CUSTOM_GEAR = (function () {
 
    HOW BIG A SPELL CAN BE, and which parts are available, is a matter of
    level. The tiers below are the doc's, and the parts it does not list are
-   not enchantable — Luck, and the Continuate, Echo, Sustain and Permanence
-   Components, stay castable but cannot be bound into an object.
+   not enchantable: Luck, and the Continuate, Echo and Sustain Components,
+   stay castable but cannot be bound into an object.
+
+   PERMANENCE IS ALWAYS THERE (October 2026). A spell only stays in an object
+   because it holds the Permanence Component, so every enchanted spell gets
+   one, first, for free. It is not one of the player's choices: a tier 1
+   piece is Permanence plus two parts of the player's choosing, tier 2 is
+   Permanence plus three, tier 3 Permanence plus four. Stored parts include
+   it; `spellOf()` puts it back on anything saved before this rule, so an
+   old character reads the same as a new one.
    ========================================================================= */
 
 window.REVELRY_ENCHANTING = (function () {
@@ -11886,14 +11900,39 @@ window.REVELRY_ENCHANTING = (function () {
      means folding every tier up to it. */
   const TIERS = [
     {
-      tier: 1, from: 1, to: 2, parts: 3,
+      tier: 1, from: 1, to: 2, parts: 2,
       elements: ["Water", "Fire", "Wind", "Earth", "Life Force", "Necrotic", "Light",
                  "Force", "Radiant", "Electricity", "Poison", "Shadow", "Eldritch", "Nature"],
       components: ["Project", "Direct", "Concentrate", "Disperse", "Anchor"]
     },
-    { tier: 2, from: 3, to: 4, parts: 4, elements: [], components: ["Ricochet", "Absorb", "Inject"] },
-    { tier: 3, from: 5, to: Infinity, parts: 5, elements: ["Time", "Space"], components: [] }
+    { tier: 2, from: 3, to: 4, parts: 3, elements: [], components: ["Ricochet", "Absorb", "Inject"] },
+    { tier: 3, from: 5, to: Infinity, parts: 4, elements: ["Time", "Space"], components: [] }
   ];
+
+  /* ----- Permanence -------------------------------------------------------
+     `parts` above is how many the PLAYER chooses. Permanence comes on top. */
+  const PERMANENCE = "Permanence";
+
+  /* The parts the player chose, without the Permanence that comes free. */
+  const bound = (piece) => (((piece || {}).parts) || []).filter((p) => p !== PERMANENCE);
+
+  /* The whole spell as it sits in the object: Permanence first, then the
+     choices. A piece with no choices holds no spell, so no Permanence either
+     (a plain Spell Focus is not a spell). */
+  function spellOf(piece) {
+    const chosen = bound(piece);
+    return chosen.length ? [PERMANENCE].concat(chosen) : [];
+  }
+
+  /* Adding and taking back, so the builder never has to remember the rule. */
+  const withPart = (piece, name) => (name === PERMANENCE ? spellOf(piece) : spellOf({ parts: bound(piece).concat([name]) }));
+  function withoutPart(piece, name) {
+    if (name === PERMANENCE) return spellOf(piece);
+    const chosen = bound(piece);
+    const at = chosen.lastIndexOf(name);
+    if (at !== -1) chosen.splice(at, 1);
+    return spellOf({ parts: chosen });
+  }
 
   const tierFor = (level) => {
     const n = Math.max(1, Number(level) || 1);
@@ -11955,7 +11994,7 @@ window.REVELRY_ENCHANTING = (function () {
 
     /* Each enchantment is a slot: the spell is one, making it a Focus is one,
        and a Focus that also holds a spell is therefore two. */
-    const enchantments = (piece.parts && piece.parts.length ? 1 : 0) + (piece.focus ? 1 : 0);
+    const enchantments = (bound(piece).length ? 1 : 0) + (piece.focus ? 1 : 0);
 
     /* Only a statless piece can spend the wearable slot, and only for its
        first enchantment — there is one wearable, not several. */
@@ -11973,13 +12012,13 @@ window.REVELRY_ENCHANTING = (function () {
   function problems(piece, level, lookup) {
     const out = [];
     const a = available(level);
-    const parts = piece.parts || [];
+    const parts = bound(piece);
     const item = piece.base ? (lookup || {})[piece.base] : null;
 
     if (piece.base && !item) out.push(`${piece.base} is not in the catalogue.`);
 
     if (parts.length > a.parts) {
-      out.push(`A tier ${a.tier} enchantment holds ${a.parts} parts. This has ${parts.length}.`);
+      out.push(`A tier ${a.tier} enchantment holds Permanence and ${a.parts} more. This has ${parts.length}.`);
     }
 
     parts.forEach((name) => {
@@ -12012,7 +12051,11 @@ window.REVELRY_ENCHANTING = (function () {
 
   /* ----- the whole character --------------------------------------------- */
 
-  const read = (state) => ((state || {}).enchanted || []).filter((p) => p && typeof p === "object");
+  /* Every piece as it should read, Permanence included. Copies, so reading
+     never writes to the character. */
+  const read = (state) => ((state || {}).enchanted || [])
+    .filter((p) => p && typeof p === "object")
+    .map((p) => Object.assign({}, p, { parts: spellOf(p) }));
 
   /* What every piece costs together, so the builder can price the next one
      against what is already spent. */
@@ -12036,7 +12079,8 @@ window.REVELRY_ENCHANTING = (function () {
     if (piece.base) bits.push(piece.base);
     else bits.push("no statistics");
     if (piece.focus) bits.push("Spell Focus");
-    if (piece.parts && piece.parts.length) bits.push(piece.parts.join(" + "));
+    const spell = spellOf(piece);
+    if (spell.length) bits.push(spell.join(" + "));
     return bits.join(" · ");
   }
 
@@ -12104,6 +12148,7 @@ window.REVELRY_ENCHANTING = (function () {
 
   return {
     TIERS, tierFor, available, enchantable, tierOf, levelForTier,
+    PERMANENCE, bound, spellOf, withPart, withoutPart,
     cost, problems, handed, read, spent, label, describe, attach, register,
     USE, ACTIVE_LIMIT
   };
