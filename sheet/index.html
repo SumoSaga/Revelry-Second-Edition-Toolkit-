@@ -10,7 +10,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="revelry-build" content="84032f5ceb8a" data-root="../">
+    <meta name="revelry-build" content="bd38f55b38aa" data-root="../">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0d0a09">
     <title>Revelry | Play Sheet</title>
@@ -53,7 +53,7 @@ body {
     radial-gradient(circle at 80% 0%, rgba(var(--glow-rgb), 0.16), transparent 24rem),
     linear-gradient(145deg, var(--base-top), var(--base-mid) 55%, var(--base-bottom));
   color: var(--paper);
-  overflow-x: hidden;
+  overflow-x: clip; /* clip, not hidden: see theme.css */
 }
 
 body::before {
@@ -3394,7 +3394,13 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ============================ Mobile / responsive ========================= */
-html, body { max-width: 100%; overflow-x: hidden; }
+/* Sideways overflow is hidden on the page, but the body is CLIPPED, not
+   hidden. With "hidden" on both html and body, the body became a second
+   scroll box inside the page with a few spare pixels of its own; the wheel
+   would latch onto it, use up those pixels and then stop until the mouse
+   was nudged. "clip" hides the overflow without making a scroll box. */
+html { max-width: 100%; overflow-x: hidden; }
+body { max-width: 100%; overflow-x: clip; }
 
 /* Keep page navigation usable on tablet/phone (it was hidden before). */
 @media (max-width: 980px) {
@@ -5213,7 +5219,7 @@ body::after { display: none !important; }
     --m-momentum-rgb: 160, 140, 255;
     min-height: 100vh;
     min-height: 100dvh;
-    overflow-x: hidden;
+    overflow-x: clip;
     padding-bottom: calc(var(--m-tabs-h) + var(--m-safe-bottom) + 16px);
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
