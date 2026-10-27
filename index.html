@@ -10,7 +10,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="revelry-build" content="0f644cbca4eb" data-root="./">
+    <meta name="revelry-build" content="84032f5ceb8a" data-root="./">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0d0a09" />
     <title>Revelry | Character Builder</title>
@@ -12957,6 +12957,122 @@ init();
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
+})();
+    </script>
+    <script>
+/* ============ scroll-chain.js ============ */
+/* =========================================================================
+   Revelry : scrolling that never gets stuck.
+
+   The problem: when a scroll starts with the pointer over a box that has
+   its own scrollbar (the Spellforge parts list, the advisor chat, a drawer),
+   Chrome hands that whole scroll gesture to the box. When the box reaches
+   its end the page should take over, but for the rest of the gesture it
+   does not: the wheel turns and nothing moves until the mouse is nudged
+   sideways, which ends the gesture. That is the "caught" feeling.
+
+   The fix: every inner scroll box gets a wheel listener. While the box can
+   still move, the browser scrolls it as normal. The moment it is at its
+   top or bottom, the wheel is passed straight to the page instead. Boxes
+   that are meant to hold the scroll (a drawer or a modal styled with
+   overscroll-behavior: contain) are left alone.
+
+   It also stops a focused number field from swallowing the wheel. Chrome
+   changes a focused number input's value when you scroll over it, so
+   scrolling past the Level or Willpower field could quietly change it and
+   stop the page. A wheel over a focused number field now blurs it and the
+   page scrolls.
+
+   The listeners go on the scroll boxes only, never the document, so the
+   page itself keeps scrolling on the compositor at full speed.
+   ========================================================================= */
+
+(function () {
+  "use strict";
+
+  const attached = new WeakSet();
+
+  const canScrollY = (el) => /(auto|scroll)/.test(getComputedStyle(el).overflowY);
+
+  function nearestScroller(node) {
+    for (let el = node; el && el.nodeType === 1 && el !== document.body && el !== document.documentElement; el = el.parentElement) {
+      if (canScrollY(el) && el.scrollHeight > el.clientHeight + 1) return el;
+    }
+    return null;
+  }
+
+  const pixels = (e) => (e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY);
+
+  function onWheel(e) {
+    const box = e.currentTarget;
+    if (e.defaultPrevented || e.ctrlKey || !e.deltaY) return;
+    /* A smaller scroll box inside this one handles its own wheel. */
+    if (nearestScroller(e.target) !== box) return;
+    const ob = getComputedStyle(box).overscrollBehaviorY;
+    if (ob === "contain" || ob === "none") return;
+
+    const dy = pixels(e);
+    const atTop = box.scrollTop <= 0;
+    const atBottom = Math.ceil(box.scrollTop + box.clientHeight) >= box.scrollHeight - 1;
+    if ((dy < 0 && atTop) || (dy > 0 && atBottom) || box.scrollHeight <= box.clientHeight + 1) {
+      e.preventDefault();
+      window.scrollBy({ top: dy, left: 0, behavior: "instant" });
+    }
+  }
+
+  function attach(el) {
+    if (!el || attached.has(el) || el === document.body || el === document.documentElement) return;
+    attached.add(el);
+    el.addEventListener("wheel", onWheel, { passive: false });
+  }
+
+  /* Any element styled to scroll on its own, whether or not it has
+     overflowed yet: a list that is short now may be long after a render. */
+  function sweep(root) {
+    const scope = root && root.querySelectorAll ? root : document;
+    if (scope.nodeType === 1 && canScrollY(scope)) attach(scope);
+    scope.querySelectorAll("*").forEach((el) => { if (canScrollY(el)) attach(el); });
+  }
+
+  /* Number fields: a wheel over the focused one scrolls the page. */
+  document.addEventListener("wheel", (e) => {
+    const t = e.target;
+    if (t && t.tagName === "INPUT" && t.type === "number" && document.activeElement === t) t.blur();
+  }, { passive: true, capture: true });
+
+  /* A box that appears later (a drawer, a modal, a re-rendered panel) is
+     picked up the first time the pointer goes over it, and new markup is
+     swept a moment after it lands. */
+  document.addEventListener("pointerover", (e) => {
+    for (let el = e.target; el && el.nodeType === 1 && el !== document.body; el = el.parentElement) {
+      if (!attached.has(el) && canScrollY(el)) attach(el);
+    }
+  }, { passive: true });
+
+  let pending = null;
+  const later = [];
+  function queue(node) {
+    later.push(node);
+    if (pending) return;
+    pending = setTimeout(() => {
+      pending = null;
+      later.splice(0).forEach((n) => { if (n.isConnected) sweep(n); });
+    }, 400);
+  }
+
+  function init() {
+    sweep(document);
+    if (window.MutationObserver) {
+      new MutationObserver((list) => {
+        list.forEach((m) => m.addedNodes.forEach((n) => { if (n.nodeType === 1 && n.childElementCount) queue(n); }));
+      }).observe(document.body, { childList: true, subtree: true });
+    }
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+
+  window.REVELRY_SCROLL = { attach, sweep, attached: (el) => attached.has(el) };
 })();
     </script>
     <script>
