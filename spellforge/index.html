@@ -10,7 +10,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="revelry-build" content="e209fd64b41d" data-root="../">
+    <meta name="revelry-build" content="0f644cbca4eb" data-root="../">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0d0a09">
     <title>Revelry | Spellforge</title>
@@ -2310,6 +2310,364 @@ html, body { max-width: 100%; overflow-x: hidden; }
 @media print {
   .palette-switch { display: none; }
 }
+/* ============ spell-sandbox.css ============ */
+/* =========================================================================
+   Revelry : the Spellforge workshop layout.
+
+   Three columns on a desktop: the parts on the left, the proving ground
+   and the advisor in the middle, the bench and the caster on the right.
+   Loaded after theme.css, so it uses the palette tokens and every palette
+   colours it. Element colours stay literal, as everywhere else.
+   ========================================================================= */
+
+.workshop {
+  position: relative;
+  width: min(1680px, calc(100% - 28px));
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(250px, 290px) minmax(0, 1fr) minmax(300px, 350px);
+  gap: 14px;
+  align-items: start;
+}
+
+.ws-parts {
+  position: sticky;
+  top: 10px;
+  max-height: calc(100vh - 20px);
+  overflow-y: auto;
+  padding: 14px;
+  scrollbar-width: thin;
+}
+.ws-parts .catalog { grid-template-columns: 1fr; }
+.ws-parts .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
+.ws-parts .tab { min-width: 0; padding-inline: 4px; font-size: 0.74rem; overflow: hidden; text-overflow: ellipsis; }
+.ws-parts .toolbar { grid-template-columns: 1fr auto; }
+.ws-parts .part-card { cursor: grab; }
+.ws-parts .part-card:active { cursor: grabbing; }
+.part-card .part-shape {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  font-style: italic;
+  color: rgba(var(--accent-lit-rgb), 0.85);
+}
+.combo-card .combo-add {
+  margin-top: 6px;
+  border: 1px solid rgba(var(--accent-rgb), 0.45);
+  border-radius: 6px;
+  padding: 4px 9px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--accent-pale);
+  background: rgba(var(--accent-rgb), 0.1);
+}
+.combo-card .combo-add:hover { background: rgba(var(--accent-rgb), 0.22); }
+
+.ws-centre { display: grid; gap: 14px; min-width: 0; }
+.ws-side { display: grid; gap: 14px; min-width: 0; }
+.ws-side .sheet-panel,
+.ws-side .controls-panel { padding: 14px; }
+
+/* ----- the stage ---------------------------------------------------------- */
+
+.stage-panel { padding: 14px; min-width: 0; }
+
+.stage-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.stage-head .section-title { margin-bottom: 8px; }
+.stage-scene { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.field.inline { display: flex; align-items: center; gap: 8px; }
+.field.inline select { width: auto; padding: 6px 9px; }
+
+.tool-mini {
+  border: 1px solid rgba(240, 195, 109, 0.35);
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--panel-soft, #191716);
+}
+.tool-mini:hover { border-color: rgba(var(--accent-rgb), 0.7); }
+
+.tool-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 10px;
+}
+.tool-gap { width: 10px; }
+.tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(240, 195, 109, 0.22);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--panel-soft, #191716);
+  transition: border-color 120ms ease, background 120ms ease, color 120ms ease;
+}
+.tool:hover { color: var(--ink); border-color: rgba(240, 195, 109, 0.5); }
+.tool.is-on {
+  color: #100a08;
+  border-color: rgb(var(--accent-rgb));
+  background: rgb(var(--accent-rgb));
+}
+.tool .ti { font-style: normal; font-size: 0.95rem; line-height: 1; width: 1rem; text-align: center; }
+.ti-draw::before { content: "\270E"; }
+.ti-burst::before { content: "\25CE"; }
+.ti-move::before { content: "\2725"; }
+.ti-foe::before { content: "\25CF"; color: #e0574a; }
+.ti-ally::before { content: "\25CF"; color: #5aa8ff; }
+.ti-wall::before { content: "\25A6"; }
+.ti-raise::before { content: "\25B2"; }
+.ti-lower::before { content: "\25BC"; }
+.ti-water::before { content: "\2248"; color: #6fb6ff; }
+.ti-erase::before { content: "\232B"; }
+.tool.is-on .ti::before { color: inherit; }
+
+.stage-wrap {
+  position: relative;
+  height: clamp(420px, 64vh, 720px);
+  border: 1px solid rgba(240, 195, 109, 0.22);
+  border-radius: 10px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(var(--glow-rgb), 0.07), transparent 62%),
+    radial-gradient(ellipse at 50% 100%, rgba(var(--accent-rgb), 0.06), transparent 55%),
+    var(--night, #0c0a0a);
+  touch-action: none;
+}
+.stage-wrap.is-drop { border-color: rgb(var(--accent-rgb)); box-shadow: inset 0 0 0 2px rgba(var(--accent-rgb), 0.5); }
+#sandbox { display: block; width: 100%; height: 100%; cursor: crosshair; }
+#sandbox[data-tool="move"] { cursor: grab; }
+#sandbox[data-tool="wall"],
+#sandbox[data-tool="raise"],
+#sandbox[data-tool="lower"],
+#sandbox[data-tool="water"],
+#sandbox[data-tool="erase"],
+#sandbox[data-tool="foe"],
+#sandbox[data-tool="ally"] { cursor: cell; }
+
+.stage-hint {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  max-width: min(440px, 70%);
+  padding: 6px 10px;
+  border-radius: 7px;
+  font-size: 0.76rem;
+  line-height: 1.35;
+  color: var(--muted);
+  background: rgba(10, 8, 8, 0.72);
+  pointer-events: none;
+}
+.stage-legend {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  gap: 10px;
+  padding: 5px 9px;
+  border-radius: 7px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: rgba(10, 8, 8, 0.72);
+  pointer-events: none;
+}
+.stage-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.lg { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
+.lg-caster { background: #f0c36d; }
+.lg-foe { background: #e0574a; }
+.lg-ally { background: #5aa8ff; }
+
+.cast-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.cast-button {
+  font-weight: 800;
+  color: #100a08;
+  border-color: rgb(var(--accent-rgb));
+  background: linear-gradient(180deg, rgb(var(--accent-lit-rgb)), rgb(var(--accent-rgb)));
+}
+.cast-button:hover { filter: brightness(1.08); }
+.cast-bar .action-button[disabled] { opacity: 0.45; cursor: default; }
+.auto-build { margin-left: auto; font-size: 0.8rem; }
+
+.drawing-readout {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(240, 195, 109, 0.18);
+  border-radius: 8px;
+  background: var(--panel-soft, #191716);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+.drawing-readout p { margin: 0 0 6px; }
+.drawing-readout p:last-child { margin-bottom: 0; }
+.ro-lead b { color: var(--ink); }
+.ro-chips, .ro-hits { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0; }
+.ro-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 2px;
+}
+.ro-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(240, 195, 109, 0.55);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f0c36d;
+  background: rgba(240, 195, 109, 0.09);
+}
+.ro-chip i { font-style: normal; font-weight: 500; color: var(--muted); font-size: 0.72rem; }
+.ro-chip.muted { color: var(--muted); border-color: rgba(255, 255, 255, 0.15); background: none; }
+.ro-use {
+  margin-left: auto;
+  border: 1px solid rgb(var(--accent-rgb));
+  border-radius: 7px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #100a08;
+  background: rgb(var(--accent-rgb));
+}
+.ro-tok {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+}
+.ro-foe { color: #ff8a7e; }
+.ro-ally { color: #8cc4ff; }
+.ro-caster { color: #f0c36d; }
+.ro-hits em { font-size: 0.78rem; color: var(--danger, #ff8c78); }
+.ro-notes { margin: 6px 0 0; padding-left: 1.1rem; color: var(--muted); font-size: 0.82rem; }
+.ro-notes li { margin: 2px 0; }
+
+.cast-log {
+  margin: 8px 0 0;
+  padding: 0 0 0 1.1rem;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+.cast-log:empty { display: none; }
+.cast-log li { margin: 3px 0; }
+.cast-log li.cl-note { color: var(--danger, #ff8c78); }
+.cast-log b { color: var(--ink); }
+
+/* ----- the advisor ------------------------------------------------------- */
+
+.advisor-panel { padding: 14px; }
+.advisor-log {
+  display: grid;
+  gap: 8px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+}
+.adv-msg {
+  max-width: 92%;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+.adv-msg p { margin: 0 0 6px; }
+.adv-msg p:last-child { margin-bottom: 0; }
+.adv-msg.is-advisor {
+  justify-self: start;
+  border: 1px solid rgba(var(--accent-rgb), 0.28);
+  background: rgba(var(--accent-rgb), 0.06);
+}
+.adv-msg.is-you {
+  justify-self: end;
+  border: 1px solid rgba(240, 195, 109, 0.3);
+  background: rgba(240, 195, 109, 0.08);
+}
+.adv-why, .adv-notes { margin: 4px 0 8px; padding-left: 1.1rem; }
+.adv-why li, .adv-notes li { margin: 3px 0; }
+.adv-notes { color: var(--muted); font-size: 0.82rem; }
+.adv-sub { color: var(--muted); font-size: 0.8rem; }
+.adv-fires { color: var(--accent-pale); }
+.adv-warn { color: var(--danger, #ff8c78); font-size: 0.84rem; }
+.adv-parts { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 8px; }
+.adv-part {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1px solid var(--c, rgba(240, 195, 109, 0.6));
+  color: var(--c, #f0c36d);
+  background: rgba(255, 255, 255, 0.04);
+}
+.adv-part.is-component { --c: #f0c36d; }
+.adv-part.is-locked { opacity: 0.55; border-style: dashed; }
+.adv-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.adv-actions .action-button { padding: 6px 11px; font-size: 0.8rem; }
+
+.advisor-examples { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 8px; }
+.adv-example {
+  border: 1px solid rgba(240, 195, 109, 0.22);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.76rem;
+  color: var(--muted);
+  background: var(--panel-soft, #191716);
+}
+.adv-example:hover { color: var(--ink); border-color: rgba(var(--accent-rgb), 0.6); }
+.advisor-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+
+/* ----- the rules snapshot, folded ------------------------------------------- */
+
+details.notes-panel { margin-top: 14px; margin-bottom: 30px; }
+details.notes-panel > summary { list-style: none; cursor: pointer; margin-bottom: 0; }
+details.notes-panel > summary::-webkit-details-marker { display: none; }
+details.notes-panel[open] > summary { margin-bottom: 12px; }
+
+/* ----- narrower desktops ----------------------------------------------------- */
+
+@media (max-width: 1300px) {
+  .workshop { grid-template-columns: minmax(240px, 270px) minmax(0, 1fr); }
+  .ws-side { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; align-items: start; }
+}
+
+@media (max-width: 900px) {
+  .workshop { width: auto; margin: 0 10px; grid-template-columns: 1fr; }
+  .ws-parts { position: static; max-height: none; order: 2; }
+  .ws-centre { order: 1; }
+  .ws-side { order: 3; grid-template-columns: 1fr; }
+  .stage-wrap { height: 62vh; min-height: 360px; }
+  .tool span { display: none; }
+  .tool { padding: 8px 10px; }
+  .auto-build { margin-left: 0; }
+}
+
+@media print {
+  .ws-centre, .ws-parts { display: none; }
+  .workshop { display: block; }
+}
 /* ============ spellforge-mobile.css ============ */
 /* =========================================================================
    Revelry — the Spellforge on a phone or a tablet held upright.
@@ -2766,7 +3124,7 @@ window.REVELRY_PALETTE = (function () {
 })();
     </script>
   </head>
-  <body class="forge-page">
+  <body class="forge-page workshop-page">
     <canvas id="keira-field" aria-hidden="true"></canvas>
 
     <header class="app-header">
@@ -2785,7 +3143,7 @@ window.REVELRY_PALETTE = (function () {
     <section class="spell-hero">
       <p class="eyebrow">Revelry Keiral Spellcasting</p>
       <h1>Spellforge</h1>
-      <p class="lede">Tap Elements and Components during play. The forge counts the actions and turns it takes, holds you to what your Willpower and Arcana allow, and says what the finished spell does.</p>
+      <p class="lede">A workbench for trying out spells before you cast them at the table. Set up a scene, draw where you want the spell to go, and the forge works out the Components that shape it. Then press Test Cast and watch what it does to everyone in the way.</p>
     </section>
 
     <div class="forge-action-bar">
@@ -2794,71 +3152,19 @@ window.REVELRY_PALETTE = (function () {
         <button id="copy-button" class="action-button" title="Copy summary">Copy</button>
         <button id="save-button" class="action-button" title="Save spell">Save</button>
         <button id="load-button" class="action-button" title="Load saved spell">Load</button>
-        <button id="open-sheet-window" class="action-button subtle" title="Open your character sheet in a side window so you can use both at once">Sheet ⤢</button>
+        <button id="open-sheet-window" class="action-button subtle" title="Open your character sheet in a side window so you can use both at once">Sheet &#x2922;</button>
         <button id="print-button" class="action-button subtle" title="Print spell">Print</button>
       </div>
     </div>
-    <main class="layout">
-      <section class="forge-panel sheet-panel" aria-labelledby="sheet-heading">
-        <div class="section-title">
-          <span class="sigil"></span>
-          <div>
-            <p class="eyebrow">Live Spell</p>
-            <h2 id="sheet-heading">Casting Bench</h2>
-          </div>
-        </div>
 
-        <label class="field">
-          <span>Spell name</span>
-          <input id="spell-name" type="text" value="Untitled Spell" autocomplete="off">
-        </label>
+    <main class="workshop">
 
-        <div class="current-parts">
-          <div class="subhead">
-            <h3>Spell tray</h3>
-            <span id="parts-count" class="tray-count">0 / 3</span>
-            <button id="clear-parts" class="tray-clear" type="button" title="Clear every Element and Component">Clear</button>
-          </div>
-          <div id="selected-parts" class="selected-parts"></div>
-        </div>
-
-        <div class="meters">
-          <div class="meter primary">
-            <span>Paid actions</span>
-            <strong id="paid-actions">0</strong>
-          </div>
-          <div class="meter">
-            <span>Free adds</span>
-            <strong id="free-actions">0</strong>
-          </div>
-          <div class="meter">
-            <span>Build turns</span>
-            <strong id="turns-needed">0</strong>
-          </div>
-          <div class="meter cost">
-            <span>Their tracker</span>
-            <strong id="tracker-cost">0</strong>
-          </div>
-        </div>
-
-        <div id="warnings" class="warnings" aria-live="polite"></div>
-
-        <div class="summary-box">
-          <h3>Spell Summary</h3>
-          <div id="quick-summary"><p class="ss-overview">Tap an Element or Component to start shaping the spell.</p></div>
-        </div>
-
-        <details class="effect-drawer" open>
-          <summary>Stacked effects</summary>
-          <ul id="effect-list"></ul>
-        </details>
-      </section>
-
-      <section class="forge-panel builder-panel" aria-labelledby="builder-heading">
+      <!-- ===== the parts, outside the canvas ===== -->
+      <section class="forge-panel builder-panel ws-parts" aria-labelledby="builder-heading">
         <div class="section-title compact-title">
           <span class="sigil"></span>
           <div>
-            <p class="eyebrow">Tap To Add</p>
+            <p class="eyebrow">Click or drag onto the scene</p>
             <h2 id="builder-heading">Spell Parts</h2>
           </div>
         </div>
@@ -2883,83 +3189,225 @@ window.REVELRY_PALETTE = (function () {
         <div id="catalog" class="catalog" aria-live="polite"></div>
       </section>
 
-      <aside class="forge-panel controls-panel" aria-labelledby="caster-heading">
-        <div class="section-title">
-          <span class="sigil"></span>
-          <div>
-            <p class="eyebrow">Caster</p>
-            <h2 id="caster-heading">Profile & Gear</h2>
+      <!-- ===== the scene ===== -->
+      <section class="ws-centre">
+        <div class="forge-panel stage-panel" aria-labelledby="stage-heading">
+          <div class="stage-head">
+            <div class="section-title compact-title">
+              <span class="sigil"></span>
+              <div>
+                <p class="eyebrow">5 ft. squares</p>
+                <h2 id="stage-heading">Proving Ground</h2>
+              </div>
+            </div>
+            <div class="stage-scene">
+              <label class="field inline">
+                <span>Scene</span>
+                <select id="scene-select">
+                  <option value="field">Open field</option>
+                  <option value="chapel">Chapel ruin</option>
+                  <option value="hill">Hillside and pond</option>
+                  <option value="empty">Empty ground</option>
+                </select>
+              </label>
+              <button type="button" class="tool-mini" id="rotate-view" title="Turn the view a quarter turn">&#x21bb; Turn</button>
+              <button type="button" class="tool-mini" id="fit-view" title="Fit the whole scene in view">Fit</button>
+            </div>
           </div>
+
+          <div class="tool-row" role="toolbar" aria-label="Scene tools">
+            <button type="button" class="tool is-on" data-tool="draw" title="Drag from your caster to draw the spell's path. End with a loop to make it burst. Hold Shift for a straight line.">
+              <i class="ti ti-draw"></i><span>Draw spell</span></button>
+            <button type="button" class="tool" data-tool="burst" title="Press where the spell should land and drag out its radius">
+              <i class="ti ti-burst"></i><span>Burst</span></button>
+            <button type="button" class="tool" data-tool="move" title="Drag creatures to move them. Drag empty ground to pan.">
+              <i class="ti ti-move"></i><span>Move</span></button>
+            <span class="tool-gap"></span>
+            <button type="button" class="tool" data-tool="foe" title="Click to place a foe. Click a creature again to remove it.">
+              <i class="ti ti-foe"></i><span>Foe</span></button>
+            <button type="button" class="tool" data-tool="ally" title="Click to place an ally. Click a creature again to remove it.">
+              <i class="ti ti-ally"></i><span>Ally</span></button>
+            <button type="button" class="tool" data-tool="wall" title="Paint walls (10 ft. tall). Right-click removes them.">
+              <i class="ti ti-wall"></i><span>Wall</span></button>
+            <button type="button" class="tool" data-tool="raise" title="Raise the ground 5 ft. Right-click lowers it.">
+              <i class="ti ti-raise"></i><span>Raise</span></button>
+            <button type="button" class="tool" data-tool="lower" title="Lower the ground 5 ft. Right-click raises it.">
+              <i class="ti ti-lower"></i><span>Lower</span></button>
+            <button type="button" class="tool" data-tool="water" title="Paint a pool of water. Right-click removes it.">
+              <i class="ti ti-water"></i><span>Water</span></button>
+            <button type="button" class="tool" data-tool="erase" title="Clear walls, water and creatures you click.">
+              <i class="ti ti-erase"></i><span>Erase</span></button>
+          </div>
+
+          <div class="stage-wrap" id="stage-wrap">
+            <canvas id="sandbox" aria-label="Isometric proving ground. Draw a spell from your caster."></canvas>
+            <div class="stage-hint" id="stage-hint"></div>
+            <div class="stage-legend">
+              <span><b class="lg lg-caster"></b>You</span>
+              <span><b class="lg lg-foe"></b>Foe</span>
+              <span><b class="lg lg-ally"></b>Ally</span>
+            </div>
+          </div>
+
+          <div class="cast-bar">
+            <button type="button" id="test-cast" class="action-button cast-button" title="Fire the spell on the bench along your drawing">&#x2726; Test Cast</button>
+            <button type="button" id="reset-scene" class="action-button subtle" title="Put everyone back where they stood before the cast" disabled>Undo cast</button>
+            <button type="button" id="clear-drawing" class="action-button subtle" title="Rub out the drawing (the parts stay on the bench)">Clear drawing</button>
+            <label class="toggle auto-build">
+              <input id="auto-build" type="checkbox" checked>
+              <span>Build shape from drawing</span>
+            </label>
+          </div>
+
+          <div id="drawing-readout" class="drawing-readout" aria-live="polite"></div>
+          <ol id="cast-log" class="cast-log" aria-live="polite"></ol>
         </div>
 
-        <div class="stat-grid">
-          <label class="field">
-            <span>Active character</span>
-            <select id="active-character">
-              <option value="">No vault character</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>Willpower</span>
-            <input id="willpower" type="number" min="1" max="12" value="3">
-          </label>
-          <label class="field">
-            <span>Arcana</span>
-            <input id="arcana" type="number" min="0" max="12" value="1">
-          </label>
-          <label class="field">
-            <span>Detail</span>
-            <select id="mode">
-              <option value="beginner">Fast</option>
-              <option value="advanced">Full</option>
-            </select>
-          </label>
-        </div>
-
-        <div class="rule-note">
-          Adding one Element or Component costs an action. <strong>Willpower</strong> caps how many a
-          single spell holds; your Rank in <strong>Arcana</strong> caps how many you can add in one
-          turn. Casting the finished spell is a free action.
-        </div>
-
-        <div class="rule-note">
-          Most of what an Element does is <strong>automatic</strong> and costs nothing &mdash; light,
-          conditions, and the combinations that fire when the right parts meet. Six Elements also
-          give the spell its own <strong>Strike</strong>, bought for one point of your margin in the
-          exchange. Those appear in the maneuver menu on the Play Sheet, and your margin buys
-          <em>one</em> of them, never all.
-        </div>
-
-        <div class="item-list" id="item-list" aria-label="Arcane items"></div>
-        <details class="source-guide" id="source-guide">
-          <summary>Where do my Elements &amp; Components come from?</summary>
-          <div class="source-guide-body" id="source-guide-body"></div>
-        </details>
-
-        <div class="spell-vault" id="spell-vault">
+        <!-- ===== the advisor ===== -->
+        <div class="forge-panel advisor-panel" aria-labelledby="advisor-heading">
           <div class="section-title compact-title">
             <span class="sigil"></span>
             <div>
-              <p class="eyebrow">Saved</p>
-              <h2>Spell Vault</h2>
+              <p class="eyebrow">Tell it what you want</p>
+              <h2 id="advisor-heading">Spell Advisor</h2>
             </div>
           </div>
-          <p class="rule-note">Press <strong>Save</strong> to store the current spell here. Load or delete saved spells anytime.</p>
-          <div class="spell-vault-list" id="spell-vault-list"></div>
+          <div id="advisor-log" class="advisor-log" aria-live="polite"></div>
+          <div class="advisor-examples" id="advisor-examples"></div>
+          <form id="advisor-form" class="advisor-form" autocomplete="off">
+            <input id="advisor-input" type="text" placeholder="e.g. freeze the foes in that room without hitting my ally">
+            <button type="submit" class="action-button">Ask</button>
+          </form>
         </div>
+      </section>
+
+      <!-- ===== the spell and the caster ===== -->
+      <aside class="ws-side">
+        <section class="forge-panel sheet-panel" aria-labelledby="sheet-heading">
+          <div class="section-title">
+            <span class="sigil"></span>
+            <div>
+              <p class="eyebrow">Live Spell</p>
+              <h2 id="sheet-heading">Casting Bench</h2>
+            </div>
+          </div>
+
+          <label class="field">
+            <span>Spell name</span>
+            <input id="spell-name" type="text" value="Untitled Spell" autocomplete="off">
+          </label>
+
+          <div class="current-parts">
+            <div class="subhead">
+              <h3>Spell tray</h3>
+              <span id="parts-count" class="tray-count">0 / 3</span>
+              <button id="clear-parts" class="tray-clear" type="button" title="Clear every Element and Component">Clear</button>
+            </div>
+            <div id="selected-parts" class="selected-parts"></div>
+          </div>
+
+          <div class="meters">
+            <div class="meter primary">
+              <span>Paid actions</span>
+              <strong id="paid-actions">0</strong>
+            </div>
+            <div class="meter">
+              <span>Free adds</span>
+              <strong id="free-actions">0</strong>
+            </div>
+            <div class="meter">
+              <span>Build turns</span>
+              <strong id="turns-needed">0</strong>
+            </div>
+            <div class="meter cost">
+              <span>Their tracker</span>
+              <strong id="tracker-cost">0</strong>
+            </div>
+          </div>
+
+          <div id="warnings" class="warnings" aria-live="polite"></div>
+
+          <div class="summary-box">
+            <h3>Spell Summary</h3>
+            <div id="quick-summary"><p class="ss-overview">Click an Element or Component, or draw on the scene, to start shaping the spell.</p></div>
+          </div>
+
+          <details class="effect-drawer">
+            <summary>Stacked effects</summary>
+            <ul id="effect-list"></ul>
+          </details>
+        </section>
+
+        <section class="forge-panel controls-panel" aria-labelledby="caster-heading">
+          <div class="section-title">
+            <span class="sigil"></span>
+            <div>
+              <p class="eyebrow">Caster</p>
+              <h2 id="caster-heading">Profile &amp; Gear</h2>
+            </div>
+          </div>
+
+          <div class="stat-grid">
+            <label class="field">
+              <span>Active character</span>
+              <select id="active-character">
+                <option value="">No vault character</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Willpower</span>
+              <input id="willpower" type="number" min="1" max="12" value="3">
+            </label>
+            <label class="field">
+              <span>Arcana</span>
+              <input id="arcana" type="number" min="0" max="12" value="1">
+            </label>
+            <label class="field">
+              <span>Detail</span>
+              <select id="mode">
+                <option value="beginner">Fast</option>
+                <option value="advanced">Full</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="rule-note">
+            Adding one Element or Component costs an action. <strong>Willpower</strong> caps how many a
+            single spell holds; your Rank in <strong>Arcana</strong> caps how many you can add in one
+            turn. Casting the finished spell is a free action.
+          </div>
+
+          <div class="item-list" id="item-list" aria-label="Arcane items"></div>
+          <details class="source-guide" id="source-guide">
+            <summary>Where do my Elements &amp; Components come from?</summary>
+            <div class="source-guide-body" id="source-guide-body"></div>
+          </details>
+
+          <div class="spell-vault" id="spell-vault">
+            <div class="section-title compact-title">
+              <span class="sigil"></span>
+              <div>
+                <p class="eyebrow">Saved</p>
+                <h2>Spell Vault</h2>
+              </div>
+            </div>
+            <p class="rule-note">Press <strong>Save</strong> to store the current spell here. Load or delete saved spells anytime.</p>
+            <div class="spell-vault-list" id="spell-vault-list"></div>
+          </div>
+        </section>
       </aside>
     </main>
 
-    <section class="forge-panel notes-panel">
-      <div class="section-title">
+    <details class="forge-panel notes-panel">
+      <summary class="section-title">
         <span class="sigil"></span>
         <div>
           <p class="eyebrow">Quick Read</p>
           <h2>Rules Snapshot</h2>
         </div>
-      </div>
+      </summary>
       <div id="notes-grid" class="notes-grid"></div>
-    </section>
+    </details>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
     <script>
@@ -8492,18 +8940,18 @@ window.REVELRY_CASTING = (function () {
     <script>
 /* ============ spellforge.js ============ */
 /* =========================================================================
-   Revelry — the Spellforge.
+   Revelry : the Spellforge bench.
 
    A spell is Elements and Components, added one at a time. What it does is
    the sum of what each part does; what it costs is one action per part, at
    your Rank in Arcana per turn, and casting the finished thing is free.
 
-   This replaced the Parry build of the same page, which spent the margin
-   along an Element's Injury Track. Revelry has no injury tiers: an Element's
-   effects are priced in Grit and most of them are automatic. The six that
-   are bought with maneuver points are the six that give a prepared spell its
-   own Strike option in the exchange, and those live in the maneuver menu on
-   the play sheet, not here.
+   October 2026: the page became a workshop. The flyout on the play sheet
+   already does the job of building a spell at the table, so this page is
+   for trying spells out. The bench below is still the one source of truth
+   for what the spell holds; the isometric scene (spell-sandbox.js) and the
+   advisor (spell-advisor.js) read it and write to it through the small API
+   at the bottom of this file (applyShape, addParts, onChange).
 
    Nothing on this page invents a rule. Every line of Element and Component
    text comes from revelry-spells.js, generated from the doc.
@@ -8514,6 +8962,10 @@ const DATA = window.REVELRY_DATA;
 
 const VAULT_KEY = "revelry-character-vault";
 const SPELL_KEY = "revelry-spell-vault";
+
+/* The four Components that decide a spell's shape. The scene can work
+   these out from a drawing; everything else is the caster's choice. */
+const SHAPE_PARTS = ["Project", "Direct", "Disperse", "Ricochet"];
 
 const state = {
   parts: [],          /* canonical names, in the order they were added */
@@ -8555,10 +9007,8 @@ const esc = (value) => String(value == null ? "" : value)
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
   .replace(/"/g, "&quot;");
 
-const slug = (name) => String(name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-
-/* An Element's colour, so Fire and Water are told apart at a glance — the
-   same colour the diagram and the maneuver list use. */
+/* An Element's colour, so Fire and Water are told apart at a glance. It is
+   the same colour the diagram, the scene and the maneuver list use. */
 const elementColour = (name) => {
   const art = window.REVELRY_SPELL_ART;
   return (art && art.ELEMENT_COLOUR[SPELLS.canon(name)]) || "#5fe0d2";
@@ -8604,7 +9054,7 @@ function syncFromCharacter() {
 }
 
 /* What this character can cast with, and who gave it to them. With nobody
-   loaded, everything is open — you are browsing, not casting. */
+   loaded, everything is open: you are browsing, not casting. */
 function access() {
   const entry = activeCharacter();
   if (!entry) {
@@ -8641,16 +9091,11 @@ const canReach = (name) => {
 const partDef = (name) => SPELLS.elementMap.get(name) || SPELLS.componentMap.get(name) || null;
 const countOf = (name) => state.parts.filter((p) => p === name).length;
 
-/* The doc's three numbers, in one place.
-
-   Capacity is Willpower: how many parts one spell may hold. Rate is your
-   Rank in Arcana: how many you may add in a single turn, minimum one. Each
-   part costs an action; casting the finished spell costs nothing. */
 /* The bill is worked out in one place, casting.js, so this page and the
    flyout on the sheet can never disagree about what a spell costs.
 
    With no character loaded the fields on the right are yours to set, so a
-   stand-in state is built from them — that is how you plan a spell for
+   stand-in state is built from them. That is how you plan a spell for
    someone who is not built yet. */
 function metrics() {
   const entry = activeCharacter();
@@ -8703,7 +9148,7 @@ function renderTray() {
   if (!state.parts.length) {
     el.selectedParts.innerHTML = `<p class="tray-empty">Nothing on the bench yet.</p>`;
   } else {
-    /* One chip per part, however many instances — four Waters is one chip
+    /* One chip per part, however many instances: four Waters is one chip
        reading ×4, not four chips. Elements first, then Components, which is
        the order the doc lists them and the order you think in. */
     const order = state.parts
@@ -8735,14 +9180,14 @@ function renderWarnings() {
     notes.push(`This spell holds ${m.size} parts and your Willpower carries ${m.capacity}. Drop ${m.size - m.capacity}, or raise Willpower.`);
   }
   if (state.parts.length && !state.parts.some(SPELLS.isElement)) {
-    notes.push("No Element yet — a spell needs something to be made of.");
+    notes.push("No Element yet. A spell needs something to be made of.");
   }
   const unreachable = access().open
     ? Array.from(new Set(state.parts)).filter((name) => !canReach(name))
     : [];
   unreachable.forEach((name) => {
     const who = DATA.grantedBy(name);
-    notes.push(`${name} is on the bench but this character cannot reach it${who.length ? ` — ${who[0]} would open it` : ""}.`);
+    notes.push(`${name} is on the bench but this character cannot reach it${who.length ? `; ${who[0]} would open it` : ""}.`);
   });
 
   el.warnings.innerHTML = notes.length
@@ -8752,7 +9197,7 @@ function renderWarnings() {
 
 function renderSummary() {
   if (!state.parts.length) {
-    el.quickSummary.innerHTML = `<p class="ss-overview">Tap an Element or Component to start shaping the spell.</p>`;
+    el.quickSummary.innerHTML = `<p class="ss-overview">Click an Element or Component, or draw on the scene, to start shaping the spell.</p>`;
     el.effectList.innerHTML = "";
     return;
   }
@@ -8764,19 +9209,19 @@ function renderSummary() {
   const strikes = SPELLS.strikesFor(state.parts);
 
   el.quickSummary.innerHTML = `
-    <p class="ss-overview"><strong>${esc(state.name || "Untitled Spell")}</strong> —
+    <p class="ss-overview"><strong>${esc(state.name || "Untitled Spell")}</strong>:
       ${elements.length ? esc(elements.join(", ")) : "no Element"}${components.length ? " · " + esc(components.join(", ")) : ""}.</p>
     <p class="ss-cost">${m.paid} action${m.paid === 1 ? "" : "s"} to build${m.free ? `, ${m.free} paid for you` : ""},
       over ${m.turns} turn${m.turns === 1 ? "" : "s"}. Casting it is free.</p>
     <p class="ss-tracker"><b>${m.actionPoints}</b> point${m.actionPoints === 1 ? "" : "s"}
-      onto the opposition's Action Tracker — one per action you spend, and none for the free ones.</p>
+      onto the opposition's Action Tracker, one per action you spend and none for the free ones.</p>
     ${payerLines(m)}
     ${strikes.length ? `
       <div class="ss-strikes">
         <h4>In the exchange</h4>
         <p class="ss-note">Your margin buys one of these, not all of them.</p>
         ${strikes.map((s) => `
-          <p class="ss-strike"><b>${s.cost}</b> ${esc(s.label)} — ${esc(s.element)}${s.instances > 1 ? ` &times;${s.instances}` : ""}
+          <p class="ss-strike"><b>${s.cost}</b> ${esc(s.label)} (${esc(s.element)}${s.instances > 1 ? ` &times;${s.instances}` : ""})
             <span>${s.text}</span></p>`).join("")}
       </div>` : ""}
     ${f.named.length ? `<p class="ss-fires"><em>Named spell:</em> ${f.named.map((r) => esc(r.n)).join(", ")}</p>` : ""}
@@ -8820,10 +9265,10 @@ function renderSummary() {
    rather than sitting there looking like it did nothing. */
 function payerLines(bill) {
   const rows = bill.perTurn.map((p) =>
-    `<li><b>1</b> a turn — ${esc(p.from)} <em>${esc(p.note)}</em></li>`)
+    `<li><b>1</b> a turn: ${esc(p.from)} <em>${esc(p.note)}</em></li>`)
     .concat(bill.oneOff.map((p) => p.pays
-      ? `<li><b>1</b> — ${esc(p.from)} <em>pays for ${esc(p.pays)}</em></li>`
-      : `<li class="is-idle"><b>—</b> ${esc(p.from)} <em>${esc(p.blocked || p.note)}</em></li>`));
+      ? `<li><b>1</b> ${esc(p.from)} <em>pays for ${esc(p.pays)}</em></li>`
+      : `<li class="is-idle"><b>&middot;</b> ${esc(p.from)} <em>${esc(p.blocked || p.note)}</em></li>`));
   return rows.length ? `<ul class="ss-payers">${rows.join("")}</ul>` : "";
 }
 
@@ -8843,6 +9288,7 @@ function renderCatalog() {
           <header><strong>${esc(entry.n)}</strong><span class="part-kind">${kind}</span></header>
           <p class="combo-need">${Object.keys(need || {}).map((k) => esc(k) + (need[k] > 1 ? ` &times;${need[k]}` : "")).join(" + ")}</p>
           <p>${esc(entry.text)}</p>
+          <button type="button" class="combo-add" data-combo-add="${esc(entry.n)}">Add these parts</button>
         </article>`).join("");
     return;
   }
@@ -8858,11 +9304,12 @@ function renderCatalog() {
       const open = reachable.includes(def.n);
       const n = countOf(def.n);
       const from = open ? sourceOf(def.n) : (DATA.grantedBy(def.n)[0] || "");
+      const shape = SHAPE_PARTS.includes(def.n);
       return `
-        <article class="part-card ${state.tab === "elements" ? "element-card" : "component-card"}${n ? " is-selected" : ""}${open ? "" : " is-shut"}"
+        <article class="part-card ${state.tab === "elements" ? "element-card" : "component-card"}${n ? " is-selected" : ""}${open ? "" : " is-shut"}${shape ? " is-shape" : ""}"
           ${state.tab === "elements" ? `style="--c: ${elementColour(def.n)}"` : ""}
-          data-part="${esc(def.n)}" role="button" tabindex="0"
-          title="Click to add${n ? ", right-click to take one back" : ""}">
+          data-part="${esc(def.n)}" role="button" tabindex="0" draggable="true"
+          title="Click to add, or drag it onto the scene${n ? ". Right-click takes one back" : ""}">
           <header>
             <strong>${esc(def.n)}</strong>
             ${n ? `<span class="part-count">&times;${n}</span>` : ""}
@@ -8871,6 +9318,7 @@ function renderCatalog() {
           <p>${esc((def.each || [])[0] || "")}</p>
           ${state.mode === "advanced" ? (def.each || []).slice(1).map((line) => `<p class="part-more">${esc(line)}</p>`).join("") : ""}
           ${def.needs ? `<p class="part-needs">${esc(def.needs)}</p>` : ""}
+          ${shape ? `<p class="part-shape">The scene can work this one out from your drawing.</p>` : ""}
         </article>`;
     }).join("");
 
@@ -8893,7 +9341,7 @@ function renderSourceGuide() {
     (bySource[x.from] = bySource[x.from] || []).push(SPELLS.canon(x.element || x.component));
   });
   el.sourceGuide.innerHTML = Object.keys(bySource).map((from) =>
-    `<p><strong>${esc(from)}</strong> — ${esc(bySource[from].join(", "))}</p>`).join("");
+    `<p><strong>${esc(from)}</strong>: ${esc(bySource[from].join(", "))}</p>`).join("");
 }
 
 function renderItems() {
@@ -8942,7 +9390,7 @@ function savedSpells() {
 }
 
 function writeSpells(list) {
-  localStorage.setItem(SPELL_KEY, JSON.stringify(list));
+  try { localStorage.setItem(SPELL_KEY, JSON.stringify(list)); } catch { /* private window */ }
 }
 
 function renderSpellVault() {
@@ -8976,7 +9424,7 @@ function saveSpell() {
     if (target) {
       const st = target.payload.state || (target.payload.state = {});
       st.spells = (st.spells || []).concat([spell]);
-      localStorage.setItem(VAULT_KEY, JSON.stringify(entries));
+      try { localStorage.setItem(VAULT_KEY, JSON.stringify(entries)); } catch { /* private window */ }
     }
   }
 
@@ -8986,19 +9434,22 @@ function saveSpell() {
 
 /* ===================== ACTIONS ===================== */
 
-function addPart(name) {
+function addPart(name, quiet) {
   const canon = SPELLS.canon(name);
-  if (!partDef(canon)) return;
+  if (!partDef(canon)) return false;
   const m = metrics();
   if (m.size >= m.capacity) {
-    return toast(`Willpower holds ${m.capacity} part${m.capacity === 1 ? "" : "s"} in one spell.`);
+    if (!quiet) toast(`Willpower holds ${m.capacity} part${m.capacity === 1 ? "" : "s"} in one spell.`);
+    return false;
   }
   if (access().open && !canReach(canon)) {
     const who = DATA.grantedBy(canon)[0];
-    return toast(who ? `${canon} needs ${who}.` : `${canon} is beyond this character.`);
+    if (!quiet) toast(who ? `${canon} needs ${who}.` : `${canon} is beyond this character.`);
+    return false;
   }
   state.parts.push(canon);
   render();
+  return true;
 }
 
 function removePart(name) {
@@ -9016,29 +9467,76 @@ function clearSpell() {
   render();
 }
 
+/* The scene hands over the shape it read from a drawing: how many of each
+   shaping Component the path and the burst need. The bench is set to match,
+   one instance at a time, and the report says what changed and what the
+   character could not reach. Shaping parts are allowed past the Willpower
+   cap here on purpose: the drawing is a question ("what would this take?")
+   and the over-capacity warning answers it honestly. */
+function applyShape(shape) {
+  const report = { changed: [], locked: [] };
+  SHAPE_PARTS.forEach((name) => {
+    const want = Math.max(0, Math.floor((shape && shape[name]) || 0));
+    const have = countOf(name);
+    if (want === have) return;
+    if (want > have && access().open && !canReach(name)) {
+      report.locked.push({ name, who: DATA.grantedBy(name)[0] || "" });
+      return;
+    }
+    while (countOf(name) > want) state.parts.splice(state.parts.lastIndexOf(name), 1);
+    while (countOf(name) < want) state.parts.push(name);
+    report.changed.push(name);
+  });
+  render();
+  return report;
+}
+
+/* Several parts at once, from the advisor or a combination card. Each one is
+   added only if it is not already there in that number, so pressing the
+   button twice does not double the spell. */
+function addParts(want) {
+  const report = { added: [], locked: [], full: [] };
+  Object.keys(want || {}).forEach((raw) => {
+    const name = SPELLS.canon(raw);
+    if (!partDef(name)) return;
+    while (countOf(name) < want[raw]) {
+      if (access().open && !canReach(name)) { report.locked.push({ name, who: DATA.grantedBy(name)[0] || "" }); break; }
+      const m = metrics();
+      if (m.size >= m.capacity) { report.full.push(name); break; }
+      state.parts.push(name);
+      report.added.push(name);
+    }
+  });
+  render();
+  return report;
+}
+
 let toastTimer = null;
 function toast(message) {
   el.toast.textContent = message;
   el.toast.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.toast.classList.remove("show"), 2400);
+  toastTimer = setTimeout(() => el.toast.classList.remove("show"), 2600);
 }
 
 function summaryText() {
   const m = metrics();
   const f = fires();
   const lines = [
-    `${state.name || "Untitled Spell"} — ${state.parts.join(" + ") || "empty"}`,
+    `${state.name || "Untitled Spell"}: ${state.parts.join(" + ") || "empty"}`,
     `${m.paid} action${m.paid === 1 ? "" : "s"}${m.free ? ` (${m.free} free)` : ""} over ${m.turns} turn${m.turns === 1 ? "" : "s"}; casting is free.`
   ];
   SPELLS.strikesFor(state.parts).forEach((s) => {
-    lines.push(`  ${s.cost} point — ${s.label} (${s.element}): ${s.text.replace(/<[^>]*>/g, "")}`);
+    lines.push(`  ${s.cost} point, ${s.label} (${s.element}): ${s.text.replace(/<[^>]*>/g, "")}`);
   });
   f.named.concat(f.combos).forEach((entry) => lines.push(`  ${entry.n}: ${entry.text}`));
   return lines.join("\n");
 }
 
 /* ===================== BOOT ===================== */
+
+const listeners = [];
+function onChange(fn) { listeners.push(fn); }
 
 function render() {
   renderTray();
@@ -9047,6 +9545,9 @@ function render() {
   renderCatalog();
   renderSourceGuide();
   renderItems();
+  listeners.forEach((fn) => {
+    try { fn(); } catch (err) { if (window.console) console.warn(err); }
+  });
 }
 
 function bind() {
@@ -9077,9 +9578,18 @@ function bind() {
     });
   });
 
-  /* Left click adds, right click takes one back — the same everywhere on
+  /* Left click adds, right click takes one back, the same everywhere on
      this page and on the sheet. */
   el.catalog.addEventListener("click", (event) => {
+    const combo = event.target.closest("[data-combo-add]");
+    if (combo) {
+      const entry = SPELLS.pairings.find((p) => p.n === combo.dataset.comboAdd)
+        || SPELLS.recipes.find((r) => r.n === combo.dataset.comboAdd);
+      if (!entry) return;
+      const r = addParts(entry.all || entry.parts);
+      return toast(r.locked.length ? `${r.locked[0].name} needs ${r.locked[0].who || "a trait"}.`
+        : r.full.length ? "Willpower is full; drop a part first." : `Added the parts for ${entry.n}.`);
+    }
     const card = event.target.closest("[data-part]");
     if (card) addPart(card.dataset.part);
   });
@@ -9095,6 +9605,13 @@ function bind() {
       event.preventDefault();
       addPart(card.dataset.part);
     }
+  });
+  /* Dragging a card onto the scene adds it, the same as a click. */
+  el.catalog.addEventListener("dragstart", (event) => {
+    const card = event.target.closest("[data-part]");
+    if (!card || !event.dataTransfer) return;
+    event.dataTransfer.setData("text/plain", card.dataset.part);
+    event.dataTransfer.effectAllowed = "copy";
   });
 
   el.selectedParts.addEventListener("click", (event) => {
@@ -9142,7 +9659,7 @@ function bind() {
     window.open("../sheet/index.html", "revelry-sheet", "width=900,height=1000");
   });
 
-  /* Another tab saved a character — pick the change up. */
+  /* Another tab saved a character: pick the change up. */
   window.addEventListener("storage", (event) => {
     if (event.key !== VAULT_KEY) return;
     renderCharacterSelect();
@@ -9170,14 +9687,2137 @@ function init() {
   render();
 }
 
-if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
-else init();
-
-/* exposed for the harness */
+/* exposed for the harness, the scene and the advisor */
 window.FORGE = {
-  state, metrics, access, addPart, removePart, clearSpell, saveSpell,
+  state, metrics, access, canReach, addPart, addParts, removePart, clearSpell, saveSpell,
+  applyShape, onChange, toast, countOf, SHAPE_PARTS,
   fires, render, summaryText, savedSpells
 };
+
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+else init();
+    </script>
+    <script>
+/* ============ spell-sandbox.js ============ */
+/* =========================================================================
+   Revelry : the Spellforge proving ground.
+
+   An isometric scene of 5 ft. squares where a spell can be tried out before
+   anyone has to cast it at the table. You set the scene (foes, allies,
+   walls, high ground, water), draw where the spell should go, and the scene
+   reads the drawing the way the doc reads a spell:
+
+     - every 30 ft. of path is one Project
+     - a path that bends around cover needs Direct
+     - a loop at the end, or the Burst tool, is a radius: 10 ft. per Disperse
+     - passing through one creature and carrying on to another is a
+       Ricochet, one per bounce, and each bounce starts its range again
+       ("travels onward as though it originated there")
+
+   Height counts. Climbing a hill adds to the distance, and a straight
+   Project flies in a straight line, so a hill or a wall between you and the
+   target stops it. Direct follows the path you drew along the ground.
+
+   Test Cast fires whatever is on the bench (not the drawing) so the two can
+   disagree, and when they do the scene says so: a path longer than the
+   bench's range fizzles where the range runs out, and a bent path with no
+   Direct flies straight instead.
+
+   The bench in spellforge.js is the one source of truth for the spell. This
+   file reads it through window.FORGE and only ever changes the four shaping
+   Components (Project, Direct, Disperse, Ricochet), through applyShape().
+   ========================================================================= */
+
+window.REVELRY_SANDBOX = (function () {
+  "use strict";
+
+  const SPELLS = window.REVELRY_SPELLS;
+  const ART = window.REVELRY_SPELL_ART;
+  const FORGE = () => window.FORGE;
+
+  const canvas = document.getElementById("sandbox");
+  const wrap = document.getElementById("stage-wrap");
+  if (!canvas || !wrap || !SPELLS) return null;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  const $ = (sel) => document.querySelector(sel);
+  const esc = (value) => String(value == null ? "" : value)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+  /* ----- the grid ------------------------------------------------------- */
+
+  const N = 24;            /* 24 squares a side: 120 ft. */
+  const TW = 44, TH = 22;  /* a square's width and depth on screen */
+  const LH = 12;           /* one 5 ft. step of height on screen */
+  const WALL_H = 2;        /* a wall is 10 ft. tall */
+  const MAX_H = 6;
+  const SCENE_KEY = "revelry-sandbox-scene";
+
+  const world = { h: [], wall: [], water: [], fx: [] };
+  let tokens = [];
+  let input = null;        /* what was drawn: { path, burst, freehand, ghost } */
+  let plan = null;         /* what the drawing means */
+  let tool = "draw";
+  let drag = null;
+  let hover = null;
+  let floaters = [];
+  let arcs = [];
+  let flight = null;
+  let snapshot = null;
+  let lastReport = null;
+  let rafPending = false;
+  let animating = false;
+
+  const view = { rot: 0, zoom: 1, panX: 0, panY: 0, scale: 1, ox: 0, oy: 0, W: 820, H: 560, dpr: 1 };
+
+  const idx = (i, j) => j * N + i;
+  const inside = (i, j) => i >= 0 && j >= 0 && i < N && j < N;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const cellOf = (x, y) => [clamp(Math.floor(x), 0, N - 1), clamp(Math.floor(y), 0, N - 1)];
+  const ground = (x, y) => { const [i, j] = cellOf(x, y); return world.h[idx(i, j)]; };
+  const topOf = (i, j) => inside(i, j) ? world.h[idx(i, j)] + (world.wall[idx(i, j)] ? WALL_H : 0) : -1;
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  const ft = (tiles) => Math.round(tiles * 5);
+
+  function blankWorld() {
+    world.h = new Array(N * N).fill(0);
+    world.wall = new Array(N * N).fill(false);
+    world.water = new Array(N * N).fill(false);
+    world.fx = new Array(N * N).fill(null);
+  }
+
+  /* ----- rotation and projection ---------------------------------------
+     The view turns in quarter turns. Everything is stored in grid
+     coordinates; turning only changes how a point is drawn and picked. */
+
+  function rot(x, y) {
+    switch (view.rot) {
+      case 1: return [N - y, x];
+      case 2: return [N - x, N - y];
+      case 3: return [y, N - x];
+      default: return [x, y];
+    }
+  }
+  function unrot(a, b) {
+    switch (view.rot) {
+      case 1: return [b, N - a];
+      case 2: return [N - a, N - b];
+      case 3: return [N - b, a];
+      default: return [a, b];
+    }
+  }
+  const unrotCell = (a, b) => { const [x, y] = unrot(a + 0.5, b + 0.5); return [Math.floor(x), Math.floor(y)]; };
+  const PR = (a, b, z) => [(a - b) * TW / 2, (a + b) * TH / 2 - z * LH];
+  const P = (x, y, z) => { const [a, b] = rot(x, y); return PR(a, b, z); };
+
+  /* Back to front: the painter's order is the same list whatever the turn. */
+  const ORDER = [];
+  for (let a = 0; a < N; a++) for (let b = 0; b < N; b++) ORDER.push([a, b]);
+  ORDER.sort((p, q) => (p[0] + p[1]) - (q[0] + q[1]) || p[0] - q[0]);
+
+  function fitView() {
+    const worldW = N * TW + 40;
+    const worldH = N * TH + (MAX_H + WALL_H + 2) * LH + 40;
+    const fit = Math.min(view.W / worldW, view.H / worldH);
+    view.scale = fit * view.zoom;
+    const midY = (N * TH - (MAX_H + WALL_H) * LH) / 2;
+    view.ox = view.W / 2 + view.panX;
+    view.oy = view.H / 2 - midY * view.scale + view.panY;
+  }
+
+  function resize() {
+    const r = wrap.getBoundingClientRect ? wrap.getBoundingClientRect() : { width: 0, height: 0 };
+    view.W = Math.max(320, Math.round(r.width || wrap.clientWidth || 820));
+    view.H = Math.max(320, Math.round(r.height || wrap.clientHeight || 560));
+    view.dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(view.W * view.dpr);
+    canvas.height = Math.round(view.H * view.dpr);
+    canvas.style.width = view.W + "px";
+    canvas.style.height = view.H + "px";
+    draw();
+  }
+
+  const toWorld = (px, py) => [(px - view.ox) / view.scale, (py - view.oy) / view.scale];
+
+  /* The square under the pointer, frontmost first, with the exact point on
+     its top face. */
+  function pick(px, py) {
+    const [X, Y] = toWorld(px, py);
+    for (let k = ORDER.length - 1; k >= 0; k--) {
+      const [a, b] = ORDER[k];
+      const [i, j] = unrotCell(a, b);
+      const z = topOf(i, j);
+      const u = X / (TW / 2), v = (Y + z * LH) / (TH / 2);
+      const A = (u + v) / 2, B = (v - u) / 2;
+      if (A >= a && A < a + 1 && B >= b && B < b + 1) {
+        const [x, y] = unrot(A, B);
+        return { i, j, x: clamp(x, 0.01, N - 0.01), y: clamp(y, 0.01, N - 0.01), z };
+      }
+    }
+    return null;
+  }
+
+  function pointAt(px, py) {
+    const p = pick(px, py);
+    if (p) return p;
+    const [X, Y] = toWorld(px, py);
+    const u = X / (TW / 2), v = Y / (TH / 2);
+    const [x, y] = unrot((u + v) / 2, (v - u) / 2);
+    const cx = clamp(x, 0.01, N - 0.01), cy = clamp(y, 0.01, N - 0.01);
+    const [i, j] = cellOf(cx, cy);
+    return { i, j, x: cx, y: cy, z: topOf(i, j), off: true };
+  }
+
+  /* ----- creatures ------------------------------------------------------ */
+
+  const casterTok = () => tokens.find((t) => t.kind === "caster") || null;
+  const foes = () => tokens.filter((t) => t.kind === "foe");
+  const allies = () => tokens.filter((t) => t.kind === "ally");
+
+  function relabel() {
+    let f = 0, a = 0;
+    tokens.forEach((t) => {
+      if (t.kind === "caster") t.label = "You";
+      else if (t.kind === "foe") t.label = "Foe " + (++f);
+      else t.label = "Ally " + (++a);
+    });
+  }
+
+  function place(kind, x, y) {
+    const [i, j] = cellOf(x, y);
+    if (world.wall[idx(i, j)]) return null;
+    if (kind === "caster") {
+      const c = casterTok();
+      if (c) { c.x = i + 0.5; c.y = j + 0.5; return c; }
+    }
+    const t = { id: Math.random().toString(36).slice(2, 8), kind, x: i + 0.5, y: j + 0.5, cond: [], label: "" };
+    tokens.push(t);
+    relabel();
+    return t;
+  }
+
+  function tokenOnCell(i, j) {
+    return tokens.find((t) => Math.floor(t.x) === i && Math.floor(t.y) === j) || null;
+  }
+
+  /* Picking a creature by its drawn figure, frontmost first, so a tall pawn
+     can be grabbed by its head and not only by its feet. */
+  function tokenAtScreen(px, py) {
+    const [X, Y] = toWorld(px, py);
+    let best = null, bestDepth = -Infinity;
+    tokens.forEach((t) => {
+      const [tx, ty] = P(t.x, t.y, ground(t.x, t.y));
+      if (Math.abs(X - tx) < 11 && Y > ty - 40 && Y < ty + 6) {
+        const [a, b] = rot(t.x, t.y);
+        if (a + b > bestDepth) { bestDepth = a + b; best = t; }
+      }
+    });
+    return best;
+  }
+
+  /* ----- geometry ------------------------------------------------------- */
+
+  function pathLen(pts) {
+    let s = 0;
+    for (let k = 1; k < pts.length; k++) s += dist(pts[k - 1], pts[k]);
+    return s;
+  }
+
+  function segDist(p, a, b) {
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const L = dx * dx + dy * dy;
+    const t = L ? clamp(((p.x - a.x) * dx + (p.y - a.y) * dy) / L, 0, 1) : 0;
+    return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
+  }
+
+  /* Ramer–Douglas–Peucker: a hand-drawn line has hundreds of wobbles and
+     the spell only cares about the corners. */
+  function simplify(pts, eps) {
+    if (pts.length < 3) return pts.slice();
+    let max = 0, at = 0;
+    const a = pts[0], b = pts[pts.length - 1];
+    for (let k = 1; k < pts.length - 1; k++) {
+      const d = segDist(pts[k], a, b);
+      if (d > max) { max = d; at = k; }
+    }
+    if (max <= eps) return [a, b];
+    const left = simplify(pts.slice(0, at + 1), eps);
+    const right = simplify(pts.slice(at), eps);
+    return left.slice(0, -1).concat(right);
+  }
+
+  function pointOnPath(pts, s) {
+    let acc = 0;
+    for (let k = 1; k < pts.length; k++) {
+      const d = dist(pts[k - 1], pts[k]);
+      if (acc + d >= s) {
+        const t = d ? (s - acc) / d : 0;
+        return { x: pts[k - 1].x + (pts[k].x - pts[k - 1].x) * t, y: pts[k - 1].y + (pts[k].y - pts[k - 1].y) * t };
+      }
+      acc += d;
+    }
+    return { x: pts[pts.length - 1].x, y: pts[pts.length - 1].y };
+  }
+
+  function slicePath(pts, s0, s1) {
+    const out = [pointOnPath(pts, s0)];
+    let acc = 0;
+    for (let k = 1; k < pts.length; k++) {
+      acc += dist(pts[k - 1], pts[k]);
+      if (acc > s0 + 1e-6 && acc < s1 - 1e-6) out.push({ x: pts[k].x, y: pts[k].y });
+    }
+    out.push(pointOnPath(pts, s1));
+    return out;
+  }
+
+  /* How close the path comes to a point, and how far along it that is. */
+  function closest(pts, p) {
+    let best = { d: Infinity, s: 0 }, acc = 0;
+    for (let k = 1; k < pts.length; k++) {
+      const a = pts[k - 1], b = pts[k];
+      const dx = b.x - a.x, dy = b.y - a.y, L = dx * dx + dy * dy, len = Math.sqrt(L);
+      const t = L ? clamp(((p.x - a.x) * dx + (p.y - a.y) * dy) / L, 0, 1) : 0;
+      const d = Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
+      if (d < best.d) best = { d, s: acc + t * len };
+      acc += len;
+    }
+    return best;
+  }
+
+  /* A loop drawn at the end of a stroke is a burst. The earliest point the
+     stroke comes back to marks where the loop began. */
+  function detectLoop(pts) {
+    const n = pts.length;
+    if (n < 5) return null;
+    const cum = [0];
+    for (let k = 1; k < n; k++) cum.push(cum[k - 1] + dist(pts[k - 1], pts[k]));
+    const E = pts[n - 1];
+    for (let i = 0; i < n - 3; i++) {
+      if (dist(pts[i], E) < 1.15 && cum[n - 1] - cum[i] > 3.2) {
+        const loop = pts.slice(i);
+        let area = 0;
+        for (let k = 0; k < loop.length; k++) {
+          const p = loop[k], q = loop[(k + 1) % loop.length];
+          area += p.x * q.y - q.x * p.y;
+        }
+        if (Math.abs(area / 2) < 1.2) continue;
+        const cx = loop.reduce((s, p) => s + p.x, 0) / loop.length;
+        const cy = loop.reduce((s, p) => s + p.y, 0) / loop.length;
+        const r = loop.reduce((s, p) => s + Math.hypot(p.x - cx, p.y - cy), 0) / loop.length;
+        return { at: i, cx, cy, r };
+      }
+    }
+    return null;
+  }
+
+  /* Straight-line sight in three dimensions, chest height to chest height.
+     Returns the last clear point if something is in the way. */
+  function sightLine(a, b) {
+    const za = ground(a.x, a.y) + 1, zb = ground(b.x, b.y) + 1;
+    const len = dist(a, b);
+    const steps = Math.max(2, Math.ceil(len / 0.1));
+    const [si, sj] = cellOf(a.x, a.y);
+    let last = { x: a.x, y: a.y };
+    for (let s = 1; s <= steps; s++) {
+      const t = s / steps;
+      const x = a.x + (b.x - a.x) * t, y = a.y + (b.y - a.y) * t, z = za + (zb - za) * t;
+      const [i, j] = cellOf(x, y);
+      if (i === si && j === sj) { last = { x, y }; continue; }
+      if (topOf(i, j) > z) {
+        return { clear: false, stop: last, by: world.wall[idx(i, j)] ? "wall" : "ground", za, zb };
+      }
+      last = { x, y };
+    }
+    return { clear: true, stop: null, za, zb };
+  }
+
+  function clearOfWalls(a, b) {
+    const len = dist(a, b), steps = Math.max(2, Math.ceil(len / 0.12));
+    const [si, sj] = cellOf(a.x, a.y);
+    for (let s = 1; s < steps; s++) {
+      const t = s / steps;
+      const [i, j] = cellOf(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
+      if (i === si && j === sj) continue;
+      if (world.wall[idx(i, j)]) return false;
+    }
+    return true;
+  }
+
+  /* One leg of a spell: from the caster or a bounce to the next creature or
+     the end. A straight leg flies in a line; a bent one hugs the ground. */
+  function evalLeg(leg) {
+    const a = leg[0], b = leg[leg.length - 1];
+    const len2 = pathLen(leg), chord = dist(a, b);
+    let maxDev = 0;
+    leg.forEach((p) => { maxDev = Math.max(maxDev, segDist(p, a, b)); });
+    const bent = leg.length > 2 && maxDev > 0.7 && len2 > chord * 1.04;
+
+    if (!bent) {
+      const sight = sightLine(a, b);
+      const end = sight.stop || b;
+      const zEnd = sight.stop ? sight.za + (sight.zb - sight.za) * (dist(a, end) / (chord || 1)) : sight.zb;
+      const travel = [{ x: a.x, y: a.y, z: sight.za }, { x: end.x, y: end.y, z: zEnd }];
+      const len3 = Math.hypot(dist(a, end), zEnd - sight.za);
+      return { travel, len3, bent: false, stop: sight.stop ? end : null, stopBy: sight.by || "", start: a, end,
+        climb: Math.max(0, zEnd - sight.za) };
+    }
+
+    const travel = [];
+    const steps = Math.max(2, Math.ceil(len2 / 0.2));
+    const [si, sj] = cellOf(a.x, a.y);
+    let len3 = 0, climb = 0, stop = null;
+    for (let s = 0; s <= steps; s++) {
+      const p = pointOnPath(leg, (s / steps) * len2);
+      const [i, j] = cellOf(p.x, p.y);
+      if (s > 0 && !(i === si && j === sj) && world.wall[idx(i, j)]) { stop = travel[travel.length - 1]; break; }
+      const q = { x: p.x, y: p.y, z: world.h[idx(i, j)] + 1 };
+      if (travel.length) {
+        const prev = travel[travel.length - 1];
+        len3 += Math.hypot(q.x - prev.x, q.y - prev.y, q.z - prev.z);
+        climb += Math.max(0, q.z - prev.z);
+      }
+      travel.push(q);
+    }
+    const end = stop ? { x: stop.x, y: stop.y } : b;
+    return { travel, len3, bent: true, stop: stop ? end : null, stopBy: stop ? "wall" : "", start: a, end, climb };
+  }
+
+  /* ----- reading a drawing ----------------------------------------------- */
+
+  function analyze(inp) {
+    const caster = casterTok();
+    if (!inp || !caster) return null;
+    const c0 = { x: caster.x, y: caster.y };
+
+    let pts = (inp.path || []).map((p) => ({ x: clamp(p.x, 0.01, N - 0.01), y: clamp(p.y, 0.01, N - 0.01) }));
+    if (!pts.length || dist(pts[0], c0) > 0.05) pts.unshift(c0); else pts[0] = c0;
+    pts = simplify(pts, 0.12);
+
+    let burst = inp.burst ? { x: inp.burst.x, y: inp.burst.y, r: Math.max(0.4, inp.burst.r) } : null;
+    if (!burst && inp.freehand) {
+      const L = detectLoop(pts);
+      if (L) {
+        burst = { x: L.cx, y: L.cy, r: L.r };
+        pts = pts.slice(0, L.at + 1);
+        if (!pts.length) pts = [c0];
+      }
+    }
+    if (burst) {
+      if (dist(burst, c0) < 0.9) { pts = [c0]; burst.x = c0.x; burst.y = c0.y; burst.self = true; }
+      else if (dist(pts[pts.length - 1], burst) > 0.2) pts.push({ x: burst.x, y: burst.y });
+    }
+
+    const total = pathLen(pts);
+    const others = tokens.filter((t) => t.kind !== "caster");
+    const crossings = total > 0.3
+      ? others.map((t) => Object.assign({ t }, closest(pts, t))).filter((o) => o.d < 0.55 && o.s > 0.45).sort((p, q) => p.s - q.s)
+      : [];
+    let endHit = null;
+    const bounces = [];
+    crossings.forEach((o) => {
+      if (total - o.s < 0.8) { if (!endHit) endHit = o; }
+      else bounces.push(o);
+    });
+
+    /* Split the path at each bounce: each leg starts again from the creature
+       it bounced off. */
+    const breaks = [{ s: 0, p: c0 }].concat(bounces.map((o) => ({ s: o.s, p: { x: o.t.x, y: o.t.y } })))
+      .concat([{ s: total, p: pts[pts.length - 1] }]);
+    const legs = [];
+    let blocked = null;
+    for (let k = 0; k < breaks.length - 1; k++) {
+      const sub = total > 0 ? slicePath(pts, breaks[k].s, breaks[k + 1].s) : [c0, c0];
+      sub[0] = breaks[k].p;
+      sub[sub.length - 1] = breaks[k + 1].p;
+      const L = evalLeg(sub);
+      legs.push(L);
+      if (L.stop) { blocked = L; break; }
+    }
+
+    const reachedBounces = bounces.slice(0, blocked ? legs.length - 1 : legs.length);
+    const end = legs.length ? legs[legs.length - 1].end : c0;
+    if (burst && blocked) burst = Object.assign({}, burst, { x: end.x, y: end.y, moved: true });
+
+    const maxTiles = legs.reduce((m, l) => Math.max(m, l.len3), 0);
+    const maxFt = maxTiles * 5;
+    const touch = !reachedBounces.length && maxFt <= 5.5;
+    const shape = {
+      Project: touch ? 0 : Math.ceil(maxFt / 30 - 0.05),
+      Direct: legs.some((l) => l.bent) ? 1 : 0,
+      Disperse: burst ? Math.max(1, Math.ceil((burst.r * 5) / 10 - 0.15)) : 0,
+      Ricochet: reachedBounces.length
+    };
+
+    return {
+      pts, legs, burst, end, blocked, touch, shape,
+      endHit: blocked ? null : endHit,
+      bounces: reachedBounces,
+      maxFt, totalFt: legs.reduce((s, l) => s + l.len3, 0) * 5,
+      climbFt: legs.reduce((s, l) => s + (l.climb || 0), 0) * 5,
+      ghost: !!inp.ghost
+    };
+  }
+
+  /* ----- the bench, as the scene sees it ---------------------------------- */
+
+  function bench() {
+    const f = FORGE();
+    const parts = f ? f.state.parts.slice() : [];
+    const count = {};
+    parts.forEach((p) => { count[p] = (count[p] || 0) + 1; });
+    const m = SPELLS.matches(parts);
+    const combos = new Set(m.pairings.map((p) => p.n).concat(m.recipes.map((r) => r.n)));
+    return {
+      parts, count, combos,
+      colour: ART ? ART.colourFor(parts) : "#5fe0d2",
+      range: (count.Project || 0) * 30,
+      radius: (count.Disperse || 0) * 10 + (combos.has("Explosive") && count.Disperse ? 10 : 0),
+      direct: count.Direct || 0,
+      ricochet: count.Ricochet || 0,
+      anchor: count.Anchor || 0,
+      elements: parts.filter(SPELLS.isElement)
+    };
+  }
+
+  /* Who a plan would catch, using a radius in feet. */
+  function hitsFor(p, radiusFt) {
+    if (!p) return [];
+    if (radiusFt > 0) {
+      const c = p.burst || p.end;
+      const r = radiusFt / 5 + 0.35;
+      return tokens.filter((t) => Math.hypot(t.x - c.x, t.y - c.y) <= r);
+    }
+    const out = p.bounces.map((o) => o.t);
+    if (p.endHit) out.push(p.endHit.t);
+    return out;
+  }
+
+  /* ----- applying a drawing to the bench --------------------------------- */
+
+  function autoBuild() { const box = $("#auto-build"); return !box || box.checked; }
+
+  function setInput(inp, opts) {
+    const o = opts || {};
+    input = inp;
+    plan = analyze(input);
+    lastReport = null;
+    if (plan && !plan.ghost && (o.apply !== false) && autoBuild() && FORGE()) {
+      lastReport = FORGE().applyShape(plan.shape);
+    }
+    refresh();
+    return plan;
+  }
+
+  function clearInput() {
+    input = null; plan = null; lastReport = null; arcs = []; flight = null;
+    refresh();
+  }
+
+  /* Scene changed under a drawing: read it again. */
+  function reread() {
+    if (!input) { refresh(); return; }
+    setInput(input, { apply: !input.ghost });
+  }
+
+  /* ----- the readout under the scene -------------------------------------- */
+
+  const chip = (name, n, extra) => `<span class="ro-chip"${extra ? ` title="${esc(extra)}"` : ""}>${esc(name)}${n > 1 ? ` &times;${n}` : ""}${extra ? ` <i>${esc(extra)}</i>` : ""}</span>`;
+
+  function describe() {
+    const box = $("#drawing-readout");
+    if (!box) return;
+    const b = bench();
+    const caster = casterTok();
+    if (!caster) { box.innerHTML = `<p>Put your caster on the scene with the Move tool to start.</p>`; return; }
+
+    if (!plan) {
+      box.innerHTML = b.range || b.radius
+        ? `<p class="ro-lead">The bench throws this spell <b>${b.range ? b.range + " ft." : "at touch"}</b>${b.radius ? ` and spreads it <b>${b.radius} ft.</b>` : ""}. The ring around you is how far it reaches. Draw a path, or press Test Cast to throw it at the nearest foe.</p>`
+        : `<p class="ro-lead">Draw from your caster to where the spell should go. A straight line throws it, a curve bends it around cover, and a loop at the end makes it burst.</p>`;
+      return;
+    }
+
+    const p = plan;
+    const lines = [];
+    const legsText = p.touch
+      ? (p.burst && p.burst.self ? "bursts out from you" : "is a touch spell, 5 ft. or less")
+      : p.bounces.length
+        ? `travels <b>${Math.round(p.totalFt)} ft.</b> in all, and its longest leg is <b>${Math.round(p.maxFt)} ft.</b>${p.legs.some((l) => l.bent) ? " (one leg bends around cover)" : ""}`
+        : `travels <b>${Math.round(p.maxFt)} ft.</b>${p.legs.some((l) => l.bent) ? " along a path that bends around cover" : " in a straight line"}`;
+    lines.push(`<p class="ro-lead">${p.ghost ? "The advisor's plan (dashed) " : "Your drawing "}${legsText}${
+      p.bounces.length ? `, bouncing off ${p.bounces.map((o) => esc(o.t.label)).join(" and ")}` : ""}${
+      p.burst ? `, then bursts with a <b>${ft(p.burst.r)} ft.</b> radius` : ""}.</p>`);
+
+    const s = p.shape;
+    const chips = [];
+    if (s.Project) chips.push(chip("Project", s.Project, (s.Project * 30) + " ft."));
+    if (s.Direct) chips.push(chip("Direct", 1, "bends"));
+    if (s.Disperse) chips.push(chip("Disperse", s.Disperse, (s.Disperse * 10) + " ft. radius"));
+    if (s.Ricochet) chips.push(chip("Ricochet", s.Ricochet, s.Ricochet + " bounce" + (s.Ricochet > 1 ? "s" : "")));
+    if (!chips.length) chips.push(`<span class="ro-chip muted">no shaping Components needed</span>`);
+    lines.push(`<div class="ro-chips"><span class="ro-label">Shape</span>${chips.join("")}${
+      p.ghost ? `<button type="button" class="ro-use" data-ro="commit">Use this plan</button>`
+        : (!autoBuild() ? `<button type="button" class="ro-use" data-ro="apply">Put this shape on the bench</button>` : "")}</div>`);
+
+    const notes = [];
+    if (p.blocked) {
+      notes.push(p.blocked.stopBy === "wall"
+        ? `The path runs into a wall about ${Math.round(p.blocked.len3 * 5)} ft. out, so the spell stops there. Draw around it with a curve to add Direct.`
+        : `High ground is in the way of a straight line, so the spell hits the slope. Curve the path over or around it to add Direct, or move to higher ground.`);
+    }
+    if (p.burst && p.burst.moved) notes.push("The burst goes off where the spell stopped.");
+    if (p.climbFt >= 5) notes.push(`The path climbs about ${Math.round(p.climbFt / 5) * 5} ft. on the way, and that counts toward its range.`);
+    if (p.bounces.length) notes.push("Each bounce starts the range again from the creature it bounced off, so Project only has to cover the longest leg.");
+    if (!p.bounces.length && !p.burst) {
+      const passed = tokens.filter((t) => t.kind !== "caster" && closest(p.pts, t).d < 0.55);
+      if (!passed.length && !p.endHit && !p.touch) notes.push("The path ends on empty ground. End it on a creature to hit them, or loop around an area.");
+    }
+    if (lastReport && lastReport.locked.length) {
+      lastReport.locked.forEach((l) => notes.push(`${l.name} is not open to this character${l.who ? `; ${l.who} would open it` : ""}, so it was left off the bench.`));
+    }
+
+    /* The bench and the drawing can disagree. Say so. */
+    const benchFt = b.range || 5;
+    const want = s.Project ? s.Project * 30 : 5;
+    if (!p.ghost && benchFt < want && !p.touch) notes.push(`The bench only throws ${b.range ? b.range + " ft." : "at touch"}; the cast will fizzle short.`);
+    if (!p.ghost && s.Direct && !b.direct) notes.push("The bench has no Direct, so a test cast flies straight instead of following the curve.");
+    if (!p.ghost && p.burst && !b.radius) notes.push("The bench has no Disperse, so a test cast hits one target, not the area.");
+
+    const caught = hitsFor(p, b.radius || (p.burst ? s.Disperse * 10 : 0));
+    if (caught.length) {
+      const friends = caught.filter((t) => t.kind !== "foe");
+      lines.push(`<p class="ro-hits"><span class="ro-label">Catches</span>${caught.map((t) =>
+        `<span class="ro-tok ro-${t.kind}">${esc(t.label)}</span>`).join("")}${
+        friends.length ? `<em>${friends.some((t) => t.kind === "caster") ? "you are inside your own spell" : "an ally is in the way"}</em>` : ""}</p>`);
+    }
+
+    if (b.count.Water) {
+      const reach = (b.range || 5) / 5 + (b.radius || 0) / 5;
+      let water = false;
+      for (let j = 0; j < N && !water; j++) for (let i = 0; i < N; i++) {
+        if (world.water[idx(i, j)] && Math.hypot(i + 0.5 - caster.x, j + 0.5 - caster.y) <= reach + 1) { water = true; break; }
+      }
+      if (!water) notes.push("Water needs a source. There is none on the scene in reach, so the Storyteller may rule it out unless it is raining or you carry some.");
+    }
+
+    if (notes.length) lines.push(`<ul class="ro-notes">${notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>`);
+    box.innerHTML = lines.join("");
+  }
+
+  /* ----- drawing -------------------------------------------------------- */
+
+  const COLOURS = { caster: "#f0c36d", foe: "#e0574a", ally: "#5aa8ff" };
+  const FX = {
+    sand: "rgba(214, 178, 110, 0.55)", magma: "rgba(255, 92, 30, 0.55)", ice: "rgba(200, 236, 255, 0.6)",
+    steam: "rgba(235, 240, 245, 0.45)", shadow: "rgba(20, 10, 34, 0.65)", light: "rgba(255, 240, 170, 0.32)",
+    growth: "rgba(90, 190, 90, 0.5)", well: "rgba(70, 80, 170, 0.5)", float: "rgba(170, 160, 255, 0.35)"
+  };
+
+  function poly(points, fill, stroke, lw) {
+    ctx.beginPath();
+    points.forEach(([x, y], k) => (k ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+    ctx.closePath();
+    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 0.6; ctx.stroke(); }
+  }
+
+  const rotTop = (a, b) => (a < 0 || b < 0 || a >= N || b >= N) ? -1 : (() => { const [i, j] = unrotCell(a, b); return topOf(i, j); })();
+
+  function cellColour(k, h, checker) {
+    if (world.wall[k]) return "#7a736b";
+    if (world.water[k]) return checker ? "#2e6a92" : "#2b6489";
+    const l = 19 + h * 3.6 + (checker ? 1.6 : 0);
+    return `hsl(${82 - h * 7}, ${15 + h * 2}%, ${l}%)`;
+  }
+
+  function drawCell(a, b, spell) {
+    const [i, j] = unrotCell(a, b);
+    const k = idx(i, j);
+    const h = world.h[k];
+    const wall = world.wall[k];
+    const top = h + (wall ? WALL_H : 0);
+    const lo = (n) => (n < 0 ? -0.7 : n);
+
+    const nR = lo(rotTop(a + 1, b));
+    if (nR < top) {
+      poly([PR(a + 1, b, top), PR(a + 1, b + 1, top), PR(a + 1, b + 1, nR), PR(a + 1, b, nR)],
+        wall ? "#4f4943" : `hsl(28, 22%, ${11 + h * 2}%)`, "rgba(0,0,0,0.25)");
+    }
+    const nF = lo(rotTop(a, b + 1));
+    if (nF < top) {
+      poly([PR(a, b + 1, top), PR(a + 1, b + 1, top), PR(a + 1, b + 1, nF), PR(a, b + 1, nF)],
+        wall ? "#3f3a35" : `hsl(28, 22%, ${8 + h * 2}%)`, "rgba(0,0,0,0.25)");
+    }
+
+    const face = [PR(a, b, top), PR(a + 1, b, top), PR(a + 1, b + 1, top), PR(a, b + 1, top)];
+    poly(face, cellColour(k, h, (i + j) % 2 === 0), "rgba(0,0,0,0.22)", 0.6);
+    if (wall) {
+      /* mortar lines so a wall reads as stone, not a raised square */
+      ctx.strokeStyle = "rgba(0,0,0,0.18)"; ctx.lineWidth = 0.6;
+      const m1 = PR(a + 0.5, b, top), m2 = PR(a + 0.5, b + 1, top);
+      ctx.beginPath(); ctx.moveTo(m1[0], m1[1]); ctx.lineTo(m2[0], m2[1]); ctx.stroke();
+    }
+    if (world.fx[k] && FX[world.fx[k]]) poly(face, FX[world.fx[k]]);
+
+    if (spell.burstC && spell.burstR > 0) {
+      const d = Math.hypot(i + 0.5 - spell.burstC.x, j + 0.5 - spell.burstC.y);
+      if (d <= spell.burstR) poly(face, hexA(spell.colour, plan && plan.ghost ? 0.14 : 0.26));
+    }
+    if (hover && hover.i === i && hover.j === j) poly(face, "rgba(255,255,255,0.10)", "rgba(240,195,109,0.9)", 1.2);
+  }
+
+  function hexA(hex, a) {
+    const m = /^#?([0-9a-f]{6})$/i.exec(hex || "");
+    if (!m) return `rgba(95,224,210,${a})`;
+    const n = parseInt(m[1], 16);
+    return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${a})`;
+  }
+
+  function drawToken(t, spell) {
+    const z = ground(t.x, t.y);
+    let [X, Y] = P(t.x, t.y, z);
+    if (t.anim) { X += t.anim.dx; Y += t.anim.dy; }
+    const col = COLOURS[t.kind];
+    const hit = spell.hits.includes(t);
+
+    ctx.fillStyle = "rgba(0,0,0,0.4)";
+    ctx.beginPath(); ctx.ellipse(X, Y, 11, 5.5, 0, 0, Math.PI * 2); ctx.fill();
+    if (hit) {
+      ctx.strokeStyle = spell.colour; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(X, Y, 15, 7.5, 0, 0, Math.PI * 2); ctx.stroke();
+    }
+
+    /* a plain pawn: base, body, head */
+    ctx.fillStyle = shade(col, -0.35);
+    ctx.beginPath(); ctx.ellipse(X, Y - 1, 8.5, 4, 0, 0, Math.PI * 2); ctx.fill();
+    const grad = ctx.createLinearGradient(X - 7, 0, X + 7, 0);
+    if (grad && grad.addColorStop) {
+      grad.addColorStop(0, shade(col, -0.2)); grad.addColorStop(0.45, col); grad.addColorStop(1, shade(col, -0.45));
+      ctx.fillStyle = grad;
+    } else ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.moveTo(X - 6.5, Y - 2); ctx.lineTo(X - 4.5, Y - 21); ctx.lineTo(X + 4.5, Y - 21); ctx.lineTo(X + 6.5, Y - 2);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = shade(col, 0.1);
+    ctx.beginPath(); ctx.arc(X, Y - 26, 6, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.45)"; ctx.lineWidth = 0.8; ctx.stroke();
+    if (t.kind === "caster") {
+      ctx.fillStyle = "#fff4d6";
+      ctx.beginPath(); ctx.arc(X, Y - 26, 2, 0, Math.PI * 2); ctx.fill();
+    }
+
+    ctx.font = "700 8px 'Segoe UI', system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(10,8,8,0.75)";
+    ctx.fillRect(X - 15, Y - 45, 30, 10);
+    ctx.fillStyle = col;
+    ctx.fillText(t.label, X, Y - 37.5);
+
+    (t.cond || []).slice(0, 4).forEach((c, n) => {
+      const w = c.text.length * 3.4 + 8;
+      ctx.fillStyle = "rgba(10,8,8,0.82)";
+      ctx.fillRect(X - w / 2, Y - 57 - n * 10, w, 9);
+      ctx.fillStyle = c.col || "#e9dcc2";
+      ctx.font = "600 6.5px 'Segoe UI', system-ui, sans-serif";
+      ctx.fillText(c.text, X, Y - 50.5 - n * 10);
+    });
+  }
+
+  function shade(hex, amt) {
+    const m = /^#?([0-9a-f]{6})$/i.exec(hex || "");
+    if (!m) return hex;
+    const n = parseInt(m[1], 16);
+    const f = (c) => clamp(Math.round(amt < 0 ? c * (1 + amt) : c + (255 - c) * amt), 0, 255);
+    return `rgb(${f((n >> 16) & 255)}, ${f((n >> 8) & 255)}, ${f(n & 255)})`;
+  }
+
+  function ring(c, rTiles, colour, dash, lw) {
+    ctx.save();
+    ctx.strokeStyle = colour; ctx.lineWidth = lw || 1.5;
+    if (ctx.setLineDash) ctx.setLineDash(dash || []);
+    ctx.beginPath();
+    for (let s = 0; s <= 72; s++) {
+      const th = (s / 72) * Math.PI * 2;
+      const x = clamp(c.x + Math.cos(th) * rTiles, 0, N - 0.001), y = clamp(c.y + Math.sin(th) * rTiles, 0, N - 0.001);
+      const [X, Y] = P(x, y, ground(x, y) + 0.05);
+      s ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function label(x, y, z, text, colour) {
+    const [X, Y] = P(x, y, z);
+    ctx.font = "700 8.5px 'Segoe UI', system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(10,8,8,0.78)";
+    const w = text.length * 4.6 + 10;
+    ctx.fillRect(X - w / 2, Y - 9, w, 12);
+    ctx.fillStyle = colour || "#fff4d6";
+    ctx.fillText(text, X, Y);
+  }
+
+  /* The path, coloured by the spell, dimmed and dashed past the bench's
+     range so you can see where a test cast would fall short. */
+  function drawPath(p, spell) {
+    const reach = spell.range ? spell.range / 5 : 1;
+    p.legs.forEach((leg) => {
+      let acc = 0;
+      for (let k = 1; k < leg.travel.length; k++) {
+        const a = leg.travel[k - 1], c = leg.travel[k];
+        const d = Math.hypot(c.x - a.x, c.y - a.y, c.z - a.z);
+        const within = p.ghost || acc + d <= reach + 0.05;
+        acc += d;
+        const [x1, y1] = P(a.x, a.y, a.z), [x2, y2] = P(c.x, c.y, c.z);
+        ctx.save();
+        if (ctx.setLineDash) ctx.setLineDash(p.ghost ? [5, 4] : within ? [] : [3, 4]);
+        ctx.lineCap = "round";
+        ctx.strokeStyle = within ? hexA(spell.colour, 0.28) : "rgba(255,120,100,0.2)";
+        ctx.lineWidth = 7;
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.strokeStyle = within ? spell.colour : "rgba(255,140,120,0.85)";
+        ctx.lineWidth = 2.2;
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.restore();
+      }
+    });
+
+    const last = p.legs[p.legs.length - 1];
+    if (last && last.stop) {
+      const e = last.travel[last.travel.length - 1];
+      const [X, Y] = P(e.x, e.y, e.z);
+      ctx.strokeStyle = "#ff8c78"; ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.moveTo(X - 5, Y - 5); ctx.lineTo(X + 5, Y + 5); ctx.moveTo(X + 5, Y - 5); ctx.lineTo(X - 5, Y + 5); ctx.stroke();
+    } else if (last && !p.burst && !p.touch) {
+      const tr = last.travel;
+      const e = tr[tr.length - 1], f = tr[Math.max(0, tr.length - 2)];
+      const [X, Y] = P(e.x, e.y, e.z), [Xf, Yf] = P(f.x, f.y, f.z);
+      const ang = Math.atan2(Y - Yf, X - Xf);
+      ctx.fillStyle = spell.colour;
+      ctx.beginPath();
+      ctx.moveTo(X + Math.cos(ang) * 6, Y + Math.sin(ang) * 6);
+      ctx.lineTo(X + Math.cos(ang + 2.5) * 6, Y + Math.sin(ang + 2.5) * 6);
+      ctx.lineTo(X + Math.cos(ang - 2.5) * 6, Y + Math.sin(ang - 2.5) * 6);
+      ctx.closePath(); ctx.fill();
+    }
+
+    p.bounces.forEach((o) => {
+      const [X, Y] = P(o.t.x, o.t.y, ground(o.t.x, o.t.y) + 1);
+      ctx.strokeStyle = spell.colour; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(X, Y, 5, 0, Math.PI * 2); ctx.stroke();
+    });
+
+    if (!p.touch && p.legs.length) {
+      const L0 = p.legs[0].travel;
+      const mid = L0[Math.floor(L0.length / 2)] || L0[0];
+      const mid2 = L0.length === 2 ? { x: (L0[0].x + L0[1].x) / 2, y: (L0[0].y + L0[1].y) / 2, z: (L0[0].z + L0[1].z) / 2 } : mid;
+      label(mid2.x, mid2.y, mid2.z + 0.9, Math.round(p.maxFt) + " ft.", spell.colour);
+    }
+  }
+
+  function spellView() {
+    const b = bench();
+    const view2 = { colour: b.colour, range: b.range, burstC: null, burstR: 0, hits: [], bench: b };
+    if (plan) {
+      const r = b.radius || (plan.ghost && plan.burst ? plan.shape.Disperse * 10 : 0);
+      if (r > 0) { view2.burstC = plan.burst || plan.end; view2.burstR = r / 5; }
+      view2.hits = hitsFor(plan, r);
+    } else if (b.radius && !b.range && casterTok()) {
+      view2.burstC = casterTok(); view2.burstR = b.radius / 5;
+    }
+    return view2;
+  }
+
+  function draw() {
+    fitView();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const s = view.scale * view.dpr;
+    ctx.setTransform(s, 0, 0, s, view.ox * view.dpr, view.oy * view.dpr);
+
+    const spell = spellView();
+    const byCell = new Map();
+    tokens.forEach((t) => {
+      const key = Math.floor(t.x) + "," + Math.floor(t.y);
+      (byCell.get(key) || byCell.set(key, []).get(key)).push(t);
+    });
+
+    ORDER.forEach(([a, b]) => {
+      drawCell(a, b, spell);
+      const [i, j] = unrotCell(a, b);
+      const here = byCell.get(i + "," + j);
+      if (here) here.forEach((t) => drawToken(t, spell));
+    });
+
+    const c = casterTok();
+    if (c && spell.range) {
+      ring(c, spell.range / 5, hexA(spell.colour, 0.55), [4, 5], 1.2);
+      const edge = { x: clamp(c.x + spell.range / 5 * 0.707, 0, N - 0.01), y: clamp(c.y - spell.range / 5 * 0.707, 0, N - 0.01) };
+      label(edge.x, edge.y, ground(edge.x, edge.y) + 0.4, spell.range + " ft. reach", hexA(spell.colour, 0.95));
+    }
+
+    if (plan) {
+      drawPath(plan, spell);
+      if (spell.burstC && spell.burstR) {
+        ring(spell.burstC, spell.burstR, spell.colour, plan.ghost ? [5, 4] : [], 2);
+        /* the label sits on the ring's front edge, clear of whoever is inside */
+        const [ra, rb] = rot(spell.burstC.x, spell.burstC.y);
+        const [lx, ly] = unrot(ra + spell.burstR * 0.72, rb + spell.burstR * 0.72);
+        const fx = clamp(lx, 0.2, N - 0.2), fy = clamp(ly, 0.2, N - 0.2);
+        label(fx, fy, ground(fx, fy) - 0.6, Math.round(spell.burstR * 5) + " ft. radius", spell.colour);
+      }
+      if (plan.burst && Math.abs(ft(plan.burst.r) - spell.burstR * 5) > 2.5) {
+        ring(plan.burst, plan.burst.r, spell.burstR ? "rgba(255,255,255,0.45)" : "rgba(255,140,120,0.85)", [3, 4], 1.2);
+      }
+      if (spell.bench.anchor) {
+        const e = plan.end;
+        const [X, Y] = P(e.x, e.y, ground(e.x, e.y) + 1);
+        ctx.strokeStyle = spell.colour; ctx.lineWidth = 1.6;
+        if (ctx.setLineDash) ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.moveTo(X, Y - 8); ctx.lineTo(X + 8, Y); ctx.lineTo(X, Y + 8); ctx.lineTo(X - 8, Y); ctx.closePath(); ctx.stroke();
+        if (ctx.setLineDash) ctx.setLineDash([]);
+      }
+    }
+
+    if (drag && drag.kind === "draw" && drag.raw.length > 1) {
+      ctx.strokeStyle = "rgba(255,248,234,0.85)"; ctx.lineWidth = 1.6;
+      if (ctx.setLineDash) ctx.setLineDash([]);
+      ctx.beginPath();
+      drag.raw.forEach((p, k) => { const [X, Y] = P(p.x, p.y, ground(p.x, p.y) + 1); k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+      ctx.stroke();
+    }
+    if (drag && drag.kind === "burst") {
+      ring(drag.c, Math.max(0.2, drag.r), "rgba(255,248,234,0.9)", [4, 3], 1.6);
+      label(drag.c.x, drag.c.y, ground(drag.c.x, drag.c.y) + 1.4, ft(drag.r) + " ft.", "#fff4d6");
+    }
+
+    if (flight) {
+      const p = flight.pos;
+      if (p) {
+        const [X, Y] = P(p.x, p.y, p.z);
+        ctx.fillStyle = hexA(flight.colour, 0.35);
+        ctx.beginPath(); ctx.arc(X, Y, 9, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = flight.colour;
+        ctx.beginPath(); ctx.arc(X, Y, 4, 0, Math.PI * 2); ctx.fill();
+      }
+      if (flight.boom) {
+        ring(flight.boom.c, Math.max(0.3, flight.boom.r), hexA(flight.colour, 1 - flight.boom.t * 0.6), [], 3);
+      }
+    }
+
+    arcs.forEach((arc) => {
+      const [x1, y1] = P(arc.a.x, arc.a.y, ground(arc.a.x, arc.a.y) + 1.4);
+      const [x2, y2] = P(arc.b.x, arc.b.y, ground(arc.b.x, arc.b.y) + 1.4);
+      ctx.strokeStyle = "#bff3ff"; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(x1, y1);
+      for (let s2 = 1; s2 < 6; s2++) {
+        const t = s2 / 6;
+        ctx.lineTo(x1 + (x2 - x1) * t + (s2 % 2 ? 4 : -4), y1 + (y2 - y1) * t + (s2 % 2 ? -3 : 3));
+      }
+      ctx.lineTo(x2, y2); ctx.stroke();
+    });
+
+    const now = Date.now();
+    floaters = floaters.filter((f) => now - f.t0 < f.life);
+    floaters.forEach((f) => {
+      const age = (now - f.t0) / f.life;
+      const [X, Y] = P(f.x, f.y, ground(f.x, f.y) + 3.4 + age * 1.6);
+      ctx.globalAlpha = 1 - age * age;
+      ctx.font = "800 9px 'Segoe UI', system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(10,8,8,0.8)";
+      ctx.fillText(f.text, X + 0.8, Y + 0.8);
+      ctx.fillStyle = f.col;
+      ctx.fillText(f.text, X, Y);
+      ctx.globalAlpha = 1;
+    });
+    if (floaters.length && !animating) requestDraw();
+  }
+
+  function requestDraw() {
+    if (rafPending) return;
+    rafPending = true;
+    const go = () => { rafPending = false; draw(); };
+    if (window.requestAnimationFrame) window.requestAnimationFrame(go); else setTimeout(go, 16);
+  }
+
+  function refresh() {
+    describe();
+    hint();
+    requestDraw();
+  }
+
+  /* ----- test cast -------------------------------------------------------- */
+
+  /* What the bench would actually do along the drawing. */
+  function simulate() {
+    const b = bench();
+    const caster = casterTok();
+    const notes = [];
+    if (!caster) return { error: "There is no caster on the scene." };
+    if (!b.elements.length) return { error: "Put at least one Element on the bench first, so the spell has something to be made of." };
+
+    let p = plan && !plan.ghost ? plan : null;
+    if (!p) {
+      const near = foes().sort((x, y) => dist(x, caster) - dist(y, caster))[0];
+      if (!near && !b.radius) return { error: "Draw where the spell goes, or put a foe on the scene to aim at." };
+      p = near ? analyze({ path: [caster, near] }) : analyze({ path: [caster], burst: { x: caster.x, y: caster.y, r: b.radius / 5 } });
+      if (near) notes.push(`No drawing, so it went straight at ${near.label}.`);
+    }
+
+    const reach = b.range ? b.range / 5 : 1;
+    let legs = p.legs.slice(0, b.ricochet + 1);
+    if (p.legs.length > legs.length) {
+      notes.push(`Without ${p.legs.length - 1 > 1 ? "enough Ricochet" : "Ricochet"} it stopped at ${p.bounces[legs.length - 1] ? p.bounces[legs.length - 1].t.label : "the first creature"}.`);
+    }
+    if (!b.direct && legs.some((l) => l.bent)) {
+      notes.push("Without Direct the spell can only fly straight, so it went in a line instead of following the curve.");
+      const straight = [];
+      for (const l of legs) {
+        const L = evalLeg([l.start, l.bent ? (l.stop ? l.end : l.travel[l.travel.length - 1]) : l.end]);
+        straight.push(L);
+        if (L.stop) break;
+      }
+      legs = straight;
+    }
+
+    const travel = [];
+    let impact = { x: caster.x, y: caster.y };
+    let stopped = false;
+    const struck = [];
+    for (let k = 0; k < legs.length && !stopped; k++) {
+      const L = legs[k];
+      let acc = 0;
+      for (let n = 0; n < L.travel.length; n++) {
+        const q = L.travel[n];
+        if (n > 0) {
+          const pr = L.travel[n - 1];
+          const d = Math.hypot(q.x - pr.x, q.y - pr.y, q.z - pr.z);
+          if (acc + d > reach + 0.05) {
+            const t = (reach - acc) / (d || 1);
+            const cut = { x: pr.x + (q.x - pr.x) * t, y: pr.y + (q.y - pr.y) * t, z: pr.z + (q.z - pr.z) * t };
+            travel.push(cut);
+            impact = cut;
+            stopped = true;
+            notes.push(`It ran out of range at ${b.range || 5} ft. and fizzled.`);
+            break;
+          }
+          acc += d;
+        }
+        travel.push(q);
+        impact = q;
+      }
+      if (stopped) break;
+      if (L.stop) { stopped = true; notes.push(L.stopBy === "wall" ? "It hit a wall." : "It hit the ground in the way."); break; }
+      if (k < legs.length - 1 && p.bounces[k]) struck.push(p.bounces[k].t);
+    }
+
+    const r = b.radius / 5;
+    const center = p.burst && p.burst.self ? { x: caster.x, y: caster.y } : { x: impact.x, y: impact.y };
+    let affected;
+    if (r > 0) {
+      affected = tokens.filter((t) => Math.hypot(t.x - center.x, t.y - center.y) <= r + 0.35);
+    } else {
+      affected = struck.slice();
+      const at = tokens.find((t) => t.kind !== "caster" && Math.hypot(t.x - impact.x, t.y - impact.y) < 0.8);
+      if (at && !affected.includes(at)) affected.push(at);
+      if (!affected.length) notes.push("It did not land on anyone.");
+    }
+    return { travel, impact, center, radius: r, affected, notes, bench: b };
+  }
+
+  function grab() {
+    return JSON.stringify({ h: world.h, wall: world.wall, water: world.water, fx: world.fx, tokens });
+  }
+  function restore(json) {
+    const s = JSON.parse(json);
+    world.h = s.h; world.wall = s.wall; world.water = s.water; world.fx = s.fx || new Array(N * N).fill(null);
+    tokens = s.tokens || [];
+    tokens.forEach((t) => { t.cond = t.cond || []; delete t.anim; });
+    relabel();
+  }
+
+  function moveToken(t, from, tiles, away) {
+    let dx = t.x - from.x, dy = t.y - from.y;
+    const L = Math.hypot(dx, dy);
+    if (L < 0.01) { dx = 1; dy = 0; } else { dx /= L; dy /= L; }
+    if (!away) { dx = -dx; dy = -dy; }
+    let moved = 0;
+    const steps = Math.round(tiles / 0.25);
+    for (let s = 0; s < steps; s++) {
+      const nx = t.x + dx * 0.25, ny = t.y + dy * 0.25;
+      if (nx < 0.3 || ny < 0.3 || nx > N - 0.3 || ny > N - 0.3) break;
+      const [i, j] = cellOf(nx, ny);
+      if (world.wall[idx(i, j)]) break;
+      if (!away && Math.hypot(nx - from.x, ny - from.y) < 0.6) break;
+      t.x = nx; t.y = ny; moved += 0.25;
+    }
+    /* settle onto a square so the scene stays a grid */
+    t.x = Math.floor(t.x) + 0.5; t.y = Math.floor(t.y) + 0.5;
+    return Math.round(moved) * 5;
+  }
+
+  /* What the spell does to each creature it catches, from the doc's own
+     words. A "?" means the target gets a contest first, and "on 5+" means
+     it needs a margin of 5 or more. Strikes are options, never a sum, so a
+     hit shows one Grit and names the choices. */
+  function applyOutcome(sim) {
+    const b = sim.bench;
+    const c = b.count, combos = b.combos;
+    const log = [];
+    const strikes = SPELLS.strikesFor(b.parts);
+    const now = Date.now();
+    const origin = sim.radius > 0 ? sim.center : casterTok();
+    const onWater = (t) => world.water[idx(...cellOf(t.x, t.y))];
+    arcs = [];
+
+    const say = (t, text, col, n) => floaters.push({ x: t.x, y: t.y, text, col: col || "#fff4d6", t0: now + (n || 0) * 260, life: 2200 });
+
+    sim.affected.forEach((t) => {
+      const tags = [];
+      const isFoe = t.kind === "foe";
+      if (strikes.length) tags.push({ text: isFoe ? "-1 Grit" : "-1 Grit (friendly fire)", col: "#ff8c78", dmg: true });
+      if (c.Water || (onWater(t) && c.Electricity)) tags.push({ text: "Wet", col: "#7cc4ff" });
+      if (c.Fire) tags.push({ text: "Burning on 5+", col: "#ff9a5c" });
+      if (combos.has("Frost")) tags.push({ text: `Slowed -${15 * (c.Water || 1)} ft.`, col: "#bfe6ff" });
+      if (c["Life Force"]) tags.push({ text: combos.has("Sense Life") ? "Alive" : "Grit cleared", col: "#7ef2a8" });
+      if (c.Radiant) tags.push({ text: "+Atk/Def (margin)", col: "#ffd76a" });
+      if (c.Poison) tags.push({ text: "Poisoned?", col: "#a8d04f" });
+      if (combos.has("Blinding Light")) tags.push({ text: "Blinded on 5+", col: "#ffe9a8" });
+      if (combos.has("Stunning Arc")) tags.push({ text: "Stunned on 5+", col: "#7ee0ff" });
+      if (combos.has("Wind Tunnel")) tags.push({ text: "Ranged disadv. 5+", col: "#9fd8e8" });
+      if (combos.has("Dread")) tags.push({ text: "Frightened?", col: "#ff5fa2" });
+      if (combos.has("Concussive Burst")) tags.push({ text: "Prone?", col: "#f4b6ff" });
+      if (combos.has("Disorienting Tremor")) tags.push({ text: "Disoriented?", col: "#f4b6ff" });
+      if (combos.has("Mind Shatter")) tags.push({ text: "Stunned?", col: "#ff5fa2" });
+      if (c.Eldritch) tags.push({ text: "Charmed?", col: "#e46fd0" });
+      if (c.Memory) tags.push({ text: combos.has("False Memory") ? "False memory?" : "Forgets a detail?", col: "#d6b38a" });
+      if (combos.has("Blood Bind")) tags.push({ text: "Blood bound?", col: "#e0404f" });
+      if (c.Space) tags.push({ text: "Teleport?", col: "#9f9fff" });
+      if (c.Time) tags.push({ text: "Time bends", col: "#b6a6ff" });
+
+      if (t.kind !== "caster" || sim.radius > 0) {
+        const push = Math.max(c.Force ? 2 : 0, combos.has("Sonic Blast") ? 2 : 0, combos.has("Explosive") ? 2 : 0);
+        if (push && t !== origin) {
+          const from = sim.radius > 0 ? sim.center : casterTok();
+          const before = { x: t.x, y: t.y };
+          const moved = moveToken(t, from, push, true);
+          if (moved) {
+            t.anim = null;
+            tags.push({ text: `Pushed ${moved} ft.${c.Force && !combos.has("Sonic Blast") && !combos.has("Explosive") ? "?" : ""}`, col: "#c9c9d8" });
+          } else if (dist(before, t) < 0.1) tags.push({ text: "Pinned to the wall", col: "#c9c9d8" });
+        }
+        const pull = (c.Gravity || 0) + (combos.has("Gravity Well") ? Math.round(sim.radius) : 0);
+        if (pull && !push) {
+          const from = sim.radius > 0 ? sim.center : casterTok();
+          const moved = moveToken(t, from, pull, false);
+          if (moved) tags.push({ text: `Pulled ${moved} ft.?`, col: "#8f9cff" });
+        }
+      }
+
+      t.cond = tags.filter((x) => !x.dmg).slice(0, 4);
+      tags.forEach((x, n) => say(t, x.text, x.col, n));
+      log.push(`<b>${esc(t.label)}</b>: ${tags.length ? tags.map((x) => esc(x.text)).join(", ") : "caught, but nothing on the bench affects a creature"}`);
+    });
+
+    /* Electricity chains through anyone Wet within 10 ft., then checks again
+       from each of them. Standing in water counts as Wet. */
+    if (c.Electricity) {
+      const wet = (t) => onWater(t) || (t.cond || []).some((x) => x.text === "Wet");
+      const done = new Set(sim.affected);
+      let frontier = sim.affected.filter(wet);
+      while (frontier.length) {
+        const next = [];
+        frontier.forEach((src) => {
+          tokens.forEach((t) => {
+            if (done.has(t) || !wet(t) || Math.hypot(t.x - src.x, t.y - src.y) > 2.05) return;
+            done.add(t); next.push(t);
+            arcs.push({ a: { x: src.x, y: src.y }, b: { x: t.x, y: t.y } });
+            say(t, "-1 Grit (chain)", "#bff3ff");
+            log.push(`<b>${esc(t.label)}</b>: the lightning chains to them because they are Wet, -1 Grit`);
+          });
+        });
+        frontier = next;
+      }
+    }
+
+    /* the ground */
+    const area = [];
+    const R = sim.radius > 0 ? sim.radius : 0.5;
+    for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+      if (Math.hypot(i + 0.5 - sim.center.x, j + 0.5 - sim.center.y) <= R + 0.01) area.push(idx(i, j));
+    }
+    const mark = (kind) => area.forEach((k) => { if (!world.wall[k]) world.fx[k] = kind; });
+    if (combos.has("Magma")) { mark("magma"); log.push("The rock under the spell turns to magma: difficult terrain, and 1 Grit to anyone who enters or starts a turn in it."); }
+    else if (combos.has("Sand")) { mark("sand"); log.push("The ground turns to loose earth and quicksand: difficult terrain."); }
+    else if (c.Earth) {
+      area.forEach((k) => { if (!world.wall[k]) world.h[k] = clamp(world.h[k] + c.Earth, 0, MAX_H); });
+      log.push(`The ground under the spell rises ${c.Earth * 5} ft.`);
+    }
+    if (combos.has("Ice")) { mark("ice"); log.push("The ground is slick with ice: difficult terrain, and a Dexterity Test to keep moving."); }
+    if (combos.has("Steam")) { mark("steam"); log.push("Steam fills the area and blocks line of sight."); }
+    else if (c.Shadow) { mark("shadow"); log.push("Shadow fills the area, blocks line of sight and puts out lights inside it."); }
+    if (c.Nature) { mark("growth"); log.push("Plants and fungus in the area double."); }
+    if (combos.has("Gravity Well")) { mark("well"); log.push("A gravity well forms: difficult terrain, and anyone inside is dragged toward its centre on a failed Resist Test."); }
+    if (combos.has("Weightless")) { mark("float"); log.push("Gravity lets go inside the radius; anyone there can move in any direction."); }
+    if (c.Light && !combos.has("Steam") && !c.Shadow) {
+      for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+        const k = idx(i, j);
+        if (!world.fx[k] && Math.hypot(i + 0.5 - sim.impact.x, j + 0.5 - sim.impact.y) <= 6) world.fx[k] = "light";
+      }
+      log.push("Bright light fills 30 ft. around where it landed.");
+    }
+
+    if (strikes.length) log.push(`On a hit your margin buys one Strike: ${strikes.map((s) => s.label).join(" or ")}. The scene shows it as 1 Grit.`);
+    if (c.Anchor) log.push("With Anchor the spell sits where it landed until a DC 13 Arcana Test sets it off; the scene shows it going off.");
+    if (c.Sustain) log.push("Sustained: it keeps casting for an action each turn, and drops if the target leaves sight or range.");
+    if (c.Continuate) log.push(`It lasts ${c.Continuate} more turn${c.Continuate > 1 ? "s" : ""}.`);
+    if (b.parts.includes("Blood")) log.push(`Casting it cost you ${c.Blood} marked Grit.`);
+
+    const ol = $("#cast-log");
+    if (ol) {
+      ol.innerHTML = sim.notes.map((n) => `<li class="cl-note">${esc(n)}</li>`).concat(log.map((l) => `<li>${l}</li>`)).join("");
+    }
+    const undo = $("#reset-scene");
+    if (undo) undo.disabled = false;
+    save();
+    reread();
+    requestDraw();
+    return { log, affected: sim.affected.map((t) => t.label) };
+  }
+
+  function castNow() {
+    const sim = simulate();
+    if (sim.error) { FORGE() && FORGE().toast(sim.error); return { error: sim.error }; }
+    snapshot = grab();
+    return applyOutcome(sim);
+  }
+
+  function testCast() {
+    if (animating) return;
+    const sim = simulate();
+    if (sim.error) { FORGE() && FORGE().toast(sim.error); return; }
+    snapshot = grab();
+    const colour = sim.bench.colour;
+    const path = sim.travel.length ? sim.travel : [{ x: sim.center.x, y: sim.center.y, z: ground(sim.center.x, sim.center.y) + 1 }];
+    let total = 0;
+    const cum = [0];
+    for (let k = 1; k < path.length; k++) { total += Math.hypot(path[k].x - path[k - 1].x, path[k].y - path[k - 1].y, path[k].z - path[k - 1].z); cum.push(total); }
+    const flyMs = clamp(total * 45, 250, 1300), boomMs = sim.radius > 0 ? 420 : 160;
+    const t0 = performance.now ? performance.now() : Date.now();
+    flight = { colour, pos: path[0], boom: null };
+    animating = true;
+    const step = (now) => {
+      const t = now - t0;
+      if (t < flyMs) {
+        const s = (t / flyMs) * total;
+        let k = 1;
+        while (k < cum.length - 1 && cum[k] < s) k++;
+        const a = path[k - 1], b2 = path[k] || a;
+        const f = (s - cum[k - 1]) / ((cum[k] - cum[k - 1]) || 1);
+        flight.pos = { x: a.x + (b2.x - a.x) * f, y: a.y + (b2.y - a.y) * f, z: a.z + (b2.z - a.z) * f };
+      } else if (t < flyMs + boomMs) {
+        flight.pos = null;
+        const u = (t - flyMs) / boomMs;
+        flight.boom = { c: sim.center, r: (sim.radius || 0.6) * u, t: u };
+      } else {
+        flight = null;
+        animating = false;
+        applyOutcome(sim);
+        return;
+      }
+      draw();
+      window.requestAnimationFrame(step);
+    };
+    if (window.requestAnimationFrame) window.requestAnimationFrame(step);
+  }
+
+  function undo() {
+    if (!snapshot) return;
+    restore(snapshot);
+    snapshot = null;
+    arcs = []; floaters = [];
+    const ol = $("#cast-log"); if (ol) ol.innerHTML = "";
+    const btn = $("#reset-scene"); if (btn) btn.disabled = true;
+    save();
+    reread();
+  }
+
+  /* ----- scenes ----------------------------------------------------------- */
+
+  function loadScene(name) {
+    blankWorld();
+    tokens = [];
+    snapshot = null;
+    if (name === "chapel") {
+      for (let i = 12; i <= 20; i++) for (let j = 5; j <= 18; j++) {
+        const edge = i === 12 || i === 20 || j === 5 || j === 18;
+        const door = i === 12 && (j === 11 || j === 12);
+        const window1 = j === 5 && (i === 16);
+        if (edge && !door && !window1) world.wall[idx(i, j)] = true;
+      }
+      for (let i = 13; i <= 19; i++) for (let j = 6; j <= 17; j++) world.h[idx(i, j)] = 0;
+      for (let i = 4; i <= 8; i++) world.h[idx(i, 4)] = 1;
+      place("caster", 4.5, 8.5);
+      place("foe", 16.5, 9.5); place("foe", 17.5, 13.5); place("foe", 15.5, 15.5);
+      place("ally", 9.5, 16.5);
+    } else if (name === "hill") {
+      for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+        const d = Math.hypot(i - 18, (j - 11) * 0.8);
+        world.h[idx(i, j)] = clamp(Math.round(4.6 - d / 2.1), 0, 5);
+      }
+      for (let i = 3; i <= 7; i++) for (let j = 15; j <= 19; j++) if (Math.hypot(i - 5, j - 17) < 2.4) world.water[idx(i, j)] = true;
+      for (let j = 8; j <= 10; j++) world.wall[idx(14, j)] = true;
+      place("caster", 5.5, 11.5);
+      place("foe", 18.5, 10.5); place("foe", 19.5, 13.5); place("foe", 6.5, 19.5);
+      place("ally", 8.5, 8.5);
+    } else if (name === "empty") {
+      place("caster", 6.5, 12.5);
+    } else {
+      for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+        const bump = Math.sin(i * 0.55) * Math.cos(j * 0.42) + Math.sin((i + j) * 0.3);
+        world.h[idx(i, j)] = bump > 1.25 ? 1 : 0;
+      }
+      for (let j = 6; j <= 9; j++) world.wall[idx(10, j)] = true;
+      world.wall[idx(11, 9)] = true;
+      for (let i = 19; i <= 21; i++) for (let j = 18; j <= 20; j++) world.water[idx(i, j)] = true;
+      place("caster", 4.5, 12.5);
+      place("foe", 15.5, 10.5); place("foe", 17.5, 12.5); place("foe", 15.5, 14.5);
+      place("ally", 6.5, 16.5);
+    }
+    tokens.forEach((t) => { const k = idx(...cellOf(t.x, t.y)); world.wall[k] = false; });
+    relabel();
+    input = null; plan = null; arcs = []; floaters = [];
+    const ol = $("#cast-log"); if (ol) ol.innerHTML = "";
+    const btn = $("#reset-scene"); if (btn) btn.disabled = true;
+    save();
+    refresh();
+  }
+
+  let saveTimer = null;
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try { localStorage.setItem(SCENE_KEY, JSON.stringify({ h: world.h, wall: world.wall, water: world.water, tokens })); } catch { /* fine */ }
+    }, 200);
+  }
+  function loadSaved() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(SCENE_KEY) || "null");
+      if (!raw || !Array.isArray(raw.h) || raw.h.length !== N * N) return false;
+      world.h = raw.h; world.wall = raw.wall; world.water = raw.water; world.fx = new Array(N * N).fill(null);
+      tokens = (raw.tokens || []).map((t) => Object.assign({ cond: [] }, t, { cond: [] }));
+      if (!casterTok()) return false;
+      relabel();
+      return true;
+    } catch { return false; }
+  }
+
+  /* ----- route finding, for the advisor ----------------------------------- */
+
+  /* A* over the squares, around walls, with climbing costing a little
+     extra. The result is pulled tight so it only turns where it has to. */
+  function findPath(from, to) {
+    const [si, sj] = cellOf(from.x, from.y), [ti, tj] = cellOf(to.x, to.y);
+    const start = idx(si, sj), goal = idx(ti, tj);
+    const g = new Map([[start, 0]]), came = new Map();
+    const open = [[0, start]];
+    const H = (k) => { const i = k % N, j = Math.floor(k / N); const dx = Math.abs(i - ti), dy = Math.abs(j - tj); return Math.max(dx, dy) + 0.414 * Math.min(dx, dy); };
+    let guard = 0;
+    while (open.length && guard++ < 5000) {
+      open.sort((a, b) => a[0] - b[0]);
+      const [, cur] = open.shift();
+      if (cur === goal) break;
+      const ci = cur % N, cj = Math.floor(cur / N);
+      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+        if (!dx && !dy) continue;
+        const ni = ci + dx, nj = cj + dy;
+        if (!inside(ni, nj)) continue;
+        const nk = idx(ni, nj);
+        if (world.wall[nk] && nk !== goal) continue;
+        if (dx && dy && (world.wall[idx(ci + dx, cj)] || world.wall[idx(ci, cj + dy)])) continue;
+        const climb = Math.max(0, world.h[nk] - world.h[cur]);
+        const cost = (g.get(cur) || 0) + (dx && dy ? 1.414 : 1) + climb * 0.6;
+        if (cost < (g.has(nk) ? g.get(nk) : Infinity)) {
+          g.set(nk, cost); came.set(nk, cur);
+          open.push([cost + H(nk), nk]);
+        }
+      }
+    }
+    if (!came.has(goal) && goal !== start) return null;
+    const cells = [goal];
+    while (cells[0] !== start) cells.unshift(came.get(cells[0]));
+    const pts = cells.map((k) => ({ x: (k % N) + 0.5, y: Math.floor(k / N) + 0.5 }));
+    pts[0] = { x: from.x, y: from.y };
+    pts[pts.length - 1] = { x: to.x, y: to.y };
+    const tight = [pts[0]];
+    let at = 0;
+    while (at < pts.length - 1) {
+      let far = at + 1;
+      for (let k = pts.length - 1; k > at + 1; k--) { if (clearOfWalls(pts[at], pts[k])) { far = k; break; } }
+      tight.push(pts[far]);
+      at = far;
+    }
+    return tight;
+  }
+
+  /* ----- input ----------------------------------------------------------- */
+
+  function screenPos(e) {
+    const r = canvas.getBoundingClientRect();
+    return [e.clientX - r.left, e.clientY - r.top];
+  }
+
+  const visited = new Set();
+  function paint(p, right) {
+    const k = idx(p.i, p.j);
+    if (visited.has(k)) return;
+    visited.add(k);
+    const occupied = tokenOnCell(p.i, p.j);
+    switch (tool) {
+      case "wall":
+        if (right) world.wall[k] = false;
+        else if (!occupied) { world.wall[k] = true; world.water[k] = false; }
+        break;
+      case "raise": world.h[k] = clamp(world.h[k] + (right ? -1 : 1), 0, MAX_H); break;
+      case "lower": world.h[k] = clamp(world.h[k] + (right ? 1 : -1), 0, MAX_H); break;
+      case "water":
+        if (right) world.water[k] = false;
+        else { world.water[k] = true; world.wall[k] = false; }
+        break;
+      case "erase":
+        world.wall[k] = false; world.water[k] = false; world.fx[k] = null;
+        if (occupied && occupied.kind !== "caster") { tokens = tokens.filter((t) => t !== occupied); relabel(); }
+        break;
+      default: break;
+    }
+  }
+
+  function onDown(e) {
+    if (animating) return;
+    const [px, py] = screenPos(e);
+    const right = e.button === 2;
+    if (canvas.setPointerCapture && e.pointerId != null) { try { canvas.setPointerCapture(e.pointerId); } catch { /* fine */ } }
+
+    if (e.button === 1 || (tool === "move" && !tokenAtScreen(px, py)) || e.altKey) {
+      drag = { kind: "pan", px, py, panX: view.panX, panY: view.panY };
+      return;
+    }
+    const p = pointAt(px, py);
+
+    if (tool === "move") {
+      const t = tokenAtScreen(px, py);
+      if (t) drag = { kind: "token", t };
+      return;
+    }
+    if (tool === "draw") {
+      const c = casterTok();
+      if (!c) return;
+      drag = { kind: "draw", raw: [{ x: c.x, y: c.y }], shift: e.shiftKey };
+      if (dist(p, c) > 0.6) drag.raw.push({ x: p.x, y: p.y });
+      requestDraw();
+      return;
+    }
+    if (tool === "burst") {
+      drag = { kind: "burst", c: { x: p.x, y: p.y }, r: 0.4 };
+      requestDraw();
+      return;
+    }
+    if (tool === "foe" || tool === "ally") {
+      if (p.off) return;
+      const t = tokenOnCell(p.i, p.j);
+      if (t && t.kind !== "caster") { tokens = tokens.filter((x) => x !== t); relabel(); }
+      else if (!t && !right) place(tool, p.x, p.y);
+      save(); reread();
+      return;
+    }
+    if (!p.off) {
+      visited.clear();
+      drag = { kind: "paint", right };
+      paint(p, right);
+      save(); reread();
+    }
+  }
+
+  function onMove(e) {
+    const [px, py] = screenPos(e);
+    if (!drag) {
+      const p = pick(px, py);
+      const h2 = p ? { i: p.i, j: p.j } : null;
+      if ((h2 && (!hover || hover.i !== h2.i || hover.j !== h2.j)) || (!h2 && hover)) { hover = h2; requestDraw(); }
+      return;
+    }
+    if (drag.kind === "pan") {
+      view.panX = drag.panX + (px - drag.px);
+      view.panY = drag.panY + (py - drag.py);
+      requestDraw();
+      return;
+    }
+    const p = pointAt(px, py);
+    if (drag.kind === "token") {
+      if (!world.wall[idx(p.i, p.j)]) {
+        const other = tokenOnCell(p.i, p.j);
+        if (!other || other === drag.t) { drag.t.x = p.i + 0.5; drag.t.y = p.j + 0.5; }
+      }
+      hover = { i: p.i, j: p.j };
+      requestDraw();
+      return;
+    }
+    if (drag.kind === "draw") {
+      if (e.shiftKey || drag.shift) {
+        drag.raw = [drag.raw[0], { x: p.x, y: p.y }];
+      } else {
+        const last = drag.raw[drag.raw.length - 1];
+        if (dist(last, p) > 0.18) drag.raw.push({ x: p.x, y: p.y });
+      }
+      requestDraw();
+      return;
+    }
+    if (drag.kind === "burst") {
+      drag.r = Math.max(0.4, dist(drag.c, p));
+      requestDraw();
+      return;
+    }
+    if (drag.kind === "paint" && !p.off) {
+      paint(p, drag.right);
+      requestDraw();
+    }
+  }
+
+  function onUp() {
+    if (!drag) return;
+    const d = drag;
+    drag = null;
+    if (d.kind === "draw") {
+      if (d.raw.length < 2) { requestDraw(); return; }
+      setInput({ path: d.raw, freehand: true });
+    } else if (d.kind === "burst") {
+      const c = casterTok();
+      let path = [{ x: c.x, y: c.y }];
+      if (dist(d.c, c) > 0.9) {
+        const sight = sightLine(c, d.c);
+        path = sight.clear ? [{ x: c.x, y: c.y }, d.c] : (findPath(c, d.c) || [{ x: c.x, y: c.y }, d.c]);
+      }
+      setInput({ path, burst: { x: d.c.x, y: d.c.y, r: d.r } });
+    } else if (d.kind === "token" || d.kind === "paint") {
+      save();
+      reread();
+    } else {
+      requestDraw();
+    }
+  }
+
+  function hint() {
+    const box = $("#stage-hint");
+    if (!box) return;
+    const text = {
+      draw: "Drag from your caster (the gold figure). End with a loop to burst. Shift draws a straight line.",
+      burst: "Press where the spell lands and drag out its radius. The path is worked out for you.",
+      move: "Drag a creature to move it. Drag the ground to pan; the wheel zooms.",
+      foe: "Click a square to place a foe. Click one again to remove it.",
+      ally: "Click a square to place an ally. Click one again to remove it.",
+      wall: "Drag to paint walls 10 ft. tall. Right-click removes them.",
+      raise: "Click or drag to raise the ground 5 ft. at a time. Right-click lowers it.",
+      lower: "Click or drag to lower the ground. Right-click raises it.",
+      water: "Paint a pool. Water spells need a source, and lightning loves it.",
+      erase: "Click to clear walls, water and creatures."
+    }[tool];
+    box.textContent = text || "";
+  }
+
+  function setTool(name) {
+    tool = name;
+    document.querySelectorAll("[data-tool]").forEach((b) => b.classList.toggle("is-on", b.dataset.tool === name));
+    canvas.dataset.tool = name;
+    hint();
+  }
+
+  function bind() {
+    canvas.addEventListener("pointerdown", onDown);
+    canvas.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    canvas.addEventListener("pointerleave", () => { if (hover && !drag) { hover = null; requestDraw(); } });
+    canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+    canvas.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const [px, py] = screenPos(e);
+      /* zoom about the pointer, so the square under it stays put */
+      const oldZoom = view.zoom;
+      fitView();
+      const base = view.scale / oldZoom;
+      const [X, Y] = toWorld(px, py);
+      view.zoom = clamp(view.zoom * (e.deltaY < 0 ? 1.12 : 0.89), 0.6, 3.2);
+      const sc = base * view.zoom;
+      const midY = (N * TH - (MAX_H + WALL_H) * LH) / 2;
+      view.panX = px - X * sc - view.W / 2;
+      view.panY = py - Y * sc - view.H / 2 + midY * sc;
+      requestDraw();
+    }, { passive: false });
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && drag) { drag = null; requestDraw(); }
+    });
+
+    document.querySelectorAll("[data-tool]").forEach((b) => b.addEventListener("click", () => setTool(b.dataset.tool)));
+    const rotBtn = $("#rotate-view");
+    if (rotBtn) rotBtn.addEventListener("click", () => { view.rot = (view.rot + 1) % 4; requestDraw(); });
+    const fit = $("#fit-view");
+    if (fit) fit.addEventListener("click", () => { view.zoom = 1; view.panX = 0; view.panY = 0; requestDraw(); });
+    const sel = $("#scene-select");
+    if (sel) sel.addEventListener("change", () => loadScene(sel.value));
+    const cast = $("#test-cast");
+    if (cast) cast.addEventListener("click", testCast);
+    const reset = $("#reset-scene");
+    if (reset) reset.addEventListener("click", undo);
+    const clear = $("#clear-drawing");
+    if (clear) clear.addEventListener("click", clearInput);
+    const auto = $("#auto-build");
+    if (auto) auto.addEventListener("change", () => { if (auto.checked && plan && !plan.ghost && FORGE()) lastReport = FORGE().applyShape(plan.shape); refresh(); });
+
+    const ro = $("#drawing-readout");
+    if (ro) ro.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-ro]");
+      if (!b || !plan) return;
+      if (b.dataset.ro === "commit") { input = Object.assign({}, input, { ghost: false }); setInput(input); }
+      if (b.dataset.ro === "apply" && FORGE()) { lastReport = FORGE().applyShape(plan.shape); refresh(); }
+    });
+
+    /* A part dragged from the catalogue onto the scene goes on the bench. */
+    wrap.addEventListener("dragover", (e) => { e.preventDefault(); wrap.classList.add("is-drop"); });
+    wrap.addEventListener("dragleave", () => wrap.classList.remove("is-drop"));
+    wrap.addEventListener("drop", (e) => {
+      e.preventDefault();
+      wrap.classList.remove("is-drop");
+      const name = e.dataTransfer && e.dataTransfer.getData("text/plain");
+      if (name && FORGE()) FORGE().addPart(name);
+    });
+
+    if (window.ResizeObserver) new ResizeObserver(() => resize()).observe(wrap);
+    else window.addEventListener("resize", resize);
+  }
+
+  function init() {
+    blankWorld();
+    if (!loadSaved()) loadScene("field");
+    bind();
+    setTool("draw");
+    resize();
+    if (FORGE()) FORGE().onChange(() => { describe(); requestDraw(); });
+    describe();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+
+  return {
+    N, world, get tokens() { return tokens; }, casterTok, foes, allies, place, relabel,
+    setInput, clearInput, analyze, get plan() { return plan; }, findPath, sightLine, clearOfWalls,
+    simulate, castNow, testCast, undo, loadScene, setTool, bench, hitsFor, draw, describe,
+    ground, cellOf, idx,
+    /* where a grid point sits on the canvas, for the harness */
+    screenOf: (x, y) => { fitView(); const [X, Y] = P(x, y, ground(x, y)); return [view.ox + X * view.scale, view.oy + Y * view.scale]; }
+  };
+})();
+    </script>
+    <script>
+/* ============ spell-advisor.js ============ */
+/* =========================================================================
+   Revelry : the Spell Advisor.
+
+   You type what you want the spell to do ("freeze the foes in the chapel
+   without hitting my ally") and the advisor answers the way a GM who knows
+   the magic rules would: these Elements, for these reasons, shaped like
+   this because of where everyone is standing. Then it sketches the plan on
+   the scene as a dashed line, and one button builds it.
+
+   It is a rules helper, not a language model. It runs in the browser with
+   no connection, reading the words you type against a table of what each
+   Element and combination does (all of it from revelry-spells.js), and
+   reading the scene for the geometry: who the targets are, how far away,
+   whether a wall or a hill is in the way, and whether an ally is standing
+   in the blast. When it does not understand, it says so and offers
+   examples rather than guessing.
+   ========================================================================= */
+
+window.REVELRY_ADVISOR = (function () {
+  "use strict";
+
+  const SPELLS = window.REVELRY_SPELLS;
+  const ART = window.REVELRY_SPELL_ART;
+  const SB = () => window.REVELRY_SANDBOX;
+  const F = () => window.FORGE;
+
+  const logEl = document.getElementById("advisor-log");
+  const form = document.getElementById("advisor-form");
+  const field = document.getElementById("advisor-input");
+  const examplesEl = document.getElementById("advisor-examples");
+  if (!logEl || !form || !field || !SPELLS) return null;
+
+  const esc = (value) => String(value == null ? "" : value)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const colour = (name) => (ART && ART.ELEMENT_COLOUR[SPELLS.canon(name)]) || "";
+  const SHAPE = ["Project", "Direct", "Disperse", "Ricochet"];
+
+  /* ----- what words mean -------------------------------------------------
+     Each entry: the words that call for it, the parts it wants, a reason in
+     plain language, and flags for the geometry. `alt` is a fallback when
+     the character cannot reach the first choice. Order matters a little:
+     the more specific ideas come first. */
+  const IDEAS = [
+    { re: /\b(slick|slipp\w*|ice (the )?(floor|ground|path|road)|icy (floor|ground))/, parts: { Water: 1, Concentrate: 1, Disperse: 1 }, area: true,
+      why: "Water and Concentrate make Frost, and adding Disperse turns the ground itself to Ice: difficult terrain, and a Dexterity Test to keep moving through it." },
+    { re: /\b(freez\w*|frost\w*|chill\w*|froze\w*|slow (them|him|her|it|the)\b|slow down)/, parts: { Water: 1, Concentrate: 1 },
+      why: "Water with Concentrate makes Frost. Anyone it hits is Slowed by 15 ft., and a target left with less than half its movement cannot take reactions." },
+    { re: /\b(lava|magma|molten)/, parts: { Earth: 1, Concentrate: 1, Fire: 1 }, area: true,
+      why: "Earth, Concentrate and Fire make Magma: the rock liquefies into difficult terrain that deals 1 Grit to anyone who enters or starts a turn in it." },
+    { re: /\b(quicksand|bog|mire|mud\w*|sink (them|into)|difficult terrain)/, parts: { Earth: 1, Concentrate: 1 }, area: true,
+      why: "Earth with Concentrate makes Sand. Instead of raising the ground it turns to loose earth and quicksand, which is difficult terrain." },
+    { re: /\b(explo\w*|blow (them |it |him |her )?up|detonat\w*|bomb|kaboom)/, parts: { Fire: 1, Poison: 1 }, area: true, push: true,
+      alt: { Fire: 1 }, altWhy: "Without Poison there is no Explosive combination, so this is plain Fire in a radius.",
+      why: "Fire and Poison together are Explosive. The radius grows by 10 ft., everyone in it is pushed 10 ft. outward, and it deals 1 extra Grit that Armor Slots cannot reduce." },
+    { re: /\b(steam|fog|mist)/, parts: { Water: 1, Fire: 1 }, area: true,
+      why: "Water and Fire make Steam, which fills the radius and blocks line of sight." },
+    { re: /\b(hide|conceal\w*|smoke|dark(ness)?|obscur\w*|cover (our|my|the) (escape|retreat)|block (their )?(sight|view|line of sight)|escape)/, parts: { Shadow: 1 }, area: true, aroundUs: true,
+      alt: { Water: 1, Fire: 1 }, altWhy: "Shadow is not open to this character, so Steam (Water and Fire) does the same job of blocking sight.",
+      why: "Shadow makes an obstacle that blocks line of sight, and puts out light sources inside it." },
+    { re: /\b(stun\w*|paraly\w*|lock (them|him|her) up)/, parts: { Electricity: 1, Concentrate: 1 },
+      why: "Electricity with Concentrate is a Stunning Arc: on a margin of 5 or more the target is Stunned." },
+    { re: /\b(lightning|shock\w*|electr\w*|zap\w*|thunderbolt|spark\w*)/, parts: { Electricity: 1 },
+      why: "Electricity deals 1 Grit, and anyone Wet within 10 ft. takes 1 Grit too, then it checks again from each of them. Standing in water counts." },
+    { re: /\b(prone|knock\w* (them |him |her )?(down|over)|trip|topple|floor them)/, parts: { Sound: 1, Concentrate: 1 },
+      why: "Sound with Concentrate is a Concussive Burst, which knocks creatures prone on a failed Resist Test." },
+    { re: /\b(sonic|thunder(clap)?|deafen\w*|scream|shockwave|loud)/, parts: { Sound: 1 },
+      why: "Sound's Shockwave deals 1 Grit, and the target is Deafened on a failed Resist Test." },
+    { re: /\b(push\w*|shove|knock\w* (them |him |her )?back|throw (them|him|her)|off the (hill|cliff|ledge|edge|wall)|repel|away from)/, parts: { Force: 1 }, push: true,
+      alt: { Sound: 1, Wind: 1 }, altWhy: "Force is not open to this character, so Sound and Wind make a Sonic Blast, which pushes targets 10 ft.",
+      why: "Force moves a target up to 10 ft. A creature can resist with a Strength Test against your Arcana." },
+    { re: /\b(heal\w*|mend|restor\w*|patch (them |him |her |me )?up|cure|revive|clear (their |my |his |her )?grit|top (them|me) up)/, parts: { "Life Force": 1 }, friendly: true,
+      why: "Life Force calls for an Arcana Test against 10, and every point of margin clears one marked Grit from the target." },
+    { re: /\b(alive|undead|sense life|detect life|is (it|he|she) dead)/, parts: { "Life Force": 1, Concentrate: 1 },
+      why: "Life Force with Concentrate is Sense Life: you learn whether each target is alive, dead or undead." },
+    { re: /\b(bless\w*|buff\w*|inspir\w*|empower\w*|strengthen|boost|help (them|my|our) (fight|hit|defend))/, parts: { Radiant: 1 }, friendly: true,
+      why: "Radiant gives the target +1 to Attack or Defense for every point of margin on an Arcana Test against 10." },
+    { re: /\b(reveal|detect (magic|poison|curse)|find (the )?(curse|undead|poison))/, parts: { Radiant: 1, Concentrate: 1 }, area: true,
+      why: "Radiant with Concentrate is Reveal the Unnatural, a 10 minute ritual that outlines anything arcane, poisonous, undead or from Hell's domain in the radius." },
+    { re: /\b(illusion|decoy|fake (a |an )?\w+|disguise|mirage|phantom)/, parts: { Light: 1, Direct: 1, Concentrate: 1 },
+      why: "Light, Direct and Concentrate make an Illusion: a 5 ft. picture of your choosing. Disperse makes it bigger." },
+    { re: /\b(blind\w*|dazzl\w*|flash\w*)/, parts: { Light: 1, Concentrate: 1 }, area: true,
+      why: "Light with Concentrate is Blinding Light. Targets in the bright light make a Willpower Test, and on a margin of 5 or more they are Blinded until your next turn." },
+    { re: /\b(light (it |the room |the area )?up|illuminat\w*|see in the dark|bright)/, parts: { Light: 1 },
+      why: "Light fills 30 ft. around where the spell lands with bright light." },
+    { re: /\b(acid|corro\w*|melt\w* (their |his |her )?armou?r|eat through)/, parts: { Acid: 1 },
+      why: "Acid's Corrosion deals 1 Grit and the target marks one Armor Slot without getting anything for it." },
+    { re: /\b(through (their |his |her )?armou?r|ignore\w* armou?r|armou?r (won'?t|will not|can'?t))/, parts: { Necrotic: 1 },
+      why: "Grit from a spell with Necrotic in it cannot be reduced by Armor Slots." },
+    { re: /\b(necrot\w*|wither\w*|rot\b|curse|gloom)/, parts: { Necrotic: 1 },
+      why: "Necrotic's Gloom deals 1 Grit and puts the target's next attack at disadvantage, and Armor Slots cannot reduce it." },
+    { re: /\b(siphon|life ?steal|drain\w*|vampir\w*|steal (their |his |her )?(life|grit|blood))/, parts: { Blood: 1 },
+      why: "Blood's Siphon deals 1 Grit and gives you 1 Grit back per instance, and the spell is +1 to hit. Casting it costs you 1 marked Grit per instance." },
+    { re: /\b(poison\w*|sicken\w*|venom\w*|toxic)/, parts: { Poison: 1 },
+      why: "Poison makes the target take a Willpower Test against your Arcana, and on your success they have disadvantage on rolls this initiative turn." },
+    { re: /\b(charm\w*|control\w*|suggest\w*|persuad\w*|mind ?read\w*|read (their|his|her) (mind|thoughts)|manipulat\w*|dominat\w*|make (them|him|her) (do|attack|drop))/, parts: { Eldritch: 1 },
+      why: "Eldritch lets you choose per instance: read the target's thoughts, charm them, or make them take an action you suggest as soon as they can." },
+    { re: /\b(fear|frighten\w*|terrif\w*|scare\w*|dread|panic\w*|run away|flee)/, parts: { Psychic: 1, Concentrate: 1 },
+      why: "Psychic with Concentrate is Dread: the target makes a Resist Test or is Frightened of you until initiative comes back around." },
+    { re: /\b(false memor\w*|fake memor\w*|implant)/, parts: { Memory: 1, Concentrate: 1 },
+      why: "Memory with Concentrate is False Memory: on a failed Resist Test the target is given a short false memory of your choosing." },
+    { re: /\b(forget\w*|memor\w*)/, parts: { Memory: 1 },
+      why: "Memory makes the target forget one detail you choose for a turn, unless they win a Resist Test." },
+    { re: /\b(psychic|mind spike|headache|confus\w*|scramble)/, parts: { Psychic: 1 },
+      why: "Psychic's Mind Spike deals 1 Grit and puts the target's next Intellect or Willpower roll at disadvantage." },
+    { re: /\b(gravity well|black hole|vortex|whirlpool|singularity)/, parts: { Gravity: 1, Disperse: 1 }, area: true,
+      why: "Gravity and Disperse make a Gravity Well: difficult terrain, and anyone in it is dragged toward the centre on a failed Resist Test." },
+    { re: /\b(fly\w*|float\w*|weightless|levitat\w*|lift (us|me|them|him|her))/, parts: { Gravity: 1, Concentrate: 1 }, friendly: true,
+      why: "Gravity with Concentrate is Weightless: inside the radius gravity lets go, and anyone there can move in any direction." },
+    { re: /\b(pull\w*|drag\w*|yank\w*|draw (them|it|him|her) (in|toward|close)|gather (them|together)|bunch (them )?up|toward me)/, parts: { Gravity: 1 },
+      why: "Gravity's Pulse deals 1 Grit and pulls the target 5 ft. per instance toward a point you choose, on a failed Resist Test." },
+    { re: /\b(swap (places|positions|them))/, parts: { Space: 1, Psychic: 1 },
+      why: "Space and Psychic together are Displacement: you can swap two creatures in range if the target fails a Resist Test." },
+    { re: /\b(teleport\w*|blink|portal|move (them|him|her|me) (to|across|over))/, parts: { Space: 1 },
+      why: "Space moves a target inside a 5 ft. cube to another spot in range that you can see. An unwilling target contests with Willpower." },
+    { re: /\b(haste|speed (us|me|them) up|slow time|extra action|stop time|time)/, parts: { Time: 1 },
+      why: "Time lets you choose one inside the radius: double or halve all movement, give every target a free action, or make every target lose one. Only one Time spell a turn." },
+    { re: /\b(wall of (earth|stone)|raise (the |a )?(ground|wall)|rampart|barrier|earthwork|pillar|make cover|high ground)/, parts: { Earth: 1 },
+      why: "Earth raises or lowers the terrain 5 ft. per instance, which can make a wall to hide behind or a hill to stand on." },
+    { re: /\b(plant\w*|vine\w*|roots?\b|entangl\w*|overgrow\w*|grow\w*|fungus|thorn\w*)/, parts: { Nature: 1 },
+      why: "Nature doubles the plant life in the radius and lets you move one natural object in range for each instance." },
+    { re: /\b(magnet\w*)/, parts: { Magnetism: 1 },
+      why: "Magnetism pushes anyone in range wearing or carrying metal away from each other, and lets Electricity chain through metal without needing them Wet." },
+    { re: /\b(metal|disarm\w*|shrapnel|shear)/, parts: { Metal: 1 },
+      why: "Metal's Shear deals 1 Grit, and a target in metal armor may have its Armor Slots work at half rate." },
+    { re: /\b(summon\w*|sprite\w*|elemental\b|familiar)/, parts: { "Life Force": 1, Sustain: 1, Fire: 1 },
+      why: "Life Force, Sustain and an Element is Elemental Summon: each Element paired with a Life Force makes a sprite of that type. Swap Fire for Water, Earth or Wind to choose its kind." },
+    { re: /\b(wind|gust\w*|blow\b|breeze|tornado)/, parts: { Wind: 1 },
+      why: "Wind's Gust deals 1 Grit and lets you or an ally move 5 ft. plus 5 ft. per Rank in Arcana. It also ignores cover short of full cover." },
+    { re: /\b(water|splash\w*|soak\w*|drench\w*|wet)/, parts: { Water: 1 },
+      why: "Water deals 1 Grit with Splash and leaves the target Wet, which puts out fire and sets them up for lightning." },
+    { re: /\b(burn\w*|fire\w*|flame\w*|ignit\w*|scorch\w*|torch\w*|alight|blaze|inferno)/, parts: { Fire: 1 },
+      why: "Fire burns for 1 Grit, or 2 if the target is already Burning, and on a margin of 5 or more it sets them Burning for turns equal to your Rank in Arcana." },
+    { re: /\b(trap\w*|ward\w*|mine\b|ambush\w*|later|wait\w*|when (they|someone|anyone) (step|walk|come|open)|trip ?wire)/, parts: { Anchor: 1 },
+      why: "Anchor leaves the spell sitting where it lands. On a later turn a DC 13 Arcana Test sets it off, and you can try it on their turn by marking 1 Grit." },
+    { re: /\b(sustain\w*|keep (it )?(going|up)|maintain\w*|channel\w*|hold (it|the spell) (on|up))/, parts: { Sustain: 1 },
+      why: "Sustain keeps the spell casting for an action each turn without rebuilding it." },
+    { re: /\b(longer|last\w* (a while|longer|several|a few)|linger\w*|for (a few|two|three|several) turns)/, parts: { Continuate: 1 },
+      why: "Continuate makes the spell's effects last one more turn per instance." },
+    { re: /\b(sure (to )?hit|can'?t miss|luck\w*|advantage)/, parts: { Luck: 1 },
+      why: "Luck gives you advantage on the casting roll for this spell." },
+    { re: /\b(counter\w*|dispel\w*|absorb\w*|unravel\w*|break (their|his|her|the) spell|block (their|a|the) spell)/, parts: { Absorb: 1 },
+      why: "Absorb is cast on their turn against a spell in range. Win an Arcana contest and you remove one Element or Component from it." },
+    { re: /\b(echo|recast|again|twice)/, parts: { Echo: 1 },
+      why: "Echo lets you recast the spell you made last turn on a DC 13 Arcana Test, for the cost of this one action." }
+  ];
+
+  const FLAG = {
+    area: /\b(all\b|every(one|body)?|group|crowd|them all|both|whole|cluster|pack|horde|area|room|them\b|everybody|mob|squad|enemies|foes)/,
+    single: /\b(one\b|single|nearest|closest|that (foe|enemy|guy|one)|the leader|just (him|her|one)|a foe|an enemy|the foe|the enemy|him\b|her\b)/,
+    ally: /\b(all(y|ies)|friend\w*|party|my (team|group|companion)|teammate\w*|comrade\w*|us\b)/,
+    self: /\b(myself|me\b|my own|self)/,
+    avoid: /\b(without (hitting|hurting|catching)|don'?t (hit|hurt|catch)|avoid\w*|not (hit|hurt|catch)|spare|miss (my|the) (ally|friend))/,
+    bounce: /\b(bounc\w*|ricochet\w*|one after (another|the other)|chain (between|through|from)|jump (between|from))/,
+    around: /\b(around|corner|behind|curve\w*|bend\w*|through the (door|window|gap)|over the wall|without (line of )?sight|can'?t see)/,
+    touch: /\b(touch\w*|hand\w* on)/,
+    damage: /\b(damag\w*|hurt\w*|hit\b|kill\w*|attack\w*|harm\w*|strike\w*|wound\w*|destroy\w*|blast)/
+  };
+
+  /* Elements a damage request can fall back on, in a sensible order. */
+  const STRIKERS = ["Fire", "Electricity", "Wind", "Earth", "Water", "Necrotic", "Sound", "Psychic", "Acid", "Metal", "Gravity", "Blood", "Magnetism"];
+
+  /* ----- talking -------------------------------------------------------- */
+
+  const plans = new Map();
+  let seq = 0;
+
+  function say(html, who) {
+    const div = document.createElement("div");
+    div.className = "adv-msg " + (who === "you" ? "is-you" : "is-advisor");
+    div.innerHTML = html;
+    logEl.appendChild(div);
+    logEl.scrollTop = logEl.scrollHeight;
+    return div;
+  }
+
+  const partChip = (name, n, locked) =>
+    `<span class="adv-part${SPELLS.isElement(name) ? " is-element" : " is-component"}${locked ? " is-locked" : ""}"${
+      colour(name) ? ` style="--c: ${colour(name)}"` : ""} title="${locked ? esc(locked) : ""}">${esc(name)}${n > 1 ? ` &times;${n}` : ""}${locked ? " &#x1f512;" : ""}</span>`;
+
+  function list(names) {
+    if (names.length < 2) return names.join("");
+    return names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+  }
+
+  /* A question about one part ("what does Disperse do?") gets the rules. */
+  function partQuestion(text) {
+    const m = /^(what|how)\s+(does|do|is|are)\s+(an?\s+|the\s+)?([a-z ]+?)(\s+(do|work|mean))?\??$/.exec(text);
+    if (!m) return null;
+    const name = SPELLS.canon(m[4].trim().replace(/\b\w/g, (c) => c.toUpperCase()));
+    const def = SPELLS.elementMap.get(name) || SPELLS.componentMap.get(name);
+    if (def) {
+      return `<p><b>${esc(name)}</b> is ${SPELLS.isElement(name) ? "an Element" : "a Component"}.</p>`
+        + (def.each || []).map((l) => `<p>${esc(l)}</p>`).join("")
+        + (def.stack ? `<p class="adv-sub">${esc(def.stack)}</p>` : "")
+        + (def.needs ? `<p class="adv-sub">${esc(def.needs)}</p>` : "");
+    }
+    const combo = SPELLS.pairings.concat(SPELLS.recipes).find((p) => p.n.toLowerCase() === m[4].trim());
+    if (combo) {
+      const need = combo.all || combo.parts;
+      return `<p><b>${esc(combo.n)}</b> fires on its own when a spell holds ${esc(list(Object.keys(need)))}.</p><p>${esc(combo.text)}</p>`;
+    }
+    return null;
+  }
+
+  /* ----- reading the request ---------------------------------------------- */
+
+  function read(text) {
+    const t = " " + text.toLowerCase().replace(/[’']/g, "'") + " ";
+    const found = IDEAS.filter((idea) => idea.re.test(t));
+    /* An idea whose parts are wholly inside a more specific one already
+       found is dropped, so "freeze" does not also add plain "water". */
+    const kept = found.filter((idea) => !found.some((other) => other !== idea
+      && Object.keys(idea.parts).every((k) => other.parts[k] >= idea.parts[k])
+      && Object.keys(other.parts).length > Object.keys(idea.parts).length));
+    const flags = {};
+    Object.keys(FLAG).forEach((k) => { flags[k] = FLAG[k].test(t); });
+    kept.forEach((idea) => {
+      if (idea.area) flags.area = true;
+      if (idea.push) flags.push = true;
+      if (idea.friendly) flags.friendly = true;
+      if (idea.aroundUs && /\b(our|my|us|me)\b/.test(t)) flags.aroundUs = true;
+    });
+    const dist = /(\d+)\s*(ft\.?|feet|foot)\b/.exec(t);
+    flags.feet = dist ? Number(dist[1]) : 0;
+    flags.radiusWords = /(radius|wide|across|around (it|them|the)|area|circle)/.test(t);
+    if (flags.self && !flags.friendly && !/\b(hit|damage|attack)\b/.test(t)) flags.self = flags.friendly;
+    if (flags.ally && !flags.friendly) flags.ally = false;
+    return { ideas: kept, flags, text: t };
+  }
+
+  /* ----- the scene ------------------------------------------------------ */
+
+  function chooseTargets(r) {
+    const sb = SB();
+    const caster = sb.casterTok();
+    const f = r.flags;
+    if ((f.friendly && f.self && !f.ally) || f.aroundUs) return { kind: "self", list: [caster] };
+    const pool = f.friendly ? sb.allies() : sb.foes();
+    if (!pool.length) return { kind: f.friendly ? "ally" : "foe", list: [] };
+    const byDist = pool.slice().sort((a, b) => Math.hypot(a.x - caster.x, a.y - caster.y) - Math.hypot(b.x - caster.x, b.y - caster.y));
+    if (f.single && !f.area) return { kind: f.friendly ? "ally" : "foe", list: [byDist[0]] };
+    if (f.area || f.bounce) return { kind: f.friendly ? "ally" : "foe", list: byDist };
+    return { kind: f.friendly ? "ally" : "foe", list: [byDist[0]], more: byDist.length > 1 };
+  }
+
+  function planGeometry(r, targets) {
+    const sb = SB();
+    const caster = sb.casterTok();
+    const f = r.flags;
+    const notes = [];
+    const why = [];
+    let path = [{ x: caster.x, y: caster.y }];
+    let burst = null;
+    let points = targets.list.filter(Boolean);
+    const N = sb.N;
+
+    if (targets.kind === "self") {
+      if (f.area) { burst = { x: caster.x, y: caster.y, r: 2 }; why.push("It bursts out from you, so it needs no Project."); }
+      else why.push("It is cast on yourself, so it needs no Project or Direct.");
+      return { path, burst, why, notes, points: [caster] };
+    }
+
+    if (!points.length) {
+      const reach = (f.feet && !f.radiusWords ? f.feet : 30) / 5;
+      const dir = { x: N / 2 - caster.x, y: N / 2 - caster.y };
+      const L = Math.hypot(dir.x, dir.y) || 1;
+      const p = { x: Math.max(0.5, Math.min(N - 0.5, caster.x + dir.x / L * reach)), y: Math.max(0.5, Math.min(N - 0.5, caster.y + dir.y / L * reach)) };
+      notes.push(`There are no ${targets.kind === "ally" ? "allies" : "foes"} on the scene, so I aimed at open ground ${Math.round(reach * 5)} ft. out. Place some with the Foe or Ally tool and ask again for a sharper plan.`);
+      points = [p];
+      if (f.area) burst = { x: p.x, y: p.y, r: f.feet && f.radiusWords ? f.feet / 5 : 2 };
+    } else if (f.bounce && points.length > 1) {
+      let at = caster;
+      const left = points.slice();
+      const order = [];
+      while (left.length) {
+        left.sort((a, b) => Math.hypot(a.x - at.x, a.y - at.y) - Math.hypot(b.x - at.x, b.y - at.y));
+        at = left.shift();
+        order.push(at);
+      }
+      order.forEach((t) => path.push({ x: t.x, y: t.y }));
+      why.push(`It bounces ${list(order.map((t) => t.label))} in that order, nearest first.`);
+      return { path, burst: null, why, notes, points: order };
+    } else if (f.area && points.length > 1) {
+      const cx = points.reduce((s, p) => s + p.x, 0) / points.length;
+      const cy = points.reduce((s, p) => s + p.y, 0) / points.length;
+      let rr = Math.max(1.6, ...points.map((p) => Math.hypot(p.x - cx, p.y - cy) + 0.45));
+      if (f.feet && f.radiusWords) rr = f.feet / 5;
+      burst = { x: cx, y: cy, r: rr };
+      const friends = sb.tokens.filter((t) => t.kind !== targets.kind && t.kind !== "foe" && Math.hypot(t.x - cx, t.y - cy) <= Math.ceil(rr * 5 / 10) * 2 + 0.35);
+      if (friends.length && targets.kind === "foe") {
+        const nearest = Math.min(...friends.map((t) => Math.hypot(t.x - cx, t.y - cy)));
+        const tight = nearest - 0.6;
+        const kept = points.filter((p) => Math.hypot(p.x - cx, p.y - cy) <= tight);
+        if (f.avoid && kept.length) {
+          burst.r = Math.max(0.6, tight);
+          notes.push(`${list(friends.map((t) => t.label))} would be caught, so I tightened the radius. That leaves out ${list(points.filter((p) => !kept.includes(p)).map((p) => p.label)) || "nobody"}.`);
+        } else {
+          notes.push(`${list(friends.map((t) => t.label))} ${friends.length > 1 ? "are" : "is"} close enough to be caught in the burst. Move them or tighten the circle if that is not what you want.`);
+        }
+      }
+      points = [{ x: cx, y: cy, label: "the middle of the group" }];
+      why.push(`A burst centred on the group catches ${list(targets.list.map((t) => t.label))}.`);
+    } else if (f.area) {
+      const p = points[0];
+      burst = { x: p.x, y: p.y, r: f.feet && f.radiusWords ? f.feet / 5 : 2 };
+      why.push(`It bursts around ${p.label}.`);
+    } else if (targets.more) {
+      notes.push(`I aimed at ${points[0].label}, the nearest. Say "all of them" if you want the whole group.`);
+    }
+
+    const goal = points[0];
+    const d = Math.hypot(goal.x - caster.x, goal.y - caster.y);
+    if (f.touch || (d < 1.3 && !burst)) {
+      path = [{ x: caster.x, y: caster.y }, { x: goal.x, y: goal.y }];
+      why.push("They are within reach, so it can be a touch spell.");
+      return { path, burst, why, notes, points };
+    }
+    const sight = sb.sightLine(caster, goal);
+    if (sight.clear && !f.around) {
+      path = [{ x: caster.x, y: caster.y }, { x: goal.x, y: goal.y }];
+    } else {
+      const route = sb.findPath(caster, goal);
+      if (route && route.length > 2) {
+        path = route;
+        why.push(sight.clear ? "You asked for it to go around, so the path bends, which needs Direct."
+          : `There is ${sight.by === "wall" ? "a wall" : "high ground"} between you and ${goal.label}, so the path bends around it, which needs Direct.`);
+      } else {
+        path = [{ x: caster.x, y: caster.y }, { x: goal.x, y: goal.y }];
+        if (!sight.clear) notes.push(`I could not find a way around the ${sight.by === "wall" ? "wall" : "slope"}; the straight line will hit it.`);
+      }
+    }
+    return { path, burst, why, notes, points };
+  }
+
+  /* ----- answering ------------------------------------------------------- */
+
+  function answer(text) {
+    const forge = F(), sb = SB();
+    if (!forge || !sb) return say("<p>The scene is not ready yet.</p>");
+    const q = partQuestion(text.trim().toLowerCase());
+    if (q) return say(q);
+
+    const r = read(text);
+    let parts = {};
+    const reasons = [];
+    const locked = [];
+    const a = forge.access();
+    const reach = (name) => !a.open || forge.canReach(name);
+
+    r.ideas.forEach((idea) => {
+      let use = idea.parts, why = idea.why;
+      const shut = Object.keys(use).filter((n) => !reach(n));
+      if (shut.length && idea.alt && Object.keys(idea.alt).every(reach)) { use = idea.alt; why = idea.altWhy; }
+      Object.keys(use).forEach((n) => { parts[n] = Math.max(parts[n] || 0, use[n]); });
+      reasons.push(why);
+    });
+
+    if (!Object.keys(parts).some(SPELLS.isElement) && r.flags.damage) {
+      const pick = STRIKERS.find(reach) || "Fire";
+      parts[pick] = 1;
+      reasons.push(`You asked for damage without saying how, so I reached for ${pick}${a.open ? ", which this character can cast" : ""}. Its Strike deals 1 Grit on a hit.`);
+    }
+
+    if (!Object.keys(parts).length) {
+      return say(`<p>I did not catch what you want the spell to do. Tell me the effect in plain words, and who it is for, and I will work out the rest from the scene.</p>
+        <p class="adv-sub">For example: "freeze the foes in the chapel", "heal my ally from here", "knock them off the hill", or "set a fire trap by the door".</p>`);
+    }
+
+    const targets = chooseTargets(r);
+    const geo = planGeometry(r, targets);
+    const p = sb.setInput({ path: geo.path, burst: geo.burst, ghost: true });
+
+    /* The scene's reading of the geometry decides the shaping parts. */
+    const shape = p ? p.shape : {};
+    /* Direct stays if an idea asked for it (Illusion); the rest of the
+       shape is whatever the path needs. */
+    SHAPE.forEach((n) => {
+      if (shape[n]) parts[n] = shape[n];
+      else if (n !== "Direct" || !parts[n]) delete parts[n];
+    });
+
+    const shapeWhy = [];
+    if (shape.Project) shapeWhy.push(`Project &times;${shape.Project} because the ${p.bounces.length ? "longest leg" : "path"} is about ${Math.round(p.maxFt)} ft.${p.climbFt >= 5 ? ", counting the climb" : ""}, and each Project carries it 30 ft.`);
+    if (shape.Disperse) shapeWhy.push(`Disperse &times;${shape.Disperse} for a ${shape.Disperse * 10} ft. radius.`);
+    if (shape.Ricochet) shapeWhy.push(`Ricochet &times;${shape.Ricochet}, one for each bounce.`);
+
+    Object.keys(parts).forEach((n) => {
+      if (!reach(n)) locked.push({ name: n, who: (window.REVELRY_DATA.grantedBy(n) || [])[0] || "" });
+    });
+
+    const total = Object.values(parts).reduce((s, n) => s + n, 0);
+    const cap = forge.metrics().capacity;
+    const fired = SPELLS.matches(Object.keys(parts).flatMap((n) => new Array(parts[n]).fill(n)));
+    const id = "p" + (++seq);
+    plans.set(id, { parts, input: { path: geo.path, burst: geo.burst } });
+
+    const over = total > cap;
+    const trims = [];
+    if (over) {
+      if (shape.Project > 1) trims.push("step closer, so one Project covers the distance");
+      if (shape.Direct) trims.push("find a spot with a clear line to the target, so you do not need Direct");
+      if (shape.Disperse > 1) trims.push("tighten the radius to 10 ft.");
+      if (parts.Concentrate && Object.keys(parts).length > 2) trims.push("drop the combination and keep the plain Element");
+      if (parts.Continuate || parts.Luck) trims.push("leave off the extras like Continuate or Luck");
+    }
+
+    const html = `
+      <p>Here is how I would build that.</p>
+      <ul class="adv-why">${reasons.concat(geo.why, shapeWhy).map((w) => `<li>${w.includes("&times;") ? w : esc(w)}</li>`).join("")}</ul>
+      ${fired.pairings.length || fired.recipes.length ? `<p class="adv-fires">With these together, <b>${esc(list(fired.pairings.concat(fired.recipes).map((x) => x.n)))}</b> ${fired.pairings.length + fired.recipes.length > 1 ? "fire" : "fires"} on ${fired.pairings.length + fired.recipes.length > 1 ? "their" : "its"} own.</p>` : ""}
+      <div class="adv-parts">${Object.keys(parts).map((n) => partChip(n, parts[n], locked.find((l) => l.name === n) ? `needs ${locked.find((l) => l.name === n).who || "a trait"}` : "")).join("")}</div>
+      ${geo.notes.length ? `<ul class="adv-notes">${geo.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}
+      ${locked.length ? `<p class="adv-warn">${esc(list(locked.map((l) => l.name)))} ${locked.length > 1 ? "are" : "is"} not open to this character${locked[0].who ? ` (${esc(list(locked.map((l) => l.who).filter(Boolean)))} would open ${locked.length > 1 ? "them" : "it"})` : ""}. The button will skip ${locked.length > 1 ? "them" : "it"}.</p>` : ""}
+      ${over ? `<p class="adv-warn">That comes to ${total} parts and your Willpower holds ${cap}. You could ${esc(list(trims.length ? trims : ["drop a part"]))}.</p>` : `<p class="adv-sub">That is ${total} part${total === 1 ? "" : "s"} of the ${cap} your Willpower holds.</p>`}
+      <p class="adv-sub">The dashed line on the scene is the plan.</p>
+      <div class="adv-actions">
+        <button type="button" class="action-button" data-adv-build="${id}">Build it</button>
+        <button type="button" class="action-button subtle" data-adv-parts="${id}">Add the Elements only</button>
+        <button type="button" class="action-button subtle" data-adv-clear="${id}">Rub out the plan</button>
+      </div>`;
+    say(html);
+  }
+
+  function build(id, mode) {
+    const plan = plans.get(id);
+    const forge = F(), sb = SB();
+    if (!plan || !forge || !sb) return;
+    const effect = {};
+    Object.keys(plan.parts).forEach((n) => { if (!SHAPE.includes(n) || (n === "Direct" && !plan.input.path)) effect[n] = plan.parts[n]; });
+    if (mode === "build") {
+      /* Build replaces the bench: this is the spell you asked for. */
+      forge.state.parts.splice(0, forge.state.parts.length);
+      const r = forge.addParts(effect);
+      const drawn = sb.setInput({ path: plan.input.path, burst: plan.input.burst }, { apply: false });
+      if (drawn) {
+        const rep = forge.applyShape(drawn.shape);
+        rep.locked.forEach((l) => r.locked.push(l));
+      }
+      /* Illusion asks for Direct whatever the path looks like. */
+      if (plan.parts.Direct && forge.countOf("Direct") < 1) forge.addParts({ Direct: 1 });
+      sb.describe();
+      const bits = [];
+      if (r.locked.length) bits.push(`${list(r.locked.map((l) => l.name))} left off; this character cannot reach ${r.locked.length > 1 ? "them" : "it"}`);
+      if (r.full.length) bits.push(`${list(r.full)} did not fit under Willpower`);
+      forge.toast(bits.length ? "Built, but " + bits.join("; ") + "." : "Built. Press Test Cast to try it.");
+    } else {
+      const r = forge.addParts(effect);
+      forge.toast(r.added.length ? `Added ${list(r.added)}.` : r.locked.length ? `${r.locked[0].name} needs ${r.locked[0].who || "a trait"}.` : "Those are already on the bench.");
+    }
+  }
+
+  /* ----- wiring --------------------------------------------------------- */
+
+  const EXAMPLES = [
+    "Freeze all the foes without hitting my ally",
+    "Heal my ally from here",
+    "Knock the nearest foe back",
+    "Bounce lightning between them",
+    "Set a fire trap",
+    "Hide our escape in smoke"
+  ];
+
+  function init() {
+    examplesEl.innerHTML = EXAMPLES.map((e) => `<button type="button" class="adv-example">${esc(e)}</button>`).join("");
+    examplesEl.addEventListener("click", (e) => {
+      const b = e.target.closest(".adv-example");
+      if (!b) return;
+      field.value = b.textContent;
+      form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event("submit", { cancelable: true }));
+    });
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = field.value.trim();
+      if (!text) return;
+      say(`<p>${esc(text)}</p>`, "you");
+      field.value = "";
+      try { answer(text); } catch (err) {
+        say("<p>Something went wrong working that out. Try saying it another way.</p>");
+        if (window.console) console.warn(err);
+      }
+    });
+    logEl.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-adv-build],[data-adv-parts],[data-adv-clear]");
+      if (!b) return;
+      if (b.dataset.advBuild) build(b.dataset.advBuild, "build");
+      if (b.dataset.advParts) build(b.dataset.advParts, "parts");
+      if (b.dataset.advClear && SB()) { const pl = SB().plan; if (pl && pl.ghost) SB().clearInput(); }
+    });
+    say(`<p>Tell me what you want the spell to do, in plain words, and I will suggest the Elements and Components and sketch it on the scene. I can see where your foes, allies and walls are, so I will work out the distance and the shape for you.</p>
+      <p class="adv-sub">I work from the rules on this page and run in your browser, so I only know what the doc says. I will tell you when I do not understand.</p>`);
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+
+  return { answer, read, plans, build };
+})();
     </script>
     <script>
 /* ============ touch-hold.js ============ */
